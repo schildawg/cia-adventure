@@ -10,8 +10,22 @@ uses Rooms;
 uses Items;
 uses Verbs;
 
-type DoorState = (Opened, Closed); 
 type Flag = (On, Off);
+
+uses 'rooms/Lobby';
+uses 'rooms/BusyStreet';
+
+uses 'items/Badge';
+uses 'items/Building';
+uses 'items/Sculpture';
+uses 'items/SlidingDoors';
+
+uses 'verbs/Inventory';
+uses 'verbs/Orders';
+
+type ResultType = (Handled, Failed, Passed);
+type DoorState = (Opened, Closed); 
+
 
 var Dispatch := Map();
 
@@ -32,7 +46,6 @@ var InventoryCount : Integer := 0;
 var Door              : DoorState := Closed;
 var Floor             : Integer := 1;
 
-var SculptureFlag     : Flag := Off;
 var TelevisionFlag    : Flag := Off;
 var ButtonFlag        : Flag := Off;
 var ElectricyFlag     : Flag := On;
@@ -149,17 +162,26 @@ begin
             else if Direction = 'SOU' and Room.Exits[1] > 0 then Location := Room.Exits[1] as Integer;
             else if Direction = 'EAS' and Room.Exits[2] > 0 then Location := Room.Exits[2] as Integer;
             else if Direction = 'WES' and Room.Exits[3] > 0 then Location := Room.Exits[3] as Integer;      
-            else raise 'I CANT GO THAT WAY AT THE MOMENT.';
+            else raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
         end else
         begin
             Item := FindItem (Direction);
+            try
+                if Items[Item].Go() = Handled then
+                begin
+                    DisplayRoom();
+                    Exit;
+                end
+            except
+            end   
+            
             if Item = OPEN_WOODEN_DOOR then Location := PRESIDENTS_ROOM;
             else if Item = ROPE and RopeFlag = On and Location = LEDGE then Location := OTHER_SIDE;
             else if Item = OPEN_DOOR then Location := METAL_HALLWAY;
             else if Item = CLOSET then Location := MAINTENANCE_CLOSET;
-            else if Item = BUILDING then Location := LOBBY;
+            //else if Item = BUILDING then Location := LOBBY;
             else if Item = SLIDING_DOORS and Door = Opened then Location := SMALL_ROOM;
-            else raise 'I CANT GO THAT WAY AT THE MOMENT.';
+            else raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
         end
         DisplayRoom();
 
@@ -171,7 +193,7 @@ begin
         end
     end
 end
-Dispatch.Put ('GO ', Go);
+
 
 /// Get verb.
 ///
@@ -184,11 +206,11 @@ begin
         Item := FindItem (DirectObject);
         if Item <> 2 and Item <> 3 and Item <> 4 and Item <> 6 and Item <> 15 and Item <> 16 and Item <> 21 and Item <> 22 and Item <> 23 and Item <> 25 and Item <> 26 and Item <> 27 and Item <> 28 and Item <> 30 and Item <> 31 and Item <> 37 and Item <> 39 and Item <> 40 and Item <> 42 and Item <> 44 and Item <> 45 and Item <> 46 then 
         begin
-            raise 'I CANT CARRY THAT!';    
+            raise 'I CAN''T CARRY THAT!';    
         end
 
         if Items[Item].Location = INVENTORY then raise 'I ALREADY HAVE IT.';
-        if InventoryCount >= 5 then raise 'I CANT CARRY ANYMORE.';
+        if InventoryCount >= 5 then raise 'I CAN''T CARRY ANYMORE.';
     
         WriteLn ('O.K.');
         Items[Item].Location := INVENTORY;
@@ -210,7 +232,7 @@ begin
         end
     end
 end
-Dispatch.Put ('GET', Get);
+
 
 /// Drop verb.
 ///
@@ -263,7 +285,6 @@ begin
     Match.Location := Location;
     WriteLn('O.K. I DROPPED IT.');
 end
-Dispatch.Put ('DRO', Drop);
 
 // Moves the elevator
 //
@@ -422,13 +443,13 @@ begin
 
     if Item = LOCKED_WOODEN_DOOR then
     begin
-        WriteLn ('ITS LOCKED.');
+        WriteLn ('IT''S LOCKED.');
         Exit;
     end
 
     if Item = PLASTIC_BAG then
     begin
-        WriteLn ('ITS A VERY STRONG BAG.');
+        WriteLn ('IT''S A VERY STRONG BAG.');
         Exit;
     end
     
@@ -510,7 +531,7 @@ begin
 
     if Item <> TAPE and Item <> BATTERY and Item <> CREDIT_CARD and Item <>  QUARTER then
     begin
-       WriteLn('I CANT INSERT THAT!');
+       WriteLn('I CAN''T INSERT THAT!');
        Exit;
     end
     
@@ -527,7 +548,7 @@ begin
 
     if Item = CREDIT_CARD and Item2 = SLIT and DrugCounter <= 0 then
     begin
-        WriteLn ('THE GUARD WONT LET ME!');
+        WriteLn ('THE GUARD WON''T LET ME!');
         Exit;
     end
 
@@ -564,20 +585,29 @@ Dispatch.Put ('INS', Insert);
 ///
 procedure Open(DirectObject : String);
 var
-   Item : Integer;
+   Item     : Integer;
+   Openable : Boolean;
 
 begin
+     
     try
         if DirectObject = 'DRA' and Location = PRESIDENTS_ROOM and Items[MAHOGANY_DRAWER].Location = 0 then
         begin
-            WriteLn ('ITS STUCK.');
+            WriteLn ('IT''S STUCK.');
             Exit;
         end
     
         Item := FindItem(DirectObject);
-        if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
+        
+        Openable := False;
+        try 
+           Openable := Items[Item].Openable;
+        except
+        end
+
+        if Not Openable then  //if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
         begin
-            raise 'I CANT OPEN THAT';
+            raise 'I CAN''T OPEN THAT.';
         end
 
         if Item = LOCKED_WOODEN_DOOR AND Items[ANTIQUE_KEY].Location = INVENTORY then
@@ -590,7 +620,7 @@ begin
     
         if Item = SOLID_DOOR then
         begin
-            WriteLn ('I CANT. IT DOESNT WORK.');
+            WriteLn ('I CAN''T. IT DOESNT WORK.');
             Exit;
         end
 
@@ -604,25 +634,21 @@ begin
 
         if Item = PLASTIC_BAG then
         begin
-            WriteLn ('I CANT. ITS TOO STRONG.');
+            WriteLn ('I CAN''T. IT''S TOO STRONG.');
             Exit;
         end
 
         if Item = MAHOGANY_DRAWER then
         begin
-           WriteLn('ITS STUCK.');
+           WriteLn('IT''S STUCK.');
            Exit;
         end
 
-        if Item = SCULPTURE and Items[QUARTER].Location = 0 and Items[CREDIT_CARD].Location = 0 and SculptureFlag = On then
-        begin
-            WriteLn('I OPEN THE SCULPTURE.');
-            WriteLn('SOMETHING FALLS OUT.');
-            Items[QUARTER].Location := Location;
-            Items[CREDIT_CARD].Location := Location;
-            Exit;
-        end
-
+        //if Item = SCULPTURE then 
+        //begin
+            if Items[Item].Open() = Handled then Exit;
+        //end
+        
         if Item = LOCK then
         begin
             var Input := ReadLn ('WHATS THE COMBINATION? ');
@@ -638,7 +664,7 @@ begin
             WriteLn ('SAYING IT RIGHT.');
             Exit;
         end
-        WriteLn ('I CANT DO THAT......YET!');
+        WriteLn ('I CAN''T DO THAT......YET!');
 
     except
         on Err : String do
@@ -659,7 +685,7 @@ begin
        GlovesFlag := On;
        Exit;
     end
-    WriteLn ('I CANT WEAR THAT!');
+    WriteLn ('I CAN''T WEAR THAT!');
 end
 Dispatch.Put ('WEA', Wear);
 
@@ -671,7 +697,7 @@ var
 begin
     if DirectObject <> 'SIG' and DirectObject <> 'NOT' then
     begin
-        WriteLn ('I CANT READ THAT.');
+        WriteLn ('I CAN''T READ THAT.');
         Exit;   
     end 
    
@@ -700,7 +726,7 @@ var
 begin
     if  DirectObject <> 'REC' then
     begin
-        WriteLn ('I CANT START THAT.');
+        WriteLn ('I CAN''T START THAT.');
         Exit;
     end
     
@@ -712,7 +738,7 @@ begin
         WriteLn ('WE HAVE UNCOVERED A NUMBER THAT MAY HELP YOU.');
         WriteLn ('THAT NUMBER IS:' + Code + '. PLEASE WATCH OUT FOR HIDDEN TRAPS.');
         WriteLn ('ALSO, THERE IS SOMETHING IN THE SCULPTURE.');
-        SculptureFlag := On;
+        Items[SCULPTURE].Flag := On;
         Exit;
     end
     WriteLn('NOTHING HAPPENED.');
@@ -725,19 +751,19 @@ procedure BreakVerb(DirectObject : String);
 begin
     if DirectObject <> 'DRA' then
     begin
-        WriteLn ('IM TRYING TO BREAK IT, BUT I CANT.');
+        WriteLn ('IM TRYING TO BREAK IT, BUT I CAN''T.');
         Exit;
     end
 
     if Items[PAPER_WEIGHT].Location <> INVENTORY then
     begin
-       WriteLn('I CANT DO THAT YET.');
+       WriteLn('I CAN''T DO THAT YET.');
        Exit;
     end
 
     if Location = PRESIDENTS_ROOM then
     begin
-        WriteLn ('ITS HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
+        WriteLn ('IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
         Items[BATTERY].Location := Location;
         Items[SPIRAL_NOTEPAD].Location := Location;
         Items[MAHOGANY_DRAWER].Location := Location;
@@ -764,7 +790,7 @@ begin
 
     if Items[RAZOR_BLADE].Location <> INVENTORY then
     begin
-        WriteLn ('I CANT DO THAT YET.');
+        WriteLn ('I CAN''T DO THAT YET.');
         Exit;
     end
 
@@ -794,13 +820,13 @@ var
 begin
     if DirectObject <> 'ROP' then
     begin
-       WriteLn ('I CANT THROW THAT.');
+       WriteLn ('I CAN''T THROW THAT.');
        Exit;
     end
     
     if Items[ROPE].Location <> INVENTORY then
     begin
-        WriteLn ('I CANT DO THAT YET.');
+        WriteLn ('I CAN''T DO THAT YET.');
         Exit;
     end
     
@@ -816,7 +842,7 @@ begin
 
     if Location <> LEDGE then
     begin
-        WriteLn ('I CANT DO THAT YET.');
+        WriteLn ('I CAN''T DO THAT YET.');
         Exit;
     end
     WriteLn ('I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
@@ -831,7 +857,7 @@ procedure Connect (DirectObject : String);
 begin
     if DirectObject <> 'TEL' then
     begin
-        WriteLn ('I CANT CONNECT THAT.');
+        WriteLn ('I CAN''T CONNECT THAT.');
         Exit;
     end
 
@@ -849,7 +875,7 @@ begin
     
     if Location <> VISITORS_ROOM then 
     begin
-       WriteLn ('I CANT DO THAT....YET!');
+       WriteLn ('I CAN''T DO THAT....YET!');
        Exit;
     end
 
@@ -888,43 +914,10 @@ begin
     WriteLn ('NOTHING HAPPENED.');
 end
 
-/// Displays Inventory.
-///
-procedure Inventory();
-var
-   HasInventory : Boolean;
-
-begin
-    HasInventory := False;
-   
-    WriteLn('WE ARE PRESENTLY CARRYING:');
-    for var R := 1; R  <= 46; R := R + 1 do
-    begin
-        var Item := Items[R];
-
-        if Item.Location = INVENTORY then
-        begin
-            HasInventory := True;
-            Write (Item.Description);
-            if R = GLOVES and GlovesFlag = On then Write ('. WHICH IM WEARING.');
-            WriteLn ('');
-        end    
-    end
-    if Not HasInventory then WriteLn ('NOTHING');
-end
-
 /// Processes events.
 ///
 procedure Events();
 begin
-    if Location = LOBBY and Items[39].Location = INVENTORY then 
-    begin
-        WriteLn ('THE DOOR MAN LOOKS AT MY BADGE AND THEN THROWS ME OUT.');
-        Pause (1000);
-        Location := BUSY_STREET;
-        DisplayRoom();
-    end
-
     if Location = SHORT_CORRIDOR and Guns = -2 then
     begin
         WriteLn ('THE GUARD DRAWS HIS GUN AND SHOOTS ME!');
@@ -974,13 +967,6 @@ begin
         DrugCounter := -1;
         Exit;
     end
-    
-    if Location = BUSY_STREET and Items[RUBY].Location = INVENTORY then
-    begin
-        WriteLn ('HURRAY! YOUVE RECOVERED THE RUBY!');
-        WriteLn ('YOU WIN!');
-        Exit;   
-    end
 
     if Time > 375 then
     begin
@@ -1004,6 +990,9 @@ begin
         WriteLn ('A SECRET DOOR SLAMS DOWN BEHIND ME!');
         Rooms[SOUND_PROOFED_CUBICLE].Exits.Set (1 , 0);
     end
+
+    var CurrentRoom := Rooms[Location];
+    CurrentRoom.Event();
 end
 
 // Parses abreviations, and returns expanded commands.
@@ -1038,25 +1027,6 @@ begin
    Exit Verb as String;
 end
 
-// "ORDERS PLEASE" Verb.
-//
-procedure DisplayOrders();
-begin
-    WriteLn('YOUR MISSION, ' + Name + ', IS TO RECOVER A RUBY THAT IS BEING');
-    WriteLn('USED IN TOP SECRET GOVERNMENT PROJECTS AS A PART IN A');
-    WriteLn('LASER PROJECTOR.');
-    WriteLn('  YOU WILL HAVE A PARTNER WHO IS NOT TOO BRIGHT AND NEEDS');
-    WriteLn('YOU TO TELL HIM WHAT TO DO. USE TWO WORD COMMANDS LIKE:');
-    WriteLn('');
-    WriteLn('              GET NOTEBOOK   GO WEST  LOOK DOOR');
-    WriteLn('');
-    WriteLn('SOME COMMANDS USE ONLY ONE WORD. EXAMPLE: INVENTORY');
-    WriteLn('  IF YOU WANT TO SEE CHANGES IN YOUR SURROUNDINGS TYPE: LOOK');
-    WriteLn('THE RUBY HAS BEEN CAPTURED BY A SECRET SPY RING KNOWN AS');
-    WriteLn('CHAOS. WE SUSPECT THEY ARE UNDER COVER SOMEWHERE IN THIS');
-    WriteLn('NEIGHBORHOOD. GOOD LUCK!');
-end
-
 /// Ends the game by dying.
 ///
 procedure Die();
@@ -1069,13 +1039,21 @@ begin
     //if Input = 'Y' then Run (); // OK?
 end
 
+procedure Intro ();
+begin
+    ClearScreen ();
+    WriteLn('        C.I.A  ADVENTURE');
+    Init();
+
+    DisplayRoom();  
+end
+
 /// Sets up the game.
 ///
 procedure Init ();
 begin
-    ClearScreen ();
+
     Randomize ();
-    WriteLn('        C.I.A  ADVENTURE');
     Door := Closed;
 
     Code := Str(Random(1, 9));  
@@ -1087,26 +1065,16 @@ begin
     Time := 0;
     UpdateTime := True;
     
-    DisplayRoom();   
+    AddRooms();
+    AddItems();
+    AddVerbs(); 
 end
 
-/// Reads a command and executes it.
-///
-procedure ReadCommand ();
+procedure ParseCommand (Command : String);
 var 
-    Command, Verb, DirectObject : String;
-
-begin
-    InventoryCount := 0;
-    for var I := 1; I < Items.Length; I := I + 1 do
-    begin
-        if Items[I].Location = -1 then InventoryCount := InventoryCount + 1;
-    end
-
-    UpdateTime := True;
+    Verb, DirectObject : String;
     
-    WriteLn('');
-    Command := ReadLn ('WHAT DO YOU THINK WE SHOULD DO? ') as String;
+begin
     Command := ParseAbreviation (Command);
 
     Verb := Copy(Command, 0, 3);
@@ -1158,11 +1126,31 @@ begin
     else WriteLn (Verb + ' NOT SUPPORTED... YET!');
 end
 
+/// Reads a command and executes it.
+///
+procedure ReadCommand ();
+var 
+    Command : String;
+
+begin
+    InventoryCount := 0;
+    for var I := 1; I < Items.Length; I := I + 1 do
+    begin
+        if Items[I].Location = -1 then InventoryCount := InventoryCount + 1;
+    end
+
+    UpdateTime := True;
+    
+    WriteLn('');
+    Command := ReadLn ('WHAT DO YOU THINK WE SHOULD DO? ') as String;
+    ParseCommand (Command);
+end
+
 /// Main.
 //
 procedure Main();
 begin
-    Init();
+    Intro();
     while Not IsDone do 
     begin
         if UpdateTime then UpdateTimer();
