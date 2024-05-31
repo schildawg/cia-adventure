@@ -9,6 +9,8 @@ begin
         this.Description := 'A PAIR OF SLIDING DOORS';
         this.Keyword     := 'DOO';
         this.Location    := LOBBY;
+
+        this.Fixed := True;
     end
 end
 Items.Set (SLIDING_DOORS, SlidingDoors());

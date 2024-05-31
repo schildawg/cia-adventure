@@ -10,8 +10,9 @@ begin
         this.Keyword     := 'SCU';
         this.Location    := LOBBY;
 
+        this.Fixed    := True;
         this.Openable := True;
-        this.Flag := Off;
+        this.Flag     := Off;
     end
 
     // Opening this SCULPTURE spawns a QUARTER and a CREDIT CARD.

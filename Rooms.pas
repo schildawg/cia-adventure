@@ -37,53 +37,23 @@ begin
     Init ();
     Rooms.Set (BUSY_STREET, BusyStreet());
     Rooms.Set (LOBBY, Lobby());
+    Rooms.Set (VISITORS_ROOM, VisitorsRoom());
+    Rooms.Set (ANTE_ROOM, AnteRoom());
+    Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
 
     Items.Set (BADGE, Badge());
     Items.Set (BUILDING, Building());
     Items.Set (SCULPTURE, Sculpture());
     Items.Set (SLIDING_DOORS, SlidingDoors());
+    Items.Set (RECORDER, Recorder());
+    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
+    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
 end
-
-var INVENTORY              : Integer := -1;
-
-var BUSY_STREET            : Integer := 1;
-var VISITORS_ROOM          : Integer := 2;
-var LOBBY                  : Integer := 3;
-var ANTE_ROOM              : Integer := 4;
-var PRESIDENTS_ROOM        : Integer := 5;
-var SOUND_PROOFED_CUBICLE  : Integer := 6;
-var SECURITY_OFFICE        : Integer := 7;
-var SMALL_HALLWAY          : Integer := 8;
-var SMALL_ROOM             : Integer := 9;
-var SHORT_CORRIDOR         : Integer := 10;
-var METAL_HALLWAY          : Integer := 11;
-var PLAIN_ROOM             : Integer := 12;
-var MAINTENANCE_CLOSET     : Integer := 13;
-var CAFETERIA              : Integer := 14;
-var SIDE_CORRIDOR          : Integer := 15;
-var POWER_GENERATOR_ROOM   : Integer := 16;
-var SUB_BASEMENT           : Integer := 17;
-var SECRET_COMPLEX         : Integer := 18;
-var MONITORING_ROOM        : Integer := 19;
-var LEDGE                  : Integer := 20;
-var OTHER_SIDE             : Integer := 21;
-var LONG_CORRIDOR          : Integer := 22;
-var LARGE_ROOM             : Integer := 23;
-var LABORATORY             : Integer := 24;
-var CROSS_CORRIDOR         : Integer := 25;
-var CROSS_EXAMINATION_ROOM : Integer := 26;
-var BATHROOM               : Integer := 27;
-var CHIEFS_OFFICE          : Integer := 28;
-var CHAOS_CONTROL_ROOM     : Integer := 29;
-var END_OF_COMPLEX         : Integer := 30;
 
 var Rooms : Array := Array(31) as Array;
 
 procedure AddRooms();
 begin
-    Rooms.Set (VISITORS_ROOM, Room ('IN A VISITORS ROOM', 0, 0, LOBBY, 0));
-    Rooms.Set (ANTE_ROOM, Room ('IN A DINGY ANTE ROOM', 0, 0, 0, LOBBY));
-    Rooms.Set (PRESIDENTS_ROOM, Room ('IN THE COMPANY PRESIDENTS OFFICE', 0, 0, 0, ANTE_ROOM));
     Rooms.Set (SOUND_PROOFED_CUBICLE, Room ('IN A SMALL SOUND PROOFED CUBICLE', 0, PLAIN_ROOM, 0, 0));
     Rooms.Set (SECURITY_OFFICE, Room ('IN A SECURITY OFFICE', 0, 0, SMALL_HALLWAY, 0));
     Rooms.Set (SMALL_HALLWAY, Room ('IN A SMALL HALLWAY', 0, CAFETERIA, SMALL_ROOM, SECURITY_OFFICE));
@@ -110,12 +80,3 @@ begin
     Rooms.Set (CHAOS_CONTROL_ROOM, Room ('IN THE CHAOS CONTROL ROOM', 0, 0, END_OF_COMPLEX, 0));
     Rooms.Set (END_OF_COMPLEX, Room ('NEAR THE END OF THE COMPLEX', CHIEFS_OFFICE, 0, 0, CHAOS_CONTROL_ROOM));
 end
-
-// test 'IN A VISITORS ROOM';
-// begin
-//     Init ();
-
-//     Location := 2;
-
-//     DisplayRoom ();
-// end
