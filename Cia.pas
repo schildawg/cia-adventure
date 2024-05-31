@@ -8,26 +8,30 @@
 ///  Translated to ALGOL-24 by Joel Schilling 05-20-24
 uses Rooms;
 uses Items;
-uses Verbs;
 
 type Flag = (On, Off);
 
+uses Constants;
+
+// TODO: Add wildcard uses?
 uses 'rooms/Lobby';
 uses 'rooms/BusyStreet';
+uses 'rooms/VisitorsRoom';
+uses 'rooms/AnteRoom';
+uses 'rooms/PresidentsOffice';
 
 uses 'items/Badge';
 uses 'items/Building';
 uses 'items/Sculpture';
 uses 'items/SlidingDoors';
+uses 'items/Recorder';
+uses 'items/WoodenDoor';
 
 uses 'verbs/Inventory';
 uses 'verbs/Orders';
 
 type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
-
-
-var Dispatch := Map();
 
 var Name : String;
 var Code : String;
@@ -124,17 +128,6 @@ begin
     Events();
 end
 
-/// Checks if is a valid verb.
-///
-function MatchVerb (Verb : String);
-begin
-    for var I := 0; I < Verbs.Length; I := I + 1 do
-    begin
-        if Verb = Verbs[I] then Exit True;
-    end
-    Exit False;
-end
-
 /// Checks if is a valid object.
 ///
 function MatchDirectObject (Item : String);
@@ -175,11 +168,9 @@ begin
             except
             end   
             
-            if Item = OPEN_WOODEN_DOOR then Location := PRESIDENTS_ROOM;
-            else if Item = ROPE and RopeFlag = On and Location = LEDGE then Location := OTHER_SIDE;
+            if Item = ROPE and RopeFlag = On and Location = LEDGE then Location := OTHER_SIDE;
             else if Item = OPEN_DOOR then Location := METAL_HALLWAY;
             else if Item = CLOSET then Location := MAINTENANCE_CLOSET;
-            //else if Item = BUILDING then Location := LOBBY;
             else if Item = SLIDING_DOORS and Door = Opened then Location := SMALL_ROOM;
             else raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
         end
@@ -380,7 +371,6 @@ begin
             end 
     end
 end
-Dispatch.Put ('PUS', Push);
 
 /// Pull Verb
 ///
@@ -407,7 +397,6 @@ begin
     end
     WriteLn ('NOTHING HAPPENS.');
 end
-Dispatch.Put ('PUL', Pull);
 
 /// Look Verb
 procedure Look(DirectObject : String);
@@ -415,35 +404,21 @@ var
    Item : Integer;
 
 begin
-    if DirectObject = 'DRA' and Location = PRESIDENTS_ROOM then
+    if DirectObject = 'DRA' and Location = PRESIDENTS_OFFICE then
     begin
         WriteLn ('IT LOOKS FRAGILE.');
         Exit;
     end
 
     Item := FindItem (DirectObject); 
-
-    if Item = RECORDER and BatteryFlag = Off then
-    begin
-        WriteLn ('THERES NO POWER FOR IT.');
-        Exit;     
-    end
-
-    if Item = RECORDER and TelevisionFlag <> On then
-    begin
-        WriteLn ('THERES NO T.V. TO WATCH ON.');
-        Exit;
+    
+    try if Items[Item].Look() = Handled then Exit;
+    except 
     end
 
     if Item = PAPER_WEIGHT then
     begin
         WriteLn('IT LOOKS HEAVY.');
-        Exit;
-    end
-
-    if Item = LOCKED_WOODEN_DOOR then
-    begin
-        WriteLn ('IT''S LOCKED.');
         Exit;
     end
 
@@ -516,7 +491,6 @@ begin
     
     WriteLn('I SEE NOTHING OF INTEREST.');
 end
-Dispatch.Put ('LOO', Look);
 
 /// Insert Verb.
 ///
@@ -579,7 +553,6 @@ begin
 
     WriteLn ('NOTHING HAPPENED.');
 end
-Dispatch.Put ('INS', Insert);
 
 /// Open Verb
 ///
@@ -588,17 +561,15 @@ var
    Item     : Integer;
    Openable : Boolean;
 
-begin
-     
+begin   
     try
-        if DirectObject = 'DRA' and Location = PRESIDENTS_ROOM and Items[MAHOGANY_DRAWER].Location = 0 then
+        if DirectObject = 'DRA' and Location = PRESIDENTS_OFFICE and Items[MAHOGANY_DRAWER].Location = 0 then
         begin
             WriteLn ('IT''S STUCK.');
             Exit;
         end
     
         Item := FindItem(DirectObject);
-        
         Openable := False;
         try 
            Openable := Items[Item].Openable;
@@ -608,14 +579,6 @@ begin
         if Not Openable then  //if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
         begin
             raise 'I CAN''T OPEN THAT.';
-        end
-
-        if Item = LOCKED_WOODEN_DOOR AND Items[ANTIQUE_KEY].Location = INVENTORY then
-        begin
-            WriteLn ('O.K. I OPENED THE DOOR.');
-            Items[LOCKED_WOODEN_DOOR].Location := 0;
-            Items[OPEN_WOODEN_DOOR].Location := ANTE_ROOM;
-            Exit;
         end
     
         if Item = SOLID_DOOR then
@@ -673,7 +636,6 @@ begin
             end 
     end
 end
-Dispatch.Put ('OPE', Open);
 
 /// Wear Verb
 ///
@@ -687,7 +649,6 @@ begin
     end
     WriteLn ('I CAN''T WEAR THAT!');
 end
-Dispatch.Put ('WEA', Wear);
 
 /// Read Verb
 ///
@@ -715,7 +676,6 @@ begin
         WriteLn ('IT SAYS: WATCH OUT! DANGEROUS!');
     end
 end
-Dispatch.Put ('REA', ReadVerb);
 
 /// Start Verb
 ///
@@ -731,19 +691,11 @@ begin
     end
     
     Item := FindItem (DirectObject);
-    if BatteryFlag = On and TelevisionFlag = On and TapeFlag = On then
-    begin
-        WriteLn ('THE RECORDER STARTS UP AND PRESENTS A SHORT MESSAGE:');
-        WriteLn (Name);
-        WriteLn ('WE HAVE UNCOVERED A NUMBER THAT MAY HELP YOU.');
-        WriteLn ('THAT NUMBER IS:' + Code + '. PLEASE WATCH OUT FOR HIDDEN TRAPS.');
-        WriteLn ('ALSO, THERE IS SOMETHING IN THE SCULPTURE.');
-        Items[SCULPTURE].Flag := On;
-        Exit;
+    try if Items[Item].Start() = Handled then Exit;
+    except
     end
     WriteLn('NOTHING HAPPENED.');
 end
-Dispatch.Put ('STA', Start);
 
 /// Break Verb
 ///
@@ -761,7 +713,7 @@ begin
        Exit;
     end
 
-    if Location = PRESIDENTS_ROOM then
+    if Location = PRESIDENTS_OFFICE then
     begin
         WriteLn ('IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
         Items[BATTERY].Location := Location;
@@ -771,7 +723,6 @@ begin
     end
     WriteLn ('NOTHING HAPPENS.');
 end
-Dispatch.Put ('BRE', BreakVerb);
 
 /// Cut Verb.
 ///
@@ -809,7 +760,6 @@ begin
         Exit;
     end
 end
-Dispatch.Put ('CUT', Cut);
 
 /// Throw Verb.
 ///
@@ -849,7 +799,6 @@ begin
     RopeFlag := On;
     Items[ROPE].Location := Location;
 end
-Dispatch.Put ('THR',Throw);
 
 /// Connect Verb
 ///
@@ -882,7 +831,6 @@ begin
     WriteLn ('O.K. THE T.V. IS CONNECTED.');
     TelevisionFlag := On;
 end
-Dispatch.Put ('CON', Connect);
 
 /// Quit Verb
 ///
@@ -1067,7 +1015,6 @@ begin
     
     AddRooms();
     AddItems();
-    AddVerbs(); 
 end
 
 procedure ParseCommand (Command : String);
@@ -1086,7 +1033,7 @@ begin
         Exit;
     end
 
-    if Not MatchVerb (Verb) then 
+    if Not Dispatch.Contains (Verb) then 
     begin
         WriteLn('I DONT KNOW HOW TO DO THAT.');
         UpdateTime := False;
@@ -1145,6 +1092,12 @@ begin
     Command := ReadLn ('WHAT DO YOU THINK WE SHOULD DO? ') as String;
     ParseCommand (Command);
 end
+
+// Maps Verbs to handlers.
+//
+var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, 'PUL': Pull, 'LOO': Look,
+    'INS': Insert, 'OPE': Open, 'WEA': Wear, 'REA': ReadVerb, 'STA': Start, 'BRE': BreakVerb, 'CUT': Cut, 
+    'THR': Throw, 'CON': Connect, 'QUI': Quit, 'BON': Bond007, 'INV': Inventory];
 
 /// Main.
 //
