@@ -1,5 +1,3 @@
-var BADGE : Integer := 39;
-
 /// A C.I.A. IDENTIFICATION BADGE
 ///
 class Badge (Item);
@@ -7,13 +5,12 @@ begin
     /// Creates instance.
     // 
     constructor Init ();
-    begin
+    begin       
         this.Description := 'A C.I.A. IDENTIFICATION BADGE';
         this.Keyword     := 'BAD';
         this.Location    := INVENTORY;
     end
 end
-Items.Set (BADGE, Badge());
 
 // Tests dropping BADGE.
 //

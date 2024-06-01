@@ -13,7 +13,6 @@ begin
         this.Exits.Set(WEST,  ANTE_ROOM);
     end
 end
-Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
 
 // LOOK should display IN THE COMPANY PRESIDENTS OFFICE.
 //
@@ -24,7 +23,7 @@ begin
 
     ParseCommand ('LOOK');
     Events ();
-    
+
     // Assert
     AssertEqual (Display.Buffer(-5), 'WE ARE IN THE COMPANY PRESIDENT''S OFFICE.');
     AssertEqual (Display.Buffer(-4), 'I CAN SEE AN ELABORATE PAPER WEIGHT.');

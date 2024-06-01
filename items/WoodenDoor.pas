@@ -34,7 +34,6 @@ begin
         Exit Passed;
     end 
 end
-Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
 
 /// A OPEN WOODEN DOOR
 ///
@@ -57,7 +56,6 @@ begin
         Exit Handled;
     end   
 end
-Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
 
 // Can't get A LOCKED WOODEN DOOR
 // 

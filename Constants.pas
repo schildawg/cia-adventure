@@ -1,4 +1,3 @@
-
 /// Items -- these constants will all go away when JPascal implements Prototypes.
 ///
 var RECORDER            : Integer := 1;
@@ -22,7 +21,7 @@ var LEVER               : Integer := 18;
 var MAHOGANY_DESK       : Integer := 19;
 var BROOM               : Integer := 20;
 var DUSTPAN             : Integer := 21;
-var SPIRAL_NOTEPAD      : Integer := 22;
+var SPIRAL_NOTEBOOK      : Integer := 22;
 var MAHOGANY_DRAWER     : Integer := 23;
 var GLASS_CASE          : Integer := 24;
 var RAZOR_BLADE         : Integer := 25;
@@ -39,6 +38,7 @@ var BUTTON              : Integer := 35;
 var PANEL               : Integer := 36;
 var ROPE                : Integer := 37;
 var HOOK                : Integer := 38;
+var BADGE               : Integer := 39;
 var TELEVISION          : Integer := 40;
 var MONITORS            : Integer := 41;
 var ID_CARD             : Integer := 42;

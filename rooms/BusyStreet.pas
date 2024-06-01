@@ -28,7 +28,6 @@ begin
         end
     end
 end
-Rooms.Set (BUSY_STREET, BusyStreet());
 
 // LOOK should display the ON A BUSY STREET "room".
 //
@@ -47,7 +46,6 @@ begin
     AssertEqual (Display.Buffer(-3), 'I CAN SEE A TALL OFFICE BUILDING.');
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
 end
-
 
 // Should win if ON BUSY STREET and has RUBY!
 //

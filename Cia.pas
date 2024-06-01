@@ -14,11 +14,13 @@ type Flag = (On, Off);
 uses Constants;
 
 // TODO: Add wildcard uses?
+//uses All from 'rooms';
 uses 'rooms/Lobby';
 uses 'rooms/BusyStreet';
 uses 'rooms/VisitorsRoom';
 uses 'rooms/AnteRoom';
 uses 'rooms/PresidentsOffice';
+uses 'rooms/SmallRoom';
 
 uses 'items/Badge';
 uses 'items/Building';
@@ -26,6 +28,14 @@ uses 'items/Sculpture';
 uses 'items/SlidingDoors';
 uses 'items/Recorder';
 uses 'items/WoodenDoor';
+uses 'items/PaperWeight';
+uses 'items/MohoganyDesk';
+uses 'items/MohoganyDrawer';
+uses 'items/SpiralNotebook';
+uses 'items/Battery';
+uses 'items/PanelOfButtons';
+uses 'items/Quarter';
+uses 'items/CreditCard';
 
 uses 'verbs/Inventory';
 uses 'verbs/Orders';
@@ -61,6 +71,37 @@ var GlovesFlag        : Flag := Off;
 var DruggedFlag       : Flag := Off;
 var Guns              : Integer := 0;
 
+procedure Setup ();
+begin
+    Init ();
+    Rooms.Set (BUSY_STREET, BusyStreet());
+    Rooms.Set (LOBBY, Lobby());
+    Rooms.Set (VISITORS_ROOM, VisitorsRoom());
+    Rooms.Set (ANTE_ROOM, AnteRoom());
+    Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
+    Rooms.Set (SMALL_ROOM, SmallRoom());
+
+    Items.Set (BADGE, Badge());
+    Items.Set (BUILDING, Building());
+    Items.Set (SCULPTURE, Sculpture());
+    Items.Set (SLIDING_DOORS, SlidingDoors());
+    Items.Set (RECORDER, Recorder());
+    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
+    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
+    Items.Set(PAPER_WEIGHT, PaperWeight());
+    Items.Set(MAHOGANY_DESK, MohoganyDesk());
+    Items.Set(MAHOGANY_DRAWER, MohoganyDrawer());
+    Items.Set(SPIRAL_NOTEBOOK, SpiralNotebook());
+    Items.Set(BATTERY, BatteryItem());
+    Items.Set(CREDIT_CARD, CreditCard());
+    Items.Set(QUARTER, Quarter());
+
+    Items.Set(PANEL, PanelOfButtons());
+    Items.Set(ONE, ButtonOne());
+    Items.Set(TWO, ButtonTwo());
+    Items.Set(THREE, ButtonThree());
+end
+
 /// Finds an item number.
 ///
 /// # Errors
@@ -95,7 +136,11 @@ begin
     begin
        var Item := Items[I];
 
-       if Item.Location = Location then WriteLn ('I CAN SEE ' + Item.Description + '.');
+       var Hidden := False;
+       try Hidden := Item.Hidden;
+       except end
+
+       if Item.Location = Location and not Hidden then WriteLn ('I CAN SEE ' + Item.Description + '.');
     end
     
     for var R := 0; R < 4; R := R + 1 do
@@ -190,12 +235,18 @@ end
 ///
 procedure Get (DirectObject : String);
 var 
-    Item : Integer;
+    Item  : Integer;
+    Fixed : Boolean;
 
 begin
     try 
         Item := FindItem (DirectObject);
-        if Item <> 2 and Item <> 3 and Item <> 4 and Item <> 6 and Item <> 15 and Item <> 16 and Item <> 21 and Item <> 22 and Item <> 23 and Item <> 25 and Item <> 26 and Item <> 27 and Item <> 28 and Item <> 30 and Item <> 31 and Item <> 37 and Item <> 39 and Item <> 40 and Item <> 42 and Item <> 44 and Item <> 45 and Item <> 46 then 
+        Fixed := False;
+        
+        try Fixed := Items[Item].Fixed;
+        except end
+
+        if Fixed then //Item <> 2 and Item <> 3 and Item <> 4 and Item <> 6 and Item <> 15 and Item <> 16 and Item <> 21 and Item <> 22 and Item <> 23 and Item <> 25 and Item <> 26 and Item <> 27 and Item <> 28 and Item <> 30 and Item <> 31 and Item <> 37 and Item <> 39 and Item <> 40 and Item <> 42 and Item <> 44 and Item <> 45 and Item <> 46 then 
         begin
             raise 'I CAN''T CARRY THAT!';    
         end
@@ -285,7 +336,6 @@ begin
     WriteLn('THE DOORS CLOSE AND I FEEL AS IF THE ROOM IS MOVING.');
     WriteLn('SUDDENLY THE DOORS OPEN AGAIN.');
     Pause (1000);
-    DisplayRoom ();
 end
 
 /// Push verb
@@ -301,7 +351,6 @@ begin
        Door := Opened;
        Exit;
     end
-
 
     if Items[BOX].Location = INVENTORY and DirectObject = 'BUT' then
     begin
@@ -325,7 +374,10 @@ begin
 
    try 
         TheItem := FindItem (DirectObject);
-        
+
+        try if Items[TheItem].Push() = Handled then Exit;
+        except end
+
         if TheItem = METAL_SQUARE and GlovesFlag = Off then
         begin
             WriteLn('THERES ELECTRICITY COURSING THRU THE SQUARE!');
@@ -340,28 +392,6 @@ begin
             ButtonFlag := On;
             Exit;
         end
-
-        if TheItem = ONE and Floor <> 1 then 
-        begin
-            Rooms[SMALL_ROOM].Exits.Set(0, LOBBY);
-            Elevator (1);
-            Exit;
-        end
-
-        if TheItem = TWO and Floor <> 2 then 
-        begin
-            Rooms[SMALL_ROOM].Exits.Set(0, SMALL_HALLWAY);
-            Elevator (2);
-            Exit;
-        end
-
-        if TheItem = THREE and Floor <> 3 then 
-        begin
-            Rooms[SMALL_ROOM].Exits.Set(0, SHORT_CORRIDOR);
-            Elevator (3);
-            Exit;
-        end
-
         WriteLn('NOTHING HAPPENS.');
 
     except
@@ -404,22 +434,10 @@ var
    Item : Integer;
 
 begin
-    if DirectObject = 'DRA' and Location = PRESIDENTS_OFFICE then
-    begin
-        WriteLn ('IT LOOKS FRAGILE.');
-        Exit;
-    end
-
     Item := FindItem (DirectObject); 
     
     try if Items[Item].Look() = Handled then Exit;
     except 
-    end
-
-    if Item = PAPER_WEIGHT then
-    begin
-        WriteLn('IT LOOKS HEAVY.');
-        Exit;
     end
 
     if Item = PLASTIC_BAG then
@@ -427,14 +445,8 @@ begin
         WriteLn ('IT''S A VERY STRONG BAG.');
         Exit;
     end
-    
-    if Item = MAHOGANY_DESK then
-    begin
-       WriteLn('I CAN SEE A LOCKED DRAWER IN IT.');
-       Exit;
-    end
 
-    if Item = SPIRAL_NOTEPAD or Item = SIGN then
+    if Item = SIGN then
     begin
        WriteLn ('THERES WRITING ON IT.');
        Exit;
@@ -502,6 +514,8 @@ var
 
 begin
     Item := FindItem (DirectObject);
+    try if Items[Item].Insert() = Handled then Exit;
+    except end
 
     if Item <> TAPE and Item <> BATTERY and Item <> CREDIT_CARD and Item <>  QUARTER then
     begin
@@ -511,14 +525,6 @@ begin
     
     IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
     Item2 := FindItem (Copy(IndirectObject, 0, 3));
-
-    if Item = BATTERY and Item2 = RECORDER then 
-    begin
-        WriteLn('O.K.');
-        BatteryFlag := On;
-        Items[BATTERY].Location := 0;
-        Exit;
-    end
 
     if Item = CREDIT_CARD and Item2 = SLIT and DrugCounter <= 0 then
     begin
@@ -561,15 +567,16 @@ var
    Item     : Integer;
    Openable : Boolean;
 
-begin   
+begin  
     try
-        if DirectObject = 'DRA' and Location = PRESIDENTS_OFFICE and Items[MAHOGANY_DRAWER].Location = 0 then
-        begin
-            WriteLn ('IT''S STUCK.');
-            Exit;
+        Item := FindItem (DirectObject);
+        try 
+            if Items[Item].Open() = Handled then Exit;
+        except 
+            on Err2 : String do 
+            begin end
         end
-    
-        Item := FindItem(DirectObject);
+
         Openable := False;
         try 
            Openable := Items[Item].Openable;
@@ -601,17 +608,6 @@ begin
             Exit;
         end
 
-        if Item = MAHOGANY_DRAWER then
-        begin
-           WriteLn('IT''S STUCK.');
-           Exit;
-        end
-
-        //if Item = SCULPTURE then 
-        //begin
-            if Items[Item].Open() = Handled then Exit;
-        //end
-        
         if Item = LOCK then
         begin
             var Input := ReadLn ('WHATS THE COMBINATION? ');
@@ -663,14 +659,10 @@ begin
     end 
    
     Item := FindItem(DirectObject);
-    if Item = SPIRAL_NOTEPAD then
-    begin
-        WriteLn ('IT SAYS:');
-        WriteLn (Name + ',');
-        WriteLn ('  WE HAVE DISCOVERED ONE OF CHAOSES SECRET WORDS.');
-        WriteLn ('IT IS: BOND-007- .TO BE USED IN A -TASTEFUL- SITUATION.');
-        Exit;
-    end
+    
+    try if Items[Item].Read() = Handled then Exit;
+    except end
+
     if Item = SIGN then 
     begin
         WriteLn ('IT SAYS: WATCH OUT! DANGEROUS!');
@@ -700,28 +692,15 @@ end
 /// Break Verb
 ///
 procedure BreakVerb(DirectObject : String);
+var
+   Item : Integer;
+
 begin
-    if DirectObject <> 'DRA' then
-    begin
-        WriteLn ('IM TRYING TO BREAK IT, BUT I CAN''T.');
-        Exit;
-    end
+    Item := FindItem (DirectObject);
+    try if Items[Item].DoBreak() = Handled then Exit;
+    except end
 
-    if Items[PAPER_WEIGHT].Location <> INVENTORY then
-    begin
-       WriteLn('I CAN''T DO THAT YET.');
-       Exit;
-    end
-
-    if Location = PRESIDENTS_OFFICE then
-    begin
-        WriteLn ('IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
-        Items[BATTERY].Location := Location;
-        Items[SPIRAL_NOTEPAD].Location := Location;
-        Items[MAHOGANY_DRAWER].Location := Location;
-        Exit;
-    end
-    WriteLn ('NOTHING HAPPENS.');
+    WriteLn ('IM TRYING TO BREAK IT, BUT I CAN''T.');
 end
 
 /// Cut Verb.
@@ -991,7 +970,7 @@ procedure Intro ();
 begin
     ClearScreen ();
     WriteLn('        C.I.A  ADVENTURE');
-    Init();
+    Setup ();
 
     DisplayRoom();  
 end

@@ -28,7 +28,6 @@ begin
         end
     end
 end
-Rooms.Set (LOBBY, Lobby());
 
 // LOOK should display IN THE LOBBY OF THE BUILDING.
 //

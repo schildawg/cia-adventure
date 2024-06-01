@@ -3,8 +3,6 @@
 ///
 class AnteRoom (Room);
 begin
-    /// Creates instance.
-    //
     constructor Init ();
     begin
         this.Description := 'IN A DINGY ANTE ROOM';
@@ -16,7 +14,6 @@ begin
         this.Exits.Set(WEST,  LOBBY);
     end
 end
-Rooms.Set (ANTE_ROOM, AnteRoom());
 
 // LOOK should display IN A DINGY ANTE ROOM.
 //

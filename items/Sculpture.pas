@@ -2,8 +2,6 @@
 ///
 class Sculpture (Item);
 begin
-    /// Creates instance.
-    // 
     constructor Init ();
     begin
         this.Description := 'A LARGE SCULPTURE';
@@ -31,7 +29,6 @@ begin
         Exit Passed;
     end   
 end
-Items.Set (SCULPTURE, Sculpture());
 
 // Can't get SCULPTURE
 //
@@ -65,7 +62,7 @@ end
 // Opening SCULPTURE should spawn QUARTER and CREDIT CARD.
 //
 test 'SCULPTURE - OPEN';
-begin
+begin    
     Setup ();
     Location := LOBBY;
     Items[BADGE].Location := 0;

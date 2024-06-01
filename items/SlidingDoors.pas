@@ -13,7 +13,6 @@ begin
         this.Fixed := True;
     end
 end
-Items.Set (SLIDING_DOORS, SlidingDoors());
 
 // Can't get SLIDING DOORS
 //

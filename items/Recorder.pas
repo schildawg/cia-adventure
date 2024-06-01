@@ -2,8 +2,6 @@
 ///
 class Recorder (Item);
 begin
-    /// Creates instance.
-    // 
     constructor Init ();
     begin
         this.Description := 'A VIDEO CASSETTE RECORDER';
@@ -19,13 +17,13 @@ begin
     begin
         if BatteryFlag = Off then
         begin
-            WriteLn ('THERES NO POWER FOR IT.');
+            WriteLn ('THERE''S NO POWER FOR IT.');
             Exit Handled;     
         end
 
         if TelevisionFlag <> On then
         begin
-            WriteLn ('THERES NO T.V. TO WATCH ON.');
+            WriteLn ('THERE''S NO T.V. TO WATCH ON.');
             Exit Handled;
         end      
     end
@@ -47,7 +45,6 @@ begin
         Exit Passed;
     end
 end
-Items.Set (RECORDER, Recorder());
 
 // Can't get RECORDER
 //
@@ -75,7 +72,7 @@ begin
     ParseCommand ('LOOK RECORDER');
     Events ();
 
-    AssertEqual (Display.Buffer(-1), 'THERES NO POWER FOR IT.');
+    AssertEqual (Display.Buffer(-1), 'THERE''S NO POWER FOR IT.');
 end
 
 // LOOK at RECORDER should say there's no T.V. if not connected.
@@ -91,7 +88,7 @@ begin
     ParseCommand ('LOOK RECORDER');
     Events ();
 
-    AssertEqual (Display.Buffer(-1), 'THERES NO T.V. TO WATCH ON.');
+    AssertEqual (Display.Buffer(-1), 'THERE''S NO T.V. TO WATCH ON.');
 end
 
 // PLAY RECORDER should work, if tape inserted!

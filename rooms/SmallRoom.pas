@@ -1,46 +1,45 @@
-/// IN A VISITORS ROOM
+/// IN A SMALL ROOM
 ///
-class VisitorsRoom (Room);
+class SmallRoom (Room);
 begin
-    /// Creates instance.
-    //
     constructor Init ();
     begin
-        this.Description := 'IN A VISITORS ROOM';
+        this.Description := 'IN A SMALL ROOM';
        
         this.Exits := Array(4) as Array;
-        this.Exits.Set(NORTH, 0);
+        this.Exits.Set(NORTH, LOBBY);
         this.Exits.Set(SOUTH, 0);
-        this.Exits.Set(EAST,  LOBBY);
+        this.Exits.Set(EAST,  0);
         this.Exits.Set(WEST,  0);
     end
 end
 
-// LOOK should display IN A VISITORS ROOM.
+// LOOK should display IN A SMALL ROOM.
 //
-test 'IN A VISITORS ROOM';
+test 'IN A SMALL ROOM';
 begin
     Setup ();
-    Location := VISITORS_ROOM;
+    Location := SMALL_ROOM;
 
     ParseCommand ('LOOK');
     Events ();
 
-    AssertEqual (Display.Buffer(-4), 'WE ARE IN A VISITORS ROOM.');
-    AssertEqual (Display.Buffer(-3), 'I CAN SEE A VIDEO CASSETTE RECORDER.');     
-    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST   ');      
+    AssertEqual (Display.Buffer(-5), 'WE ARE IN A SMALL ROOM.');
+    AssertEqual (Display.Buffer(-4), 'I CAN SEE AN OLDE FASHIONED KEY.');    
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A PANEL OF BUTTONS NUMBERED ONE THRU THREE.');     
+    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: NORTH   ');      
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
 end
 
-// GO EAST should lead to LOBBY
+// GO NORTH should lead to LOBBY
 //
-test 'VISITORS ROOM - GO EAST';
+test 'SMALL ROOM - GO NORTH';
 begin
     Setup ();
-    Location := VISITORS_ROOM;
+    Location := SMALL_ROOM;
     Items[BADGE].Location := 0;
 
-    ParseCommand ('GO EAST');
+    ParseCommand ('GO NORTH');
     Events ();
 
     AssertEqual (Display.Buffer(-5), 'WE ARE IN THE LOBBY OF THE BUILDING.');

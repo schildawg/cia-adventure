@@ -32,24 +32,6 @@ begin
     end
 end
 
-procedure Setup ();
-begin
-    Init ();
-    Rooms.Set (BUSY_STREET, BusyStreet());
-    Rooms.Set (LOBBY, Lobby());
-    Rooms.Set (VISITORS_ROOM, VisitorsRoom());
-    Rooms.Set (ANTE_ROOM, AnteRoom());
-    Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
-
-    Items.Set (BADGE, Badge());
-    Items.Set (BUILDING, Building());
-    Items.Set (SCULPTURE, Sculpture());
-    Items.Set (SLIDING_DOORS, SlidingDoors());
-    Items.Set (RECORDER, Recorder());
-    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
-    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
-end
-
 var Rooms : Array := Array(31) as Array;
 
 procedure AddRooms();
@@ -57,7 +39,6 @@ begin
     Rooms.Set (SOUND_PROOFED_CUBICLE, Room ('IN A SMALL SOUND PROOFED CUBICLE', 0, PLAIN_ROOM, 0, 0));
     Rooms.Set (SECURITY_OFFICE, Room ('IN A SECURITY OFFICE', 0, 0, SMALL_HALLWAY, 0));
     Rooms.Set (SMALL_HALLWAY, Room ('IN A SMALL HALLWAY', 0, CAFETERIA, SMALL_ROOM, SECURITY_OFFICE));
-    Rooms.Set (SMALL_ROOM, Room ('IN A SMALL ROOM', LOBBY, 0, 0, 0));
     Rooms.Set (SHORT_CORRIDOR, Room ('IN A SHORT CORRIDOR', 0, SIDE_CORRIDOR, 0, SMALL_ROOM));
     Rooms.Set (METAL_HALLWAY, Room ('IN A HALLWAY MADE OF METAL', 0, 0, PLAIN_ROOM, SHORT_CORRIDOR));
     Rooms.Set (PLAIN_ROOM, Room ('IN A SMALL PLAIN ROOM', SOUND_PROOFED_CUBICLE, 0, 0, METAL_HALLWAY));

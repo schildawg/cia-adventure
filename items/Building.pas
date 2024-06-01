@@ -2,8 +2,6 @@
 ///
 class Building (Item);
 begin
-    /// Creates instance.
-    // 
     constructor Init ();
     begin
         this.Description := 'A TALL OFFICE BUILDING';
@@ -21,7 +19,6 @@ begin
         Exit Handled;
     end   
 end
-Items.Set (BUILDING, Building());
 
 // Can't get A TALL OFFICE BUILDING 
 // 
