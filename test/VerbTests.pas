@@ -1,21 +1,3 @@
-// "ORDERS PLEASE" Verb.
-//
-procedure DisplayOrders();
-begin
-    WriteLn('YOUR MISSION, ' + Name + ', IS TO RECOVER A RUBY THAT IS BEING');
-    WriteLn('USED IN TOP SECRET GOVERNMENT PROJECTS AS A PART IN A');
-    WriteLn('LASER PROJECTOR.');
-    WriteLn('  YOU WILL HAVE A PARTNER WHO IS NOT TOO BRIGHT AND NEEDS');
-    WriteLn('YOU TO TELL HIM WHAT TO DO. USE TWO WORD COMMANDS LIKE:');
-    WriteLn('');
-    WriteLn('              GET NOTEBOOK   GO WEST  LOOK DOOR');
-    WriteLn('');
-    WriteLn('SOME COMMANDS USE ONLY ONE WORD. EXAMPLE: INVENTORY');
-    WriteLn('  IF YOU WANT TO SEE CHANGES IN YOUR SURROUNDINGS TYPE: LOOK');
-    WriteLn('THE RUBY HAS BEEN CAPTURED BY A SECRET SPY RING KNOWN AS');
-    WriteLn('CHAOS. WE SUSPECT THEY ARE UNDER COVER SOMEWHERE IN THIS');
-    WriteLn('NEIGHBORHOOD. GOOD LUCK!');
-end
 
 /// Tests ORDERS PLEASE
 //
@@ -24,6 +6,7 @@ begin
     // Arrange
     Setup ();
     Name := 'JOEL';
+    Location := BUSY_STREET;
 
     // Act
     ParseCommand ('ORDERS PLEASE');
@@ -43,4 +26,21 @@ begin
     AssertEqual (Display.Buffer(-3), 'THE RUBY HAS BEEN CAPTURED BY A SECRET SPY RING KNOWN AS');
     AssertEqual (Display.Buffer(-2), 'CHAOS. WE SUSPECT THEY ARE UNDER COVER SOMEWHERE IN THIS');
     AssertEqual (Display.Buffer(-1), 'NEIGHBORHOOD. GOOD LUCK!');
+end
+
+/// Tests INVENTORY
+//
+test 'INVENTORY';
+begin
+    // Arrange
+    Setup ();
+    Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('INVENTORY');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-2), 'WE ARE PRESENTLY CARRYING:');
+    AssertEqual (Display.Buffer(-1), 'A C.I.A. IDENTIFICATION BADGE');
 end

@@ -6,42 +6,18 @@
 ///
 ///  Translated from TRS-80 version on CPMNET BBS by Pete Wohlmut 10-3-82
 ///  Translated to ALGOL-24 by Joel Schilling 05-20-24
-uses Rooms;
-uses Items;
-
 type Flag = (On, Off);
-
-uses Constants;
-
-// TODO: Add wildcard uses?
-//uses All from 'rooms';
-uses 'rooms/Lobby';
-uses 'rooms/BusyStreet';
-uses 'rooms/VisitorsRoom';
-uses 'rooms/AnteRoom';
-uses 'rooms/PresidentsOffice';
-uses 'rooms/SmallRoom';
-
-uses 'items/Badge';
-uses 'items/Building';
-uses 'items/Sculpture';
-uses 'items/SlidingDoors';
-uses 'items/Recorder';
-uses 'items/WoodenDoor';
-uses 'items/PaperWeight';
-uses 'items/MohoganyDesk';
-uses 'items/MohoganyDrawer';
-uses 'items/SpiralNotebook';
-uses 'items/Battery';
-uses 'items/PanelOfButtons';
-uses 'items/Quarter';
-uses 'items/CreditCard';
-
-uses 'verbs/Inventory';
-uses 'verbs/Orders';
-
 type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
+
+uses 'main/Constants';
+uses 'main/Rooms';
+uses 'main/Items';
+uses 'Verbs';
+
+uses 'test/RoomTests';
+uses 'test/ItemTests';
+uses 'test/VerbTests';
 
 var Name : String;
 var Code : String;
@@ -80,6 +56,31 @@ begin
     Rooms.Set (ANTE_ROOM, AnteRoom());
     Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
     Rooms.Set (SMALL_ROOM, SmallRoom());
+    Rooms.Set (SOUND_PROOFED_CUBICLE, SoundProofedCubicle());
+    Rooms.Set (SECURITY_OFFICE, SecurityOffice());
+    Rooms.Set (SMALL_HALLWAY, SmallHallway());
+    Rooms.Set (SHORT_CORRIDOR, ShortCorridor());
+    Rooms.Set (METAL_HALLWAY, MetalHallway());
+    Rooms.Set (PLAIN_ROOM, PlainRoom());
+    Rooms.Set (MAINTENANCE_CLOSET, MaintenanceCloset());
+    Rooms.Set (CAFETERIA, Cafeteria());
+    Rooms.Set (SIDE_CORRIDOR, SideCorridor());
+    Rooms.Set (POWER_GENERATOR_ROOM, PowerGeneratorRoom());
+    Rooms.Set (SUB_BASEMENT, SubBasement());
+    Rooms.Set (SECRET_COMPLEX, SecretComplex());
+    Rooms.Set (MONITORING_ROOM, MonitoringRoom());
+    Rooms.Set (LEDGE, Ledge());
+    Rooms.Set (OTHER_SIDE, OtherSide());
+    Rooms.Set (LONG_CORRIDOR, LongCorridor());
+    Rooms.Set (LARGE_ROOM, LargeRoom());
+    Rooms.Set (LABORATORY, Laboratory());
+    Rooms.Set (CROSS_CORRIDOR, CrossCorridor());
+    Rooms.Set (CROSS_EXAMINATION_ROOM, CrossExaminationRoom());
+    Rooms.Set (BATHROOM, Bathroom());
+    Rooms.Set (CHIEFS_OFFICE, ChiefsOffice());
+    Rooms.Set (CHAOS_CONTROL_ROOM, ChaosControlRoom());
+    Rooms.Set (END_OF_COMPLEX, EndOfComplex());
+
 
     Items.Set (BADGE, Badge());
     Items.Set (BUILDING, Building());
@@ -583,7 +584,8 @@ begin
         except
         end
 
-        if Not Openable then  //if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
+        //if Not Openable then
+        if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
         begin
             raise 'I CAN''T OPEN THAT.';
         end
@@ -991,8 +993,7 @@ begin
 
     Time := 0;
     UpdateTime := True;
-    
-    AddRooms();
+
     AddItems();
 end
 
