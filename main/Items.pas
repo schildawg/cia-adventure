@@ -17,40 +17,62 @@ end
 
 var Items : Array := Array(51) as Array;
 
+// Add Item prototypes.
+//
 procedure AddItems();
 begin
-    Items.Set(TAPE,          Item ('A VIDEO TAPE',                 'TAP', 0));
-    Items.Set(LOCK,          Item ('AN ELECTRONIC LOCK',           'LOC', 0));
-    Items.Set(SOLID_DOOR,    Item ('A SOLID LOOKING DOOR',         'DOO', SHORT_CORRIDOR));
-    Items.Set(OPEN_DOOR,     Item ('AN OPEN DOOR',                 'DOO', 0));
-    Items.Set(ALERT_GUARD,   Item ('AN ALERT SECURITY GUARD',      'GUA', SHORT_CORRIDOR));
-    Items.Set(SLEEPING_GUARD,Item ('A SLEEPING SECURITY GUARD',    'GUA', 0));
-    Items.Set(LOCKED_CLOSET, Item ('A LOCKED MAINTENANCE CLOSET',  'CLO', CAFETERIA));
-    Items.Set(CLOSET,        Item ('A MAINTENANCE CLOSET',         'CLO', 0));
-    Items.Set(PLASTIC_BAG,   Item ('A PLASTIC BAG',                'BAG', MAINTENANCE_CLOSET));
-    Items.Set(ANTIQUE_KEY,   Item ('AN OLDE FASHIONED KEY',        'KEY', SMALL_ROOM));
-    Items.Set(METAL_SQUARE,  Item ('A SMALL METAL SQUARE ON THE WALL', 'SQU', POWER_GENERATOR_ROOM));
-    Items.Set(LEVER,         Item ('A LEVER ON THE SQUARE',        'LEV', POWER_GENERATOR_ROOM));
-    Items.Set(BROOM,         Item ('A BROOM',                      'BRO', MAINTENANCE_CLOSET));
-    Items.Set(DUSTPAN,       Item ('A DUSTPAN',                    'DUS' ,MAINTENANCE_CLOSET));
-    Items.Set(GLASS_CASE,    Item ('A GLASS CASE ON A PEDESTAL',   'CAS', SOUND_PROOFED_CUBICLE));
-    Items.Set(RAZOR_BLADE,   Item ('A RAZOR BLADE',                'BLA', BATHROOM));
-    Items.Set(RUBY,          Item ('A VERY LARGE RUBY',            'RUB', 0));
-    Items.Set(SIGN,          Item ('A SIGN ON THE SQUARE',         'SIG', POWER_GENERATOR_ROOM));
-    Items.Set(COFFEE_MACHINE, Item ('A COFFEE MACHINE',            'MAC', SMALL_HALLWAY));
-    Items.Set(CUP_OF_COFFEE, Item ('A CUP OF STEAMING HOT COFFEE', 'CUP', 0));
-    Items.Set(CAPSULE,       Item ('A SMALL CAPSULE',              'CAP', 0));
-    Items.Set(BUTTON,        Item ('A LARGE BUTTON ON THE WALL',   'BUT', CHAOS_CONTROL_ROOM));
-    Items.Set(ROPE,          Item ('A STRONG NYLON ROPE',          'ROP', SUB_BASEMENT));
-    Items.Set(HOOK,          Item ('A LARGE HOOK WITH A ROPE HANGING FROM IT', 'HOO', OTHER_SIDE));
-    Items.Set(TELEVISION,    Item ('A PORTABLE TELEVISION',        'TEL', SECURITY_OFFICE));
-    Items.Set(PEDISTAL_MONITOR, Item ('A BANK OF MONITORS',        'MON', SECURITY_OFFICE));
-    Items.Set(ID_CARD,       Item ('A CHAOS I.D. CARD',            'CAR', END_OF_COMPLEX));
-    Items.Set(MONITORS,      Item ('A BANK OF MONITORS',           'MON', MONITORING_ROOM));
-    Items.Set(PAINTING,      Item ('A SMALL PAINTING',             'PAI', LARGE_ROOM));
-    Items.Set(GLOVES,        Item ('A PAIR OF RUBBER GLOVES',      'GLO', MAINTENANCE_CLOSET));
-    Items.Set(BOX,           Item ('A BOX WITH A BUTTON ON IT',    'BOX', LABORATORY));
-    Items.Set(SLIT,          Item ('SLIT',                         'SLI', SHORT_CORRIDOR));
+    Items.Set (BADGE, Badge());
+    Items.Set (BUILDING, Building());
+    Items.Set (SCULPTURE, Sculpture());
+    Items.Set (SLIDING_DOORS, SlidingDoors());
+    Items.Set (RECORDER, Recorder());
+    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
+    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
+    Items.Set(PAPER_WEIGHT, PaperWeight());
+    Items.Set(MAHOGANY_DESK, MohoganyDesk());
+    Items.Set(MAHOGANY_DRAWER, MohoganyDrawer());
+    Items.Set(SPIRAL_NOTEBOOK, SpiralNotebook());
+    Items.Set(BATTERY, BatteryItem());
+    Items.Set(CREDIT_CARD, CreditCard());
+    Items.Set(QUARTER, Quarter());
+
+    Items.Set(PANEL, PanelOfButtons());
+    Items.Set(ONE, ButtonOne());
+    Items.Set(TWO, ButtonTwo());
+    Items.Set(THREE, ButtonThree());
+
+    Items.Set(TAPE, Tape());
+    Items.Set(LOCK, Lock());
+    Items.Set(SOLID_DOOR, SolidDoor());
+    Items.Set(OPEN_DOOR, OpenDoor());
+    Items.Set(ALERT_GUARD, AlertGuard());
+    Items.Set(SLEEPING_GUARD, SleepingGuard());
+    Items.Set(LOCKED_CLOSET, LockedCloset());
+    Items.Set(CLOSET,  MaintenanceClosetItem());
+    Items.Set(PLASTIC_BAG, PlasticBag());
+    Items.Set(ANTIQUE_KEY, AntiqueKey());
+    Items.Set(METAL_SQUARE, MetalSquare());
+    Items.Set(LEVER, Lever());
+    Items.Set(BROOM, Broom());
+    Items.Set(DUSTPAN, Dustpan());
+    Items.Set(GLASS_CASE, GlassCase());
+    Items.Set(RAZOR_BLADE, RazorBlade());
+    Items.Set(RUBY, Ruby());
+    Items.Set(SIGN, Sign());
+    Items.Set(COFFEE_MACHINE, CoffeeMachine());
+    Items.Set(CUP_OF_COFFEE, CupOfCoffee());
+    Items.Set(CAPSULE, Capsule());
+    Items.Set(BUTTON, Button());
+    Items.Set(ROPE, Rope());
+    Items.Set(HOOK, Hook());
+    Items.Set(TELEVISION, Television());
+    Items.Set(PEDISTAL_MONITOR, PedistalMonitor());
+    Items.Set(ID_CARD, IdCard());
+    Items.Set(MONITORS, Monitors());
+    Items.Set(PAINTING, Painting());
+    Items.Set(GLOVES, Gloves());
+    Items.Set(BOX, Box());
+    Items.Set(SLIT, Slit());
 end
 
 /// A C.I.A. IDENTIFICATION BADGE
@@ -527,4 +549,412 @@ begin
 end
 
 
+/// A VIDEO TAPE
+///
+class Tape (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A VIDEO TAPE';
+        this.Keyword     := 'TAP';
+        this.Location    := 0;
+    end
+end
+
+/// AN ELECTRONIC LOCK
+///
+class Lock (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'AN ELECTRONIC LOCK';
+        this.Keyword     := 'LOC';
+        this.Location    := 0;
+
+        this.Fixed := True;
+    end
+end
+
+/// A SOLID LOOKING DOOR
+///
+class SolidDoor (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SOLID LOOKING DOOR';
+        this.Keyword     := 'DOO';
+        this.Location    := SHORT_CORRIDOR;
+
+        this.Fixed := True;
+    end
+end
+
+/// AN OPEN DOOR
+///
+class OpenDoor (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'AN OPEN DOOR';
+        this.Keyword     := 'DOO';
+        this.Location    := 0;
+
+        this.Fixed := True;
+    end
+end
+
+
+/// AN ALERT SECURITY GUARD
+///
+class AlertGuard (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'AN ALERT SECURITY GUARD';
+        this.Keyword     := 'GUA';
+        this.Location    := SHORT_CORRIDOR;
+
+        this.Fixed := True;
+    end
+end
+
+/// A SLEEPING SECURITY GUARD
+///
+class SleepingGuard (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SLEEPING SECURITY GUARD';
+        this.Keyword     := 'GUA';
+        this.Location    := 0;
+
+        this.Fixed := True;
+    end
+end
+
+/// A LOCKED MAINTENANCE CLOSET
+///
+class LockedCloset (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A LOCKED MAINTENANCE CLOSET';
+        this.Keyword     := 'CLO';
+        this.Location    := CAFETERIA;
+
+        this.Fixed := True;
+    end
+end
+
+/// A MAINTENANCE CLOSET
+///
+class MaintenanceClosetItem (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A MAINTENANCE CLOSET';
+        this.Keyword     := 'CLO';
+        this.Location    := 0;
+
+        this.Fixed := True;
+    end
+end
+
+/// A PLASTIC BAG
+///
+class PlasticBag (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A PLASTIC BAG';
+        this.Keyword     := 'BAG';
+        this.Location    := MAINTENANCE_CLOSET;
+    end
+end
+
+/// AN OLDE FASHIONED KEY
+///
+class AntiqueKey (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'AN OLDE FASHIONED KEY';
+        this.Keyword     := 'KEY';
+        this.Location    := SMALL_ROOM;
+    end
+end
+
+/// A SMALL METAL SQUARE ON THE WALL
+///
+class MetalSquare (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SMALL METAL SQUARE ON THE WALL';
+        this.Keyword     := 'SQU';
+        this.Location    := POWER_GENERATOR_ROOM;
+
+        this.Fixed := True;
+    end
+end
+
+/// A LEVER ON THE SQUARE
+///
+class Lever (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A LEVER ON THE SQUARE';
+        this.Keyword     := 'LEV';
+        this.Location    := POWER_GENERATOR_ROOM;
+
+        this.Fixed := True;
+    end
+end
+
+/// A BROOM
+///
+class Broom (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A BROOM';
+        this.Keyword     := 'BRO';
+        this.Location    := MAINTENANCE_CLOSET;
+    end
+end
+
+/// A DUSTPAN
+///
+class Dustpan (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A DUSTPAN';
+        this.Keyword     := 'DUS';
+        this.Location    := MAINTENANCE_CLOSET;
+    end
+end
+
+/// A GLASS CASE ON A PEDESTAL
+///
+class GlassCase (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A GLASS CASE ON A PEDESTAL';
+        this.Keyword     := 'CAS';
+        this.Location    := SOUND_PROOFED_CUBICLE;
+
+        this.Fixed := True;
+    end
+end
+
+/// A RAZOR BLADE
+///
+class RazorBlade (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A RAZOR BLADE';
+        this.Keyword     := 'BLA';
+        this.Location    := BATHROOM;
+    end
+end
+
+/// A VERY LARGE RUBY
+///
+class Ruby (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A VERY LARGE RUBY';
+        this.Keyword     := 'RUB';
+        this.Location    := 0;
+    end
+end
+
+/// A SIGN ON THE SQUARE
+///
+class Sign (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SIGN ON THE SQUARE';
+        this.Keyword     := 'SIG';
+        this.Location    := POWER_GENERATOR_ROOM;
+    end
+end
+
+/// A COFFEE MACHINE
+///
+class CoffeeMachine (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A COFFEE MACHINE';
+        this.Keyword     := 'MAC';
+        this.Location    := SMALL_HALLWAY;
+
+        this.Fixed := True;
+    end
+end
+
+/// A CUP OF STEAMING HOT COFFEE
+///
+class CupOfCoffee (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A CUP OF STEAMING HOT COFFEE';
+        this.Keyword     := 'CUP';
+        this.Location    := 0;
+    end
+end
+
+/// A SMALL CAPSULE
+///
+class Capsule (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SMALL CAPSULE';
+        this.Keyword     := 'CAP';
+        this.Location    := 0;
+    end
+end
+
+/// A LARGE BUTTON ON THE WALL
+///
+class Button (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A LARGE BUTTON ON THE WALL';
+        this.Keyword     := 'BUT';
+        this.Location    := CHAOS_CONTROL_ROOM;
+    end
+end
+
+/// A STRONG NYLON ROPE
+///
+class Rope (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A STRONG NYLON ROPE';
+        this.Keyword     := 'ROP';
+        this.Location    := SUB_BASEMENT;
+    end
+end
+
+/// A LARGE HOOK WITH A ROPE HANGING FROM IT
+///
+class Hook (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A LARGE HOOK WITH A ROPE HANGING FROM IT';
+        this.Keyword     := 'HOO';
+        this.Location    := OTHER_SIDE;
+        
+        this.Fixed := True;
+    end
+end
+
+/// A PORTABLE TELEVISION
+///
+class Television (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A PORTABLE TELEVISION';
+        this.Keyword     := 'TEL';
+        this.Location    := SECURITY_OFFICE;
+    end
+end
+
+/// A BANK OF MONITORS
+///
+class PedistalMonitor (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A BANK OF MONITORS';
+        this.Keyword     := 'MON';
+        this.Location    := SECURITY_OFFICE;
+    end
+end
+
+/// A CHAOS I.D. CARD
+///
+class IdCard (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A CHAOS I.D. CARD';
+        this.Keyword     := 'CAR';
+        this.Location    := END_OF_COMPLEX;
+    end
+end
+
+/// A BANK OF MONITORS
+///
+class Monitors (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A BANK OF MONITORS';
+        this.Keyword     := 'MON';
+        this.Location    := MONITORING_ROOM;
+    end
+end
+
+/// A SMALL PAINTING
+///
+class Painting (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A SMALL PAINTING';
+        this.Keyword     := 'PAI';
+        this.Location    := LARGE_ROOM;
+    end
+end
+
+/// A PAIR OF RUBBER GLOVES
+///
+class Gloves (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A PAIR OF RUBBER GLOVES';
+        this.Keyword     := 'GLO';
+        this.Location    := MAINTENANCE_CLOSET;
+    end
+end
+
+/// A BOX WITH A BUTTON ON IT
+///
+class Box (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'A BOX WITH A BUTTON ON IT';
+        this.Keyword     := 'BOX';
+        this.Location    := LABORATORY;
+    end
+end
+
+/// SLIT
+///
+class Slit (Item);
+begin
+    constructor Init ();
+    begin       
+        this.Description := 'SLI';
+        this.Keyword     := 'SLI';
+        this.Location    := SHORT_CORRIDOR;
+    end
+end
 

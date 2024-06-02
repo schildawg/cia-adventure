@@ -16,8 +16,6 @@ begin
     AssertEqual (BUSY_STREET, Items[BADGE].Location);
 end
 
-
-
 // GET the BATTERY
 //
 test 'BATTERY - GET';
@@ -214,7 +212,6 @@ begin
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
     AssertEqual (SMALL_ROOM, Items[ONE].Location);
 end
-
 
 // PUSH ONE on floor one.
 //

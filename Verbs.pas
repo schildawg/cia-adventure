@@ -16,7 +16,7 @@ begin
         begin
             HasInventory := True;
             Write (Item.Description);
-            if R = GLOVES and GlovesFlag = On then Write ('. WHICH IM WEARING.');
+            if R = GLOVES and GlovesFlag = On then Write ('. WHICH I''M WEARING.');
             WriteLn ('');
         end    
     end

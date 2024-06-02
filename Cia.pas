@@ -6,6 +6,9 @@
 ///
 ///  Translated from TRS-80 version on CPMNET BBS by Pete Wohlmut 10-3-82
 ///  Translated to ALGOL-24 by Joel Schilling 05-20-24
+type ScreenType = (DEBUG, BUFFER, CONSOLE);
+var Display := Screen();
+
 type Flag = (On, Off);
 type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
@@ -50,57 +53,9 @@ var Guns              : Integer := 0;
 procedure Setup ();
 begin
     Init ();
-    Rooms.Set (BUSY_STREET, BusyStreet());
-    Rooms.Set (LOBBY, Lobby());
-    Rooms.Set (VISITORS_ROOM, VisitorsRoom());
-    Rooms.Set (ANTE_ROOM, AnteRoom());
-    Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
-    Rooms.Set (SMALL_ROOM, SmallRoom());
-    Rooms.Set (SOUND_PROOFED_CUBICLE, SoundProofedCubicle());
-    Rooms.Set (SECURITY_OFFICE, SecurityOffice());
-    Rooms.Set (SMALL_HALLWAY, SmallHallway());
-    Rooms.Set (SHORT_CORRIDOR, ShortCorridor());
-    Rooms.Set (METAL_HALLWAY, MetalHallway());
-    Rooms.Set (PLAIN_ROOM, PlainRoom());
-    Rooms.Set (MAINTENANCE_CLOSET, MaintenanceCloset());
-    Rooms.Set (CAFETERIA, Cafeteria());
-    Rooms.Set (SIDE_CORRIDOR, SideCorridor());
-    Rooms.Set (POWER_GENERATOR_ROOM, PowerGeneratorRoom());
-    Rooms.Set (SUB_BASEMENT, SubBasement());
-    Rooms.Set (SECRET_COMPLEX, SecretComplex());
-    Rooms.Set (MONITORING_ROOM, MonitoringRoom());
-    Rooms.Set (LEDGE, Ledge());
-    Rooms.Set (OTHER_SIDE, OtherSide());
-    Rooms.Set (LONG_CORRIDOR, LongCorridor());
-    Rooms.Set (LARGE_ROOM, LargeRoom());
-    Rooms.Set (LABORATORY, Laboratory());
-    Rooms.Set (CROSS_CORRIDOR, CrossCorridor());
-    Rooms.Set (CROSS_EXAMINATION_ROOM, CrossExaminationRoom());
-    Rooms.Set (BATHROOM, Bathroom());
-    Rooms.Set (CHIEFS_OFFICE, ChiefsOffice());
-    Rooms.Set (CHAOS_CONTROL_ROOM, ChaosControlRoom());
-    Rooms.Set (END_OF_COMPLEX, EndOfComplex());
-
-
-    Items.Set (BADGE, Badge());
-    Items.Set (BUILDING, Building());
-    Items.Set (SCULPTURE, Sculpture());
-    Items.Set (SLIDING_DOORS, SlidingDoors());
-    Items.Set (RECORDER, Recorder());
-    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
-    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
-    Items.Set(PAPER_WEIGHT, PaperWeight());
-    Items.Set(MAHOGANY_DESK, MohoganyDesk());
-    Items.Set(MAHOGANY_DRAWER, MohoganyDrawer());
-    Items.Set(SPIRAL_NOTEBOOK, SpiralNotebook());
-    Items.Set(BATTERY, BatteryItem());
-    Items.Set(CREDIT_CARD, CreditCard());
-    Items.Set(QUARTER, Quarter());
-
-    Items.Set(PANEL, PanelOfButtons());
-    Items.Set(ONE, ButtonOne());
-    Items.Set(TWO, ButtonTwo());
-    Items.Set(THREE, ButtonThree());
+    
+    AddRooms();
+    AddItems();
 end
 
 /// Finds an item number.
@@ -962,10 +917,10 @@ procedure Die();
 begin
     Pause (1000); 
     WriteLn ('IM DEAD!');
-    WriteLn ('YOU DIDNT WIN.');
-    IsDone := True;
-    //var Input := ReadLn ('WOULD YOU LIKE TO TRY AGAIN (Y/N) ');
-    //if Input = 'Y' then Run (); // OK?
+    WriteLn ('YOU DIDN''T WIN.');
+
+    var Input := ReadLn ('WOULD YOU LIKE TO TRY AGAIN (Y/N) ');
+    if Input = 'Y' then Reset(); else IsDone := True;
 end
 
 procedure Intro ();
@@ -981,7 +936,6 @@ end
 ///
 procedure Init ();
 begin
-
     Randomize ();
     Door := Closed;
 
@@ -993,8 +947,6 @@ begin
 
     Time := 0;
     UpdateTime := True;
-
-    AddItems();
 end
 
 procedure ParseCommand (Command : String);
@@ -1089,6 +1041,7 @@ begin
         if UpdateTime then UpdateTimer();
         try  
             ReadCommand ();
+            
         except
             on Err : String do
                 begin

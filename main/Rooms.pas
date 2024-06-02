@@ -3,9 +3,6 @@ var SOUTH : Integer := 1;
 var EAST  : Integer := 2;
 var WEST  : Integer := 3;
 
-type ScreenType = (DEBUG, BUFFER, CONSOLE);
-var Display := Screen();
-
 /// Room
 ///
 class Room;
@@ -33,6 +30,42 @@ begin
 end
 
 var Rooms : Array := Array(31) as Array;
+
+/// Add Room prototypes.
+//
+procedure AddRooms();
+begin
+    Rooms.Set (BUSY_STREET, BusyStreet());
+    Rooms.Set (LOBBY, Lobby());
+    Rooms.Set (VISITORS_ROOM, VisitorsRoom());
+    Rooms.Set (ANTE_ROOM, AnteRoom());
+    Rooms.Set (PRESIDENTS_OFFICE, PresidentsOffice());
+    Rooms.Set (SMALL_ROOM, SmallRoom());
+    Rooms.Set (SOUND_PROOFED_CUBICLE, SoundProofedCubicle());
+    Rooms.Set (SECURITY_OFFICE, SecurityOffice());
+    Rooms.Set (SMALL_HALLWAY, SmallHallway());
+    Rooms.Set (SHORT_CORRIDOR, ShortCorridor());
+    Rooms.Set (METAL_HALLWAY, MetalHallway());
+    Rooms.Set (PLAIN_ROOM, PlainRoom());
+    Rooms.Set (MAINTENANCE_CLOSET, MaintenanceCloset());
+    Rooms.Set (CAFETERIA, Cafeteria());
+    Rooms.Set (SIDE_CORRIDOR, SideCorridor());
+    Rooms.Set (POWER_GENERATOR_ROOM, PowerGeneratorRoom());
+    Rooms.Set (SUB_BASEMENT, SubBasement());
+    Rooms.Set (SECRET_COMPLEX, SecretComplex());
+    Rooms.Set (MONITORING_ROOM, MonitoringRoom());
+    Rooms.Set (LEDGE, Ledge());
+    Rooms.Set (OTHER_SIDE, OtherSide());
+    Rooms.Set (LONG_CORRIDOR, LongCorridor());
+    Rooms.Set (LARGE_ROOM, LargeRoom());
+    Rooms.Set (LABORATORY, Laboratory());
+    Rooms.Set (CROSS_CORRIDOR, CrossCorridor());
+    Rooms.Set (CROSS_EXAMINATION_ROOM, CrossExaminationRoom());
+    Rooms.Set (BATHROOM, Bathroom());
+    Rooms.Set (CHIEFS_OFFICE, ChiefsOffice());
+    Rooms.Set (CHAOS_CONTROL_ROOM, ChaosControlRoom());
+    Rooms.Set (END_OF_COMPLEX, EndOfComplex());
+end
 
 // IN A DINGY ANTE ROOM
 ///
@@ -345,7 +378,7 @@ begin
         this.Exits := Array(4) as Array;
         this.Exits.Set(NORTH, 0);
         this.Exits.Set(SOUTH, 0);
-        this.Exits.Set(EAST,  0);
+        this.Exits.Set(EAST,  LONG_CORRIDOR);
         this.Exits.Set(WEST,  0);
     end
 end
