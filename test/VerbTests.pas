@@ -266,3 +266,74 @@ begin
     // Assert
     AssertEqual (INVENTORY, Items[BROOM].Location);
 end
+
+/// Tests DROP 
+//
+test 'DROP';
+begin
+    // Arrange
+    Setup ();
+    Location := BUSY_STREET;
+    Items[BADGE].Location := INVENTORY;
+
+    // Act
+    ParseCommand ('DROP BADGE');
+    Events ();
+
+    // Assert
+    AssertEqual (BUSY_STREET, Items[BADGE].Location);
+    AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
+end
+
+/// Tests LEAVE 
+//
+test 'DROP - LEAVE SYNONYM';
+begin
+    // Arrange
+    Setup ();
+    Location := BUSY_STREET;
+    Items[BADGE].Location := INVENTORY;
+
+    // Act
+    ParseCommand ('LEAVE BADGE');
+    Events ();
+
+    // Assert
+    AssertEqual (BUSY_STREET, Items[BADGE].Location);
+    AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
+end
+
+/// Tests PUSH 
+//
+test 'PUSH - NOTHING HAPPENS';
+begin
+    // Arrange
+    Setup ();
+    Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('PUSH BUILDING');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-1), 'NOTHING HAPPENS.');
+end
+
+// Tests PRESS
+//
+test 'PUSH - PRESS SYNONYM';
+begin
+    // Arrange
+    Setup ();
+
+    Location := LOBBY;
+    Items[BADGE].Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('PRESS BUTTON');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THE DOORS OPEN WITH A WHOOSH!');
+    AssertEqual(On, ButtonFlag);
+end

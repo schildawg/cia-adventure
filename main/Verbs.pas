@@ -109,3 +109,55 @@ begin
     end
 end
 
+/// Drop verb.
+///
+procedure Drop(DirectObject : String);
+var 
+   Item : Item;
+
+begin
+    for var I := 1; I <= Items.Length; I := I + 1 do
+    begin
+        if Items[I].Keyword = DirectObject and Items[I].Location = INVENTORY then
+        begin
+            Item := Items[I] as Item;
+            break;
+        end
+    end
+   
+    if Item = Nil then
+    begin
+       WriteLn('I DONT SEEM TO BE CARRYING IT.');  
+       Exit;     
+    end
+    if Item.GetClass().HasProperty ('Drop') and Item.Drop () = Handled then Exit;
+    
+    Item.Location := Location;
+    WriteLn('O.K. I DROPPED IT.');
+end
+
+/// Push verb
+//
+procedure Push(DirectObject : String);
+var 
+   Item : Item;
+
+begin
+    var Matched := False;
+    for var I := 1; I < Items.Length; I := I + 1 do
+    begin
+        var Item := Items[I];
+        if Item.Keyword = DirectObject and (Item.Location = Location or Item.Location = GLOBAL) then
+        begin
+           Matched := True;
+           if Item.GetClass().HasProperty('Push') and Item.Push() = Handled then Exit;
+        end 
+    end
+    if not Matched then raise 'I DONT SEE THAT HERE.';
+    
+    // TODO: Handle Keyword Collision better :)
+    // Item :=  FindItem (DirectObject);
+    // if Item.GetClass().HasProperty('Push') and Item.Push() = Handled then Exit;
+    
+    WriteLn('NOTHING HAPPENS.');
+end

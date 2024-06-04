@@ -34,7 +34,7 @@ var CAPSULE             : Integer := 31;
 var SCULPTURE           : Integer := 32;
 var BUILDING            : Integer := 33;
 var SLIDING_DOORS       : Integer := 34;
-var BUTTON              : Integer := 35;
+var BUTTON              : Integer := 52;
 var PANEL               : Integer := 36;
 var ROPE                : Integer := 37;
 var HOOK                : Integer := 38;
@@ -51,8 +51,12 @@ var TWO                 : Integer := 48;
 var THREE               : Integer := 49;
 var SLIT                : Integer := 50;
 
+var SLIDING_DOORS_BUTTON : Integer := 51;
+var BOX_BUTTON           : Integer := 35;
+
 /// Rooms
 ///
+var GLOBAL                 : Integer := -2;
 var INVENTORY              : Integer := -1;
 var BUSY_STREET            : Integer := 1;
 var VISITORS_ROOM          : Integer := 2;

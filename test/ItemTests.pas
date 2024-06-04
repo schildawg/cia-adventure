@@ -842,3 +842,143 @@ begin
     // Assert
     AssertEqual (TelevisionFlag, Off);
 end
+
+
+// DROP the CUP OF COFFEE results in cup shattering to bits.
+//
+test 'CUP OF COFFEE - DROP';
+begin
+    // Arrange
+    Setup ();
+    Items[CUP_OF_COFFEE].Location := INVENTORY;
+
+    // Act
+    ParseCommand ('DROP CUP');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-2), 'I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');      
+    AssertEqual (Display.Buffer(-1), 'THE COFFEE SOAKED INTO THE GROUND.');
+    AssertEqual(0, Items[CUP_OF_COFFEE].Location);
+end
+
+// DROP GLOVES should remove wearing them!
+//
+test 'GLOVES - DROP';
+begin
+    // Arrange
+    Setup ();
+    Items[GLOVES].Location := INVENTORY;
+    GlovesFlag := On;
+
+    // Act
+    ParseCommand ('DROP GLOVES');
+    Events ();
+
+    // Assert
+    AssertEqual(Off, GlovesFlag);
+end
+
+// DROP the CAPSULE should drop into CUP OF COFFEE if it is in INVENTORY.
+//
+test 'CAPSULE - DROP INTO COFFEE';
+begin
+    // Arrange
+    Setup ();
+    Items[CAPSULE].Location := INVENTORY;
+    Items[CUP_OF_COFFEE].Location := INVENTORY;
+    Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('DROP CAPSULE');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-2), 'O.K. I DROPPED IT.');      
+    AssertEqual (Display.Buffer(-1), 'BUT IT FELL IN THE COFFEE!');
+    AssertEqual(0, Items[CAPSULE].Location);
+end
+
+// Should electrocute you if PUSH METAL SQUARE without GLOVES.
+//
+test 'METAL SQARE - PUSH without GLOVES';
+begin
+    // Arrange
+    Setup ();
+
+    Location := POWER_GENERATOR_ROOM;
+    GlovesFlag := Off;
+
+    // Act
+    ParseCommand ('PUSH SQUARE');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-3), 'I''M BEING ELECTROCUTED!');
+    AssertEqual (Display.Buffer(-2), 'I''M DEAD!');      
+    AssertEqual (Display.Buffer(-1), 'YOU DIDN''T WIN.');
+end
+
+// PUSH BUTTON turns on ButtonFlag. (???)
+//
+test 'BUTTON (LARGE) - PUSH';
+begin
+    // Arrange
+    Setup ();
+
+    Location := CHAOS_CONTROL_ROOM;
+    Items[BOX].Location := 0;
+    ButtonFlag := Off;
+
+    // Act
+    ParseCommand ('PUSH BUTTON');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-2), 'THE BUTTON ON THE WALL GOES IN .....');      
+    AssertEqual (Display.Buffer(-1), 'CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
+    AssertEqual(On, ButtonFlag);
+end
+
+// PUSH BUTTON opens SLIDING DOORS if they are Closed on ButtonFlag.
+//
+test 'BUTTON (SLIDING DOORS) - PUSH';
+begin
+    // Arrange
+    Setup ();
+
+    Location := LOBBY;
+    Items[BADGE].Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('PUSH BUTTON');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THE DOORS OPEN WITH A WHOOSH!');
+    AssertEqual(On, ButtonFlag);
+end
+
+// PUSH BUTTON on BOX
+//
+test 'BUTTON (BOX) - PUSH';
+begin
+    // Arrange
+    Setup ();
+
+    Location := CHAOS_CONTROL_ROOM;
+    Items[BOX].Location := INVENTORY;
+
+    // Act
+    ParseCommand ('PUSH BUTTON');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-6), 'I PUSH THE BUTTON ON THE BOX AND');
+    AssertEqual (Display.Buffer(-5), 'THERE IS A BLINDING FLASH....');
+    AssertEqual (Display.Buffer(-4), 'WE ARE ON A BUSY STREET.');
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A TALL OFFICE BUILDING.');
+
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual(BUSY_STREET, Location);
+end

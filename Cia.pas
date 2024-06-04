@@ -88,7 +88,7 @@ begin
     for var I := 1; I < Items.Length; I := I + 1 do
     begin
         var Item := Items[I];
-        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY) then
+        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY or Location = GLOBAL) then
         begin
            Exit Item as Item;
         end 
@@ -107,13 +107,10 @@ begin
     TheRoom := Rooms[Location] as Room;
     WriteLn('WE ARE ' + TheRoom.Description + '.');
 
-    for var I := 1; I <= 46; I := I + 1 do
+    for var I := 1; I <= Items.Length - 1; I := I + 1 do
     begin
        var Item := Items[I];
-
-       var Hidden := False;
-       try Hidden := Item.Hidden;
-       except end
+       var Hidden := Item.HasProperty ('Hidden') and Item.Hidden;
 
        if Item.Location = Location and not Hidden then WriteLn ('I CAN SEE ' + Item.Description + '.');
     end
@@ -157,133 +154,6 @@ begin
         if Item = Items[I].Keyword then Exit True;
     end
     Exit Item = 'NOR' or Item = 'SOU' or Item = 'EAS' or Item = 'WES';
-end
-
-
-/// Drop verb.
-///
-procedure Drop(DirectObject : String);
-var 
-   Match : Item;
-   TheItem : Integer;
-
-begin
-    Match := Nil as Item;
-    for var R := 1; R <= 46; R := R + 1 do
-    begin
-        if Items[R].Keyword = DirectObject and Items[R].Location = INVENTORY then
-        begin
-            Match := Items[R] as Item;
-            TheItem := R as Integer;
-            break;
-        end
-    end
-   
-    if Match = Nil then
-    begin
-       WriteLn('I DONT SEEM TO BE CARRYING IT.');  
-       Exit;     
-    end
-
-    if TheItem = CUP_OF_COFFEE then 
-    begin
-        WriteLn ('I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');
-        WriteLn ('THE COFFEE SOAKED INTO THE GROUND.');
-        Items[CUP_OF_COFFEE].Location := 0;
-        DruggedFlag := Off;
-        Exit;
-    end
-
-    if TheItem = GLOVES then
-    begin
-        GlovesFlag := Off;
-    end
-
-    if TheItem = CAPSULE and Items[CUP_OF_COFFEE].Location = INVENTORY then
-    begin
-        WriteLn ('O.K. I DROPPED IT.');
-        WriteLn ('BUT IT FELL IN THE COFFEE!');
-        Items[CAPSULE].Location := 0; 
-        DruggedFlag := On;
-        Exit;
-    end
-    
-    Match.Location := Location;
-    WriteLn('O.K. I DROPPED IT.');
-end
-
-// Moves the elevator
-//
-procedure Elevator (TheFloor : Integer);
-begin
-    Floor := TheFloor as Integer;
-    WriteLn('THE DOORS CLOSE AND I FEEL AS IF THE ROOM IS MOVING.');
-    WriteLn('SUDDENLY THE DOORS OPEN AGAIN.');
-    Pause (1000);
-end
-
-/// Push verb
-//
-procedure Push(DirectObject : String);
-var 
-   TheItem : Integer;
-
-begin
-    if DirectObject = 'BUT' and Location = LOBBY and Door = Closed then
-    begin
-       WriteLn('THE DOORS OPEN WITH A WHOOSH!');
-       Door := Opened;
-       Exit;
-    end
-
-    if Items[BOX].Location = INVENTORY and DirectObject = 'BUT' then
-    begin
-        WriteLn ('I PUSH THE BUTTON ON THE BOX AND');
-
-        if Items[BOX].Location = INVENTORY and (Location=SOUND_PROOFED_CUBICLE OR Location=CHAOS_CONTROL_ROOM) then
-        begin
-           WriteLn('THERE IS A BLINDING FLASH....');
-           Pause (750);
-           Location := BUSY_STREET;
-
-           Floor := 1;
-           Rooms[SMALL_ROOM].Exits.Set(0, LOBBY);
-           DisplayRoom();
-           Exit;
-        end
-
-        WriteLn('NOTHING HAPPENS.');
-        Exit;
-    end
-
-   try 
-        TheItem :=  FindItemID (DirectObject);
-
-        try if Items[TheItem].Push() = Handled then Exit;
-        except end
-
-        if TheItem = METAL_SQUARE and GlovesFlag = Off then
-        begin
-            WriteLn('THERES ELECTRICITY COURSING THRU THE SQUARE!');
-            WriteLn('IM BEING ELECTROCUTED!');
-            Die ();
-        end
-        
-        if TheItem = BUTTON and ButtonFlag = Off then
-        begin
-            WriteLn('THE BUTTON ON THE WALL GOES IN .....');
-            WriteLn('CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
-            ButtonFlag := On;
-            Exit;
-        end
-        WriteLn('NOTHING HAPPENS.');
-
-    except
-        on Err : String do
-            begin
-               WriteLn (Err);
-            end 
-    end
 end
 
 /// Pull Verb
@@ -844,11 +714,11 @@ end
 procedure Die();
 begin
     Pause (1000); 
-    WriteLn ('IM DEAD!');
+    WriteLn ('I''M DEAD!');
     WriteLn ('YOU DIDN''T WIN.');
 
-    var Input := ReadLn ('WOULD YOU LIKE TO TRY AGAIN (Y/N) ');
-    if Input = 'Y' then Reset(); else IsDone := True;
+    //var Input := ReadLn ('WOULD YOU LIKE TO TRY AGAIN (Y/N) ');
+    //if Input = 'Y' then Reset(); else IsDone := True;
 end
 
 procedure Intro ();

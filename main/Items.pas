@@ -15,7 +15,7 @@ begin
     end
 end
 
-var Items : Array := Array(51) as Array;
+var Items : Array := Array(53) as Array;
 
 // Add Item prototypes.
 //
@@ -73,6 +73,9 @@ begin
     Items.Set(GLOVES, Gloves());
     Items.Set(BOX, Box());
     Items.Set(SLIT, Slit());
+
+    Items.Set(SLIDING_DOORS_BUTTON, SlidingDoorsButton());
+    Items.Set(BOX_BUTTON,           BoxButton());
 end
 
 /// A C.I.A. IDENTIFICATION BADGE
@@ -241,6 +244,16 @@ begin
     end
 end
 
+// Moves the elevator
+//
+procedure Elevator (TheFloor : Integer);
+begin
+    Floor := TheFloor as Integer;
+    WriteLn('THE DOORS CLOSE AND I FEEL AS IF THE ROOM IS MOVING.');
+    WriteLn('SUDDENLY THE DOORS OPEN AGAIN.');
+    Pause (1000);
+end
+
 /// A PANEL OF BUTTONS NUMBERED ONE THRU THREE
 ///
 class PanelOfButtons (Item);
@@ -265,7 +278,8 @@ begin
         this.Keyword     := 'ONE';
         this.Location    := SMALL_ROOM;
 
-        this.Fixed := True;
+        this.Fixed  := True;
+        this.Hidden := True;
     end
 
     function Push() : ResultType;
@@ -291,6 +305,7 @@ begin
         this.Location    := SMALL_ROOM;
 
         this.Fixed := True;
+        this.Hidden := True;
     end
 
     function Push() : ResultType;
@@ -316,6 +331,7 @@ begin
         this.Location    := SMALL_ROOM;
 
         this.Fixed := True;
+        this.Hidden := True;
     end
 
     function Push() : ResultType;
@@ -464,6 +480,34 @@ begin
         if Door = Opened then 
         begin
             Location := SMALL_ROOM;
+            Exit Handled;
+        end
+        Exit Passed;
+    end    
+end
+
+/// BUTTON near SLIDING DOORS
+///
+class SlidingDoorsButton (Item);
+begin
+    constructor Init ();
+    begin
+        this.Description := 'NOTHING TO SEE HERE!';
+        this.Keyword     := 'BUT';
+        this.Location    := LOBBY;
+
+        this.Fixed := True;
+        this.Hidden := True;
+    end
+        
+    // PUSH BUTTON, yeah!!!
+    //
+    function Push () : ResultType;
+    begin
+        if Door = Closed then
+        begin
+            WriteLn('THE DOORS OPEN WITH A WHOOSH!');
+            Door := Opened;
             Exit Handled;
         end
         Exit Passed;
@@ -722,6 +766,20 @@ begin
 
         this.Fixed := True;
     end
+
+    // PUSH METAL SQUARE without GLOVES leads to death!
+    //
+    function Push () : ResultType;
+    begin
+        if GlovesFlag = Off then
+        begin
+            WriteLn('THERE''S ELECTRICITY COURSING THRU THE SQUARE!');
+            WriteLn('I''M BEING ELECTROCUTED!');
+            Die ();
+            Exit Handled;
+        end
+        Exit Passed;
+    end
 end
 
 /// A LEVER ON THE SQUARE
@@ -836,6 +894,15 @@ begin
         this.Keyword     := 'CUP';
         this.Location    := 0;
     end
+
+    function Drop () : ResultType;
+    begin
+        WriteLn ('I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');
+        WriteLn ('THE COFFEE SOAKED INTO THE GROUND.');
+        Items[CUP_OF_COFFEE].Location := 0;
+        DruggedFlag := Off;
+        Exit Handled;
+    end
 end
 
 /// A SMALL CAPSULE
@@ -848,6 +915,19 @@ begin
         this.Keyword     := 'CAP';
         this.Location    := 0;
     end
+
+    function Drop () : ResultType;
+    begin
+        if Items[CUP_OF_COFFEE].Location = INVENTORY then
+        begin
+            WriteLn ('O.K. I DROPPED IT.');
+            WriteLn ('BUT IT FELL IN THE COFFEE!');
+            Items[CAPSULE].Location := 0; 
+            DruggedFlag := On;
+            Exit Handled;
+        end
+        Exit Passed;
+    end
 end
 
 /// A LARGE BUTTON ON THE WALL
@@ -859,6 +939,20 @@ begin
         this.Description := 'A LARGE BUTTON ON THE WALL';
         this.Keyword     := 'BUT';
         this.Location    := CHAOS_CONTROL_ROOM;
+    end
+
+    /// PUSH BUTTON turns on BUTTON??
+    //
+    function Push () : ResultType;
+    begin
+        if ButtonFlag = Off then
+        begin
+            WriteLn('THE BUTTON ON THE WALL GOES IN .....');
+            WriteLn('CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
+            ButtonFlag := On;
+            Exit Handled;
+        end
+        Exit Passed;
     end
 end
 
@@ -986,6 +1080,12 @@ begin
         this.Keyword     := 'GLO';
         this.Location    := MAINTENANCE_CLOSET;
     end
+
+    function Drop () : ResultType;
+    begin
+        GlovesFlag := Off;
+        Exit Passed;
+    end
 end
 
 /// A BOX WITH A BUTTON ON IT
@@ -1000,15 +1100,55 @@ begin
     end
 end
 
+/// BUTTON on the BOX!
+///
+class BoxButton (Item);
+begin
+    constructor Init ();
+    begin
+        this.Description := 'NOTHING TO SEE HERE';
+        this.Keyword     := 'BUT';
+        this.Location    := GLOBAL;
+    end
+
+    function Push () : ResultType;
+    begin
+        WriteLn ('PUSH BOX!!!');
+        if Items[BOX].Location = INVENTORY then
+        begin
+            WriteLn ('I PUSH THE BUTTON ON THE BOX AND');
+
+            if Location=SOUND_PROOFED_CUBICLE OR Location=CHAOS_CONTROL_ROOM then
+            begin
+                WriteLn('THERE IS A BLINDING FLASH....');
+                Pause (750);
+                Location := BUSY_STREET;
+
+                Floor := 1;
+                Rooms[SMALL_ROOM].Exits.Set(0, LOBBY);
+                DisplayRoom();
+                Exit Handled;
+            end
+
+            WriteLn('NOTHING HAPPENS!');
+            Exit Handled;
+        end
+        Exit Passed;
+    end
+end
+
 /// SLIT
 ///
 class Slit (Item);
 begin
     constructor Init ();
     begin       
-        this.Description := 'SLI';
+        this.Description := 'NOTHING TO SEE HERE!';
         this.Keyword     := 'SLI';
         this.Location    := SHORT_CORRIDOR;
+
+        this.Fixed := True;
+        this.Hidden := True;
     end
 end
 
