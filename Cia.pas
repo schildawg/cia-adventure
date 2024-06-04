@@ -16,7 +16,7 @@ type DoorState = (Opened, Closed);
 uses 'main/Constants';
 uses 'main/Rooms';
 uses 'main/Items';
-uses 'Verbs';
+uses 'main/Verbs';
 
 uses 'test/RoomTests';
 uses 'test/ItemTests';
@@ -64,7 +64,7 @@ end
 ///
 /// Raises error if item not found.
 ///
-function FindItem (ToMatch : String) : Integer;
+function  FindItemID (ToMatch : String) : Integer;
 begin
     for var I := 1; I < Items.Length; I := I + 1 do
     begin
@@ -72,6 +72,25 @@ begin
         if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY) then
         begin
            Exit I as Integer;
+        end 
+    end
+    raise 'I DONT SEE THAT HERE.';
+end
+
+/// Finds an Item
+///
+/// # Errors
+///
+/// Raises error if item not found.
+///
+function  FindItem (ToMatch : String) : Item;
+begin
+    for var I := 1; I < Items.Length; I := I + 1 do
+    begin
+        var Item := Items[I];
+        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY) then
+        begin
+           Exit Item as Item;
         end 
     end
     raise 'I DONT SEE THAT HERE.';
@@ -107,10 +126,10 @@ begin
     if HasExit then
     begin
         Write('WE COULD EASILY GO: ');
-        if TheRoom.Exits[0] > 0 then Write ('NORTH  ');
-        if TheRoom.Exits[1] > 0 then Write ('SOUTH  ');
-        if TheRoom.Exits[2] > 0 then Write ('EAST  ');
-        if TheRoom.Exits[3] > 0 then Write ('WEST  ');
+        if TheRoom.Exits[NORTH] > 0 then Write ('NORTH  ');
+        if TheRoom.Exits[SOUTH] > 0 then Write ('SOUTH  ');
+        if TheRoom.Exits[EAST]  > 0 then Write ('EAST  ');
+        if TheRoom.Exits[WEST]  > 0 then Write ('WEST  ');
     end
     WriteLn (' ');
     WriteLn ('>--------------------------------------------------------------<');
@@ -138,97 +157,6 @@ begin
         if Item = Items[I].Keyword then Exit True;
     end
     Exit Item = 'NOR' or Item = 'SOU' or Item = 'EAS' or Item = 'WES';
-end
-
-/// Go verb.
-///
-procedure Go (Direction : String);
-var
-    Room : Room;
-    Item : Integer;
-
-begin    
-    try 
-        Room := Rooms[Location] as Room;
-        if Direction = 'NOR' or Direction = 'SOU' or Direction = 'EAS' or Direction = 'WES' then
-        begin
-            if Direction = 'NOR' and Room.Exits[0] > 0 then Location := Room.Exits[0] as Integer;
-            else if Direction = 'SOU' and Room.Exits[1] > 0 then Location := Room.Exits[1] as Integer;
-            else if Direction = 'EAS' and Room.Exits[2] > 0 then Location := Room.Exits[2] as Integer;
-            else if Direction = 'WES' and Room.Exits[3] > 0 then Location := Room.Exits[3] as Integer;      
-            else raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
-        end else
-        begin
-            Item := FindItem (Direction);
-            try
-                if Items[Item].Go() = Handled then
-                begin
-                    DisplayRoom();
-                    Exit;
-                end
-            except
-            end   
-            
-            if Item = ROPE and RopeFlag = On and Location = LEDGE then Location := OTHER_SIDE;
-            else if Item = OPEN_DOOR then Location := METAL_HALLWAY;
-            else if Item = CLOSET then Location := MAINTENANCE_CLOSET;
-            else if Item = SLIDING_DOORS and Door = Opened then Location := SMALL_ROOM;
-            else raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
-        end
-        DisplayRoom();
-
-    except
-        on Err : String do
-        begin
-            WriteLn (Err);
-            UpdateTime := False;
-        end
-    end
-end
-
-
-/// Get verb.
-///
-procedure Get (DirectObject : String);
-var 
-    Item  : Integer;
-    Fixed : Boolean;
-
-begin
-    try 
-        Item := FindItem (DirectObject);
-        Fixed := False;
-        
-        try Fixed := Items[Item].Fixed;
-        except end
-
-        if Fixed then //Item <> 2 and Item <> 3 and Item <> 4 and Item <> 6 and Item <> 15 and Item <> 16 and Item <> 21 and Item <> 22 and Item <> 23 and Item <> 25 and Item <> 26 and Item <> 27 and Item <> 28 and Item <> 30 and Item <> 31 and Item <> 37 and Item <> 39 and Item <> 40 and Item <> 42 and Item <> 44 and Item <> 45 and Item <> 46 then 
-        begin
-            raise 'I CAN''T CARRY THAT!';    
-        end
-
-        if Items[Item].Location = INVENTORY then raise 'I ALREADY HAVE IT.';
-        if InventoryCount >= 5 then raise 'I CAN''T CARRY ANYMORE.';
-    
-        WriteLn ('O.K.');
-        Items[Item].Location := INVENTORY;
-    
-        if DirectObject = 'PAI' and PaintingFlag = Off then 
-        begin
-            WriteLn ('SOMETHING FELL FROM THE FRAME!');
-            Items[31].Location := Location;
-            PaintingFlag := On;
-        end
-
-        if DirectObject = 'TEL' then TelevisionFlag := Off;
-
-    except
-        on Err : String do
-        begin
-            WriteLn (Err);
-            UpdateTime := False;
-        end
-    end
 end
 
 
@@ -329,7 +257,7 @@ begin
     end
 
    try 
-        TheItem := FindItem (DirectObject);
+        TheItem :=  FindItemID (DirectObject);
 
         try if Items[TheItem].Push() = Handled then Exit;
         except end
@@ -365,7 +293,7 @@ var
     Item : Integer;
 
 begin
-    Item := FindItem (DirectObject);
+    Item :=  FindItemID (DirectObject);
     if Item = LEVER and GlovesFlag = Off then
     begin
         WriteLn('THE LEVER HAS ELECTRICITY COURSING THRU IT!');
@@ -390,7 +318,7 @@ var
    Item : Integer;
 
 begin
-    Item := FindItem (DirectObject); 
+    Item :=  FindItemID (DirectObject); 
     
     try if Items[Item].Look() = Handled then Exit;
     except 
@@ -469,7 +397,7 @@ var
     IndirectObject : String;
 
 begin
-    Item := FindItem (DirectObject);
+    Item :=  FindItemID (DirectObject);
     try if Items[Item].Insert() = Handled then Exit;
     except end
 
@@ -480,7 +408,7 @@ begin
     end
     
     IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
-    Item2 := FindItem (Copy(IndirectObject, 0, 3));
+    Item2 :=  FindItemID (Copy(IndirectObject, 0, 3));
 
     if Item = CREDIT_CARD and Item2 = SLIT and DrugCounter <= 0 then
     begin
@@ -525,7 +453,7 @@ var
 
 begin  
     try
-        Item := FindItem (DirectObject);
+        Item :=  FindItemID (DirectObject);
         try 
             if Items[Item].Open() = Handled then Exit;
         except 
@@ -615,7 +543,7 @@ begin
         Exit;   
     end 
    
-    Item := FindItem(DirectObject);
+    Item := FindItemID  (DirectObject);
     
     try if Items[Item].Read() = Handled then Exit;
     except end
@@ -639,7 +567,7 @@ begin
         Exit;
     end
     
-    Item := FindItem (DirectObject);
+    Item :=  FindItemID (DirectObject);
     try if Items[Item].Start() = Handled then Exit;
     except
     end
@@ -653,7 +581,7 @@ var
    Item : Integer;
 
 begin
-    Item := FindItem (DirectObject);
+    Item :=  FindItemID (DirectObject);
     try if Items[Item].DoBreak() = Handled then Exit;
     except end
 
@@ -667,7 +595,7 @@ var
    Item : Integer;
 
 begin
-    Item := FindItem (DirectObject);
+    Item :=  FindItemID (DirectObject);
     
     if Item <> PLASTIC_BAG and Item <> GLASS_CASE then
     begin
@@ -954,55 +882,63 @@ var
     Verb, DirectObject : String;
     
 begin
-    Command := ParseAbreviation (Command);
+    try   
+        Command := ParseAbreviation (Command);
 
-    Verb := Copy(Command, 0, 3);
-    Verb := FindSynonyms (Verb);
+        Verb := Copy(Command, 0, 3);
+        Verb := FindSynonyms (Verb);
 
-    if Verb = 'ORD' then 
-    begin
-        DisplayOrders();
-        Exit;
-    end
-
-    if Not Dispatch.Contains (Verb) then 
-    begin
-        WriteLn('I DONT KNOW HOW TO DO THAT.');
-        UpdateTime := False;
-        Exit;
-    end
-
-    if Verb = 'QUI' then 
-    begin 
-        Quit();
-        Exit;
-    end
-
-    if Pos (Command, Str(' ')) = -1 then
-    begin
-        if Verb = 'LOO' then DisplayRoom();
-        else if Verb = 'BON' then Bond007();
-        else if Verb = 'INV' then Inventory();
-        else WriteLn('PLEASE USE 2 WORD COMMANDS SO I CAN UNDERSTAND YOU.');
-
-        UpdateTime := False;
-        Exit;
-    end
-
-    DirectObject := Copy(Command, Pos(Command, Str(' ')) + 1, 3);
-
-    if Not MatchDirectObject (DirectObject) then
-    begin
-        WriteLn('I DONT KNOW WHAT IT IS YOU ARE TALKING ABOUT.');
-        UpdateTime := False; 
-        Exit;
-    end
-
-    if (Dispatch.Contains(Verb)) then
+        if Verb = 'ORD' then 
         begin
-            Dispatch.Get (Verb) (DirectObject);
+            DisplayOrders();
+            Exit;
         end
-    else WriteLn (Verb + ' NOT SUPPORTED... YET!');
+
+        if Not Dispatch.Contains (Verb) then 
+        begin
+            WriteLn('I DONT KNOW HOW TO DO THAT.');
+            UpdateTime := False;
+            Exit;
+        end
+
+        if Verb = 'QUI' then 
+        begin 
+            Quit();
+            Exit;
+        end
+
+        if Pos (Command, Str(' ')) = -1 then
+        begin
+            if Verb = 'LOO' then DisplayRoom();
+            else if Verb = 'BON' then Bond007();
+            else if Verb = 'INV' then Inventory();
+            else WriteLn('PLEASE USE 2 WORD COMMANDS SO I CAN UNDERSTAND YOU.');
+
+            UpdateTime := False;
+            Exit;
+        end
+
+        DirectObject := Copy(Command, Pos(Command, Str(' ')) + 1, 3);
+
+        if Not MatchDirectObject (DirectObject) then
+        begin
+            WriteLn('I DONT KNOW WHAT IT IS YOU ARE TALKING ABOUT.');
+            UpdateTime := False; 
+            Exit;
+        end
+
+        if (Dispatch.Contains(Verb)) then
+            begin
+                Dispatch.Get (Verb) (DirectObject);
+            end
+        else WriteLn (Verb + ' NOT SUPPORTED... YET!');
+    except
+        on Err : String do
+            begin
+                UpdateTime := False;
+                WriteLn (Err);
+            end
+    end
 end
 
 /// Reads a command and executes it.
@@ -1041,7 +977,7 @@ begin
         if UpdateTime then UpdateTimer();
         try  
             ReadCommand ();
-            
+
         except
             on Err : String do
                 begin

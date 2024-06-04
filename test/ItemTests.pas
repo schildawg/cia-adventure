@@ -715,3 +715,130 @@ begin
     AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: WEST   ');
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
 end
+
+// GO to ROPE leads to OTHER SIDE.
+test 'ROPE - GO';
+begin
+    // Arrange
+    Setup ();
+    Location := LEDGE;
+    Items[ROPE].Location := LEDGE;
+
+    RopeFlag := On;
+
+    // Act
+    ParseCommand ('GO ROPE');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-4), 'WE ARE ON THE OTHER SIDE OF THE PIT.');
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A LARGE HOOK WITH A ROPE HANGING FROM IT.');
+    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST   ');
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual (OTHER_SIDE, Location);
+end
+
+// GO to DOOR leads to METAL HALLWAY.
+//
+test 'OPEN DOOR - GO';
+begin
+    // Arrange
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    Items[OPEN_DOOR].Location := SHORT_CORRIDOR;
+    Items[SOLID_DOOR].Location := 0;
+    ElectricyFlag := Off;
+
+    // Act
+    ParseCommand ('GO DOOR');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-3), 'WE ARE IN A HALLWAY MADE OF METAL.');
+    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST  WEST   ');
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual (METAL_HALLWAY, Location);
+end
+
+// GO to CLOSET leads to MAINTENANCE CLOSET.
+//
+test 'CLOSET - GO';
+begin
+    // Arrange
+    Setup ();
+    Location := CAFETERIA;
+    Items[LOCKED_CLOSET].Location := 0;
+    Items[CLOSET].Location := CAFETERIA;
+
+    // Act
+    ParseCommand ('GO CLOSET');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-7), 'WE ARE IN A MAINTENANCE CLOSET.');
+    AssertEqual (Display.Buffer(-6), 'I CAN SEE A PLASTIC BAG.');
+    AssertEqual (Display.Buffer(-5), 'I CAN SEE A BROOM.');
+    AssertEqual (Display.Buffer(-4), 'I CAN SEE A DUSTPAN.');
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A PAIR OF RUBBER GLOVES.');  
+    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST   ');      
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual (MAINTENANCE_CLOSET, Location);
+end
+
+// GO to SLIDING DOOR leads to SMALL ROOM.
+//
+test 'SLIDING DOOR - GO';
+begin
+    // Arrange
+    Setup ();
+    Location := LOBBY;
+    Items[BADGE].Location := BUSY_STREET;
+    Door := Opened;
+
+    // Act
+    ParseCommand ('GO DOOR');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-5), 'WE ARE IN A SMALL ROOM.');
+    AssertEqual (Display.Buffer(-4), 'I CAN SEE AN OLDE FASHIONED KEY.');
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A PANEL OF BUTTONS NUMBERED ONE THRU THREE.');  
+    AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: NORTH   ');      
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual (SMALL_ROOM, Location);
+end
+
+// GET PAINTING should drop a CAPSULE.
+//
+test 'PAINTING - GET';
+begin
+    // Arrange
+    Setup ();
+    Location := LARGE_ROOM;
+
+    // Act
+    ParseCommand ('GET PAINTING');
+    Events ();
+
+    // Assert
+    AssertEqual (Display.Buffer(-2), 'O.K.');      
+    AssertEqual (Display.Buffer(-1), 'SOMETHING FELL FROM THE FRAME!');
+    AssertEqual (LARGE_ROOM, Items[CAPSULE].Location);
+end
+
+// GET TELEVISION should disconnect it.
+//
+test 'TELEVISION - GET';
+begin
+    // Arrange
+    Setup ();
+    Location := SECURITY_OFFICE;
+    TelevisionFlag := On;
+
+    // Act
+    ParseCommand ('GET TELEVISION');
+    Events ();
+
+    // Assert
+    AssertEqual (TelevisionFlag, Off);
+end

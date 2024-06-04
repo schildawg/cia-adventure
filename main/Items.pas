@@ -113,7 +113,7 @@ begin
         if Mock = Nil then
             begin
                 IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
-                Item := FindItem (Copy(IndirectObject, 0, 3));
+                Item := FindItemID (Copy(IndirectObject, 0, 3));
             end 
         else 
             Item := Mock as Integer;
@@ -456,6 +456,18 @@ begin
 
         this.Fixed := True;
     end
+        
+    // GO to SLIDING DOOR leads to SMALL ROOM, if door is open.
+    //
+    function Go () : ResultType;
+    begin
+        if Door = Opened then 
+        begin
+            Location := SMALL_ROOM;
+            Exit Handled;
+        end
+        Exit Passed;
+    end    
 end
 
 /// A SPIRAL NOTEBOOK
@@ -601,6 +613,14 @@ begin
 
         this.Fixed := True;
     end
+
+    // GO to DOOR leads to METAL HALLWAY
+    //
+    function Go () : ResultType;
+    begin
+        Location := METAL_HALLWAY;
+        Exit Handled;
+    end
 end
 
 
@@ -657,6 +677,12 @@ begin
         this.Location    := 0;
 
         this.Fixed := True;
+    end
+
+    function Go () : ResultType;
+    begin
+        Location := MAINTENANCE_CLOSET;
+        Exit Handled;
     end
 end
 
@@ -846,6 +872,16 @@ begin
         this.Keyword     := 'ROP';
         this.Location    := SUB_BASEMENT;
     end
+
+    function Go () : ResultType;
+    begin
+        if RopeFlag = On and Location = LEDGE then 
+        begin
+            Location := OTHER_SIDE;
+            Exit Handled;
+        end
+        Exit Passed;
+    end
 end
 
 /// A LARGE HOOK WITH A ROPE HANGING FROM IT
@@ -871,6 +907,12 @@ begin
         this.Description := 'A PORTABLE TELEVISION';
         this.Keyword     := 'TEL';
         this.Location    := SECURITY_OFFICE;
+    end
+
+    /// GET the TELEVISION disconnects it.
+    procedure Event (Source : String);
+    begin
+       if Source = 'GET' then TelevisionFlag := Off;
     end
 end
 
@@ -919,6 +961,18 @@ begin
         this.Description := 'A SMALL PAINTING';
         this.Keyword     := 'PAI';
         this.Location    := LARGE_ROOM;
+    end
+
+    /// GET spawns a CAPSULE at the current location.
+    ///
+    procedure Event (Source : String);
+    begin
+        if Source = 'GET' and PaintingFlag = Off then 
+        begin
+            WriteLn ('SOMETHING FELL FROM THE FRAME!');
+            Items[CAPSULE].Location := Location;
+            PaintingFlag := On;
+        end
     end
 end
 
