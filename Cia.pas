@@ -14,6 +14,8 @@ type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
 
 uses 'main/Constants';
+uses 'main/Utils';
+
 uses 'main/Rooms';
 uses 'main/Items';
 uses 'main/Verbs';
@@ -84,13 +86,16 @@ end
 /// Raises error if item not found.
 ///
 function  FindItem (ToMatch : String) : Item;
+var
+   Item : Item;
+
 begin
-    for var I := 1; I < Items.Length; I := I + 1 do
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-        var Item := Items[I];
+        Item := I.Next() as Item;
         if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY or Location = GLOBAL) then
         begin
-           Exit Item as Item;
+           Exit Item;
         end 
     end
     raise 'I DONT SEE THAT HERE.';
@@ -102,19 +107,19 @@ procedure DisplayRoom();
 var
    HasExit : Boolean := False;
    TheRoom : Room;
-
+   
 begin
     TheRoom := Rooms[Location] as Room;
     WriteLn('WE ARE ' + TheRoom.Description + '.');
-
-    for var I := 1; I <= Items.Length - 1; I := I + 1 do
+    
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-       var Item := Items[I];
-       var Hidden := Item.HasProperty ('Hidden') and Item.Hidden;
+       var Item := I.Next();
 
+       var Hidden := Item.HasProperty ('Hidden') and Item.Hidden;
        if Item.Location = Location and not Hidden then WriteLn ('I CAN SEE ' + Item.Description + '.');
     end
-    
+
     for var R := 0; R < 4; R := R + 1 do
     begin
        if TheRoom.Exits[R] > 0 then HasExit := True;
@@ -147,13 +152,14 @@ end
 
 /// Checks if is a valid object.
 ///
-function MatchDirectObject (Item : String);
+function MatchDirectObject (DirectObject : String);
 begin
-    for var I := 1; I < Items.Length; I := I + 1 do
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-        if Item = Items[I].Keyword then Exit True;
+        var Item := I.Next();
+        if DirectObject = Item.Keyword then Exit True;
     end
-    Exit Item = 'NOR' or Item = 'SOU' or Item = 'EAS' or Item = 'WES';
+    Exit DirectObject = 'NOR' or DirectObject = 'SOU' or DirectObject = 'EAS' or DirectObject = 'WES';
 end
 
 /// Pull Verb
@@ -819,9 +825,10 @@ var
 
 begin
     InventoryCount := 0;
-    for var I := 1; I < Items.Length; I := I + 1 do
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-        if Items[I].Location = -1 then InventoryCount := InventoryCount + 1;
+        var Item := I.Next();
+        if Item.Location = -1 then InventoryCount := InventoryCount + 1;
     end
 
     UpdateTime := True;
@@ -840,8 +847,12 @@ var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, '
 /// Main.
 //
 procedure Main();
+var 
+   Item : Item;
+
 begin
     Intro();
+
     while Not IsDone do 
     begin
         if UpdateTime then UpdateTimer();

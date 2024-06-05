@@ -113,26 +113,27 @@ end
 ///
 procedure Drop(DirectObject : String);
 var 
-   Item : Item;
+   Matched : Item;
 
 begin
-    for var I := 1; I <= Items.Length; I := I + 1 do
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-        if Items[I].Keyword = DirectObject and Items[I].Location = INVENTORY then
+        var Item := I.Next();
+        if Item.Keyword = DirectObject and Item.Location = INVENTORY then
         begin
-            Item := Items[I] as Item;
+            Matched := Item as Item;
             break;
         end
     end
    
-    if Item = Nil then
+    if Matched = Nil then
     begin
        WriteLn('I DONT SEEM TO BE CARRYING IT.');  
        Exit;     
     end
-    if Item.GetClass().HasProperty ('Drop') and Item.Drop () = Handled then Exit;
+    if Matched.GetClass().HasProperty ('Drop') and Matched.Drop () = Handled then Exit;
     
-    Item.Location := Location;
+    Matched.Location := Location;
     WriteLn('O.K. I DROPPED IT.');
 end
 
@@ -144,9 +145,9 @@ var
 
 begin
     var Matched := False;
-    for var I := 1; I < Items.Length; I := I + 1 do
+    for var I := Iterator(Items); I.HasNext(); Nop() do
     begin
-        var Item := Items[I];
+        var Item := I.Next();
         if Item.Keyword = DirectObject and (Item.Location = Location or Item.Location = GLOBAL) then
         begin
            Matched := True;
@@ -158,6 +159,6 @@ begin
     // TODO: Handle Keyword Collision better :)
     // Item :=  FindItem (DirectObject);
     // if Item.GetClass().HasProperty('Push') and Item.Push() = Handled then Exit;
-    
+
     WriteLn('NOTHING HAPPENS.');
 end

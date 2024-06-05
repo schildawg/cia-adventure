@@ -1113,7 +1113,6 @@ begin
 
     function Push () : ResultType;
     begin
-        WriteLn ('PUSH BOX!!!');
         if Items[BOX].Location = INVENTORY then
         begin
             WriteLn ('I PUSH THE BUTTON ON THE BOX AND');
@@ -1129,7 +1128,6 @@ begin
                 DisplayRoom();
                 Exit Handled;
             end
-
             WriteLn('NOTHING HAPPENS!');
             Exit Handled;
         end
