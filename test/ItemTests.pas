@@ -508,22 +508,6 @@ begin
     AssertEqual (Display.Buffer(-1), 'I CAN''T OPEN THAT.');
 end
 
-// LOOK at SLIDING DOORS should show button.
-//
-test 'SLIDING DOORS - LOOK';
-begin
-    Setup ();
-    Location := LOBBY;
-    Items[BADGE].Location := 0;
-  
-    ParseCommand ('LOOK DOORS');
-    Events ();
-
-    AssertEqual (Display.Buffer(-1), 'THERES A BUTTON NEAR THE DOORS.');
-end
-
-
-
 // GET the NOTEBOOK
 //
 test 'NOTEBOOK - GET';
@@ -550,7 +534,7 @@ begin
     ParseCommand ('LOOK NOTEBOOK');
     Events ();
 
-    AssertEqual (Display.Buffer(-1), 'THERES WRITING ON IT.');
+    AssertEqual (Display.Buffer(-1), 'THERE''S WRITING ON IT.');
 end
 
 // READ the NOTEBOOK.
@@ -850,6 +834,8 @@ test 'CUP OF COFFEE - DROP';
 begin
     // Arrange
     Setup ();
+
+    Location := CAFETERIA;
     Items[CUP_OF_COFFEE].Location := INVENTORY;
 
     // Act
@@ -981,4 +967,288 @@ begin
 
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
     AssertEqual(BUSY_STREET, Location);
+end
+
+
+// PULL LEVER without GLOVES electrocutes you.
+//
+test 'LEVER - PULL without GLOVES';
+begin
+    // Arrange
+    Setup ();
+
+    Location := POWER_GENERATOR_ROOM;
+    GlovesFlag := Off;
+
+    // Act
+    ParseCommand ('PULL LEVER');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-4), 'THE LEVER HAS ELECTRICITY COURSING THRU IT!');
+    AssertEqual (Display.Buffer(-3), 'I''M BEING ELECTROCUTED!');
+    AssertEqual (Display.Buffer(-2), 'I''M DEAD!');
+    AssertEqual (Display.Buffer(-1), 'YOU DIDN''T WIN.');
+end
+
+// PULL LEVER should turn off electricity.
+//
+test 'LEVER - PULL with GLOVES';
+begin
+    // Arrange
+    Setup ();
+
+    Location := POWER_GENERATOR_ROOM;
+    GlovesFlag := On;
+    ElectricyFlag := On;
+
+    // Act
+    ParseCommand ('PULL LEVER');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-2), 'THE LEVER GOES ALL THE WAY UP AND CLICKS.');
+    AssertEqual (Display.Buffer(-1), 'SOMETHING SEEMS DIFFERENT NOW.');
+    AssertEqual (Off, ElectricyFlag);
+end
+
+// LOOK at PLASTIC BAG
+//
+test 'PLASTIC BAG - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := MAINTENANCE_CLOSET;
+
+    // Act
+    ParseCommand ('LOOK BAG');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'IT''S A VERY STRONG BAG.');
+end
+
+// LOOK at SIGN
+//
+test 'SIGN - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := POWER_GENERATOR_ROOM;
+
+    // Act
+    ParseCommand ('LOOK SIGN');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THERE''S WRITING ON IT.');
+end
+
+// LOOK at SLIDING DOORS
+//
+test 'SLIDING DOORS (OPEN) - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Items[BADGE].Location := BUSY_STREET;
+    Location := LOBBY;
+    Door := Opened;
+
+    // Act
+    ParseCommand ('LOOK DOORS');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THE DOORS ARE OPEN.');
+end
+
+// LOOK at SLIDING DOORS should show button.
+//
+test 'SLIDING DOOR (CLOSED) - LOOK';
+begin
+    Setup ();
+    Location := LOBBY;
+    Items[BADGE].Location := 0;
+  
+    ParseCommand ('LOOK DOORS');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'THERE''S A BUTTON NEAR THE DOORS.');
+end
+
+// LOOK at GLASS CASE
+//
+test 'GLASS CASE - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := SOUND_PROOFED_CUBICLE; 
+
+    // Act
+    ParseCommand ('LOOK CASE');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I CAN SEE A GLEAMING STONE IN IT.');
+end
+
+// LOOK at SOLID DOOR
+//
+test 'SOLID DOOR - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := SHORT_CORRIDOR;
+
+    // Act
+    ParseCommand ('LOOK DOOR');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THERE IS A SMALL SLIT NEAR THE DOOR.');
+end
+
+// LOOK at MONITORS
+//
+test 'MONITORS (LEDGE) - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := MONITORING_ROOM;
+
+    // Act
+    ParseCommand ('LOOK MONITORS');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-2), 'I SEE A METAL PIT 1000''S OF FEET DEEP ON ONE MONITOR.');
+    AssertEqual (Display.Buffer(-1), 'ON THE OTHER SIDE OF THE PIT,I SEE A LARGE HOOK.');
+end
+
+// LOOK at PEDISTAL MONITORS
+//
+test 'MONITORS (PEDISTAL) - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := SECURITY_OFFICE;
+    ButtonFlag := Off;
+
+    // Act
+    ParseCommand ('LOOK MONITORS');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'THE SCREEN IS DARK.');
+end
+
+
+// LOOK at PEDISTAL MONITORS with BUTTON 
+//
+test 'MONITORS (PEDISTAL) - LOOK WITH BUTTON ON';
+begin
+    // Arrange
+    Setup ();
+
+    Location := SECURITY_OFFICE;
+    ButtonFlag := On;
+
+    // Act
+    ParseCommand ('LOOK MONITORS');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I SEE A ROOM WITH A CASE ON A PEDESTAL IN IT.');
+end
+
+
+// LOOK at PAINTING.
+//
+test 'PAINTING - LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := LARGE_ROOM;
+
+    // Act
+    ParseCommand ('LOOK PAINTING');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I SEE A PICTURE OF A GRINNING JACKAL.');
+end
+
+// INSERT the CREDIT CARD with the ALERT GUARD.
+//
+test 'CREDIT CARD - INSERT with ALERT GUARD';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    
+    Items[ID_CARD].Location := INVENTORY;
+    Items[CREDIT_CARD].Location := INVENTORY;
+    Items[CREDIT_CARD].Mock := SLIT;
+
+    ParseCommand ('INSERT CARD');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'THE GUARD WON''T LET ME!');
+end
+
+// INSERT the CREDIT CARD with the SLEEPING GUARD.
+//
+test 'CREDIT CARD - INSERT with SLEEPING GUARD';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    
+    Items[ID_CARD].Location := INVENTORY;
+    Items[CREDIT_CARD].Location := INVENTORY;
+    Items[CREDIT_CARD].Mock := SLIT;
+    DrugCounter := 10;
+
+    ParseCommand ('INSERT CARD');
+    Events ();
+
+    AssertEqual (Display.Buffer(-2), 'POP! A SECTION OF THE WALL OPENS.....');
+    AssertEqual (Display.Buffer(-1), 'REVEALING SOMETHING VERY INTERESTING.');
+
+    AssertEqual(0, Items[CREDIT_CARD].Location);
+    AssertEqual(SHORT_CORRIDOR, Items[LOCK].Location);
+end
+
+// INSERT the TAPE into the RECORDER
+//
+test 'TAPE - INSERT';
+begin
+    Setup ();
+    Location := VISITORS_ROOM;
+    
+    Items[TAPE].Location := INVENTORY;
+    Items[TAPE].Mock := RECORDER;
+
+    ParseCommand ('INSERT TAPE');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'O.K. THE TAPE IS IN THE RECORDER.');
+    AssertEqual (On, TapeFlag);
+end
+
+// INSERT the QUARTER into the COFFEE MACHINE
+//
+test 'QUARTER - INSERT';
+begin
+    Setup ();
+    Location := SMALL_HALLWAY;
+    
+    Items[QUARTER].Location := INVENTORY;
+    Items[QUARTER].Mock := COFFEE_MACHINE;
+
+    ParseCommand ('INSERT QUARTER');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
+    AssertEqual (SMALL_HALLWAY, Items[CUP_OF_COFFEE].Location);
 end

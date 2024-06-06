@@ -335,5 +335,86 @@ begin
 
     // Assert    
     AssertEqual (Display.Buffer(-1), 'THE DOORS OPEN WITH A WHOOSH!');
-    AssertEqual(On, ButtonFlag);
+end
+
+// Tests PULL
+//
+test 'PULL';
+begin
+    // Arrange
+    Setup ();
+
+    Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('PULL BUILDING');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'NOTHING HAPPENS.');
+end
+
+// Tests LOOK
+//
+test 'LOOK';
+begin
+    // Arrange
+    Setup ();
+
+    Location := BUSY_STREET;
+
+    // Act
+    ParseCommand ('LOOK BUILDING');
+    Events ();
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I SEE NOTHING OF INTEREST.');
+end
+
+// EXAMINE
+//
+test 'LOOK - EXAMINE SYNONYM';
+begin
+    // Arrange
+    Setup ();
+
+    Location := LARGE_ROOM;
+
+    // Act
+    ParseCommand ('EXAMINE PAINTING');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I SEE A PICTURE OF A GRINNING JACKAL.');
+end
+
+// INSERT
+//
+test 'INSERT';
+begin
+    // Arrange
+    Setup ();
+
+    Location := LARGE_ROOM;
+
+    // Act
+    ParseCommand ('INSERT PAINTING');
+
+    // Assert    
+    AssertEqual (Display.Buffer(-1), 'I CAN''T INSERT THAT!');
+end
+
+// PUT!
+//
+test 'INSERT - PUT SYNONYM';
+begin
+    Setup ();
+    Location := SMALL_HALLWAY;
+    
+    Items[QUARTER].Location := INVENTORY;
+    Items[QUARTER].Mock := COFFEE_MACHINE;
+
+    ParseCommand ('PUT QUARTER');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
 end

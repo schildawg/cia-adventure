@@ -162,3 +162,43 @@ begin
 
     WriteLn('NOTHING HAPPENS.');
 end
+
+/// Pull Verb
+///
+procedure Pull(DirectObject : String);
+var  
+    Item  : Item;
+
+begin    
+    Item := FindItem (DirectObject);
+    if Item.GetClass().HasProperty ('Pull') and Item.Pull () = Handled then Exit;
+
+    WriteLn ('NOTHING HAPPENS.');
+end
+
+/// Look Verb
+////
+procedure Look(DirectObject : String);
+var 
+   Item : Item;
+
+begin
+    Item :=  FindItem (DirectObject); 
+    
+    if Item.GetClass().HasProperty ('Look') and Item.Look() = Handled then Exit;
+    
+    WriteLn('I SEE NOTHING OF INTEREST.');
+end
+
+/// Insert Verb.
+///
+procedure Insert (DirectObject : String);
+var
+    Item   : Item;
+
+begin
+    Item :=  FindItem (DirectObject);
+    if Item.GetClass().HasProperty ('Insert') and Item.Insert() = Handled then Exit;
+
+    raise 'I CAN''T INSERT THAT!';
+end

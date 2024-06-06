@@ -109,19 +109,11 @@ begin
     //
     function Insert() : ResultType;
     var 
-        IndirectObject : String;
         Item : Integer;
 
     begin
-        if Mock = Nil then
-            begin
-                IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
-                Item := FindItemID (Copy(IndirectObject, 0, 3));
-            end 
-        else 
-            Item := Mock as Integer;
+        Item := GetIndirectObject(Mock);
             
-
         if Item = RECORDER then 
         begin
             WriteLn('O.K.');
@@ -156,6 +148,14 @@ begin
     end   
 end
 
+function GetIndirectObject(Mock : Integer) : Integer;
+begin
+    if Mock <> Nil then Exit Mock as Integer;
+    
+    var IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
+    Exit FindItemID (Copy(IndirectObject, 0, 3));
+end
+
 /// A BLANK CREDIT CARD
 ///
 class CreditCard (Item);
@@ -165,7 +165,37 @@ begin
         this.Description := 'A BLANK CREDIT CARD';
         this.Keyword     := 'CAR';
         this.Location    := 0;
+        
+        this.Mock := Nil;
     end
+
+    // INSERT CREDIT CARD into SLIT.
+    //
+    function Insert() : ResultType;
+    var 
+        Item : Integer;
+
+    begin
+        Item := GetIndirectObject(Mock);
+            
+        if Item = SLIT and DrugCounter <= 0 then
+        begin
+            WriteLn ('THE GUARD WON''T LET ME!');
+            Exit Handled;
+        end
+
+        if Item = SLIT then 
+        begin 
+            WriteLn('POP! A SECTION OF THE WALL OPENS.....');
+            WriteLn('REVEALING SOMETHING VERY INTERESTING.');
+            Items[CREDIT_CARD].Location := 0;
+            Items[LOCK].Location := Location;
+            Exit Handled;
+        end
+
+        WriteLn ('NOTHING HAPPENED.');
+        Exit Handled;
+    end 
 end
 
 /// AN OLD MAHOGANY DESK
@@ -375,7 +405,29 @@ begin
         this.Description := 'A QUARTER';
         this.Keyword     := 'QUA';
         this.Location    := 0;
+
+        this.Mock := Nil;
     end
+
+    // INSERT QUARTER into COFFEE MACHINE.
+    //
+    function Insert() : ResultType;
+    var 
+        Item : Integer;
+
+    begin
+        Item := GetIndirectObject(Mock);
+
+        if Item = COFFEE_MACHINE then 
+        begin
+            WriteLn ('POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
+            Items[QUARTER].Location := 0;
+            Items[CUP_OF_COFFEE].Location := Location;
+            Exit Handled;
+        end
+        WriteLn ('NOTHING HAPPENED.');
+        Exit Handled;
+    end 
 end
 
 /// A VIDEO CASSETTE RECORDER
@@ -483,7 +535,23 @@ begin
             Exit Handled;
         end
         Exit Passed;
-    end    
+    end  
+
+    function Look () : ResultType;
+    begin
+        if Door = Opened then
+        begin 
+            WriteLn('THE DOORS ARE OPEN.');
+            Exit Handled;
+        end
+
+        if Door = Closed then
+        begin 
+            WriteLn('THERE''S A BUTTON NEAR THE DOORS.');
+            Exit Handled;
+        end
+        Exit Passed;   
+    end 
 end
 
 /// BUTTON near SLIDING DOORS
@@ -529,7 +597,7 @@ begin
     ///
     function Look() : ResultType;
     begin
-        WriteLn ('THERES WRITING ON IT.');
+        WriteLn ('THERE''S WRITING ON IT.');
         Exit Handled;    
     end
 
@@ -614,7 +682,29 @@ begin
         this.Description := 'A VIDEO TAPE';
         this.Keyword     := 'TAP';
         this.Location    := 0;
+
+        this.Mock := Nil;
     end
+
+    // INSERT TAPE into RECORDER.
+    //
+    function Insert() : ResultType;
+    var 
+        Item : Integer;
+
+    begin
+        Item := GetIndirectObject(Mock);
+            
+        if Item = RECORDER then 
+        begin
+            WriteLn ('O.K. THE TAPE IS IN THE RECORDER.');
+            Items[TAPE].Location := 0;
+            TapeFlag := On;
+            Exit Handled;
+        end
+        WriteLn ('NOTHING HAPPENED.');
+        Exit Handled;
+    end 
 end
 
 /// AN ELECTRONIC LOCK
@@ -642,6 +732,12 @@ begin
         this.Location    := SHORT_CORRIDOR;
 
         this.Fixed := True;
+    end
+
+    function Look () : ResultType;
+    begin
+        WriteLn('THERE IS A SMALL SLIT NEAR THE DOOR.');
+        Exit Handled;        
     end
 end
 
@@ -740,6 +836,12 @@ begin
         this.Keyword     := 'BAG';
         this.Location    := MAINTENANCE_CLOSET;
     end
+
+    function Look () : ResultType;
+    begin
+        WriteLn ('IT''S A VERY STRONG BAG.');
+        Exit Handled;
+    end
 end
 
 /// AN OLDE FASHIONED KEY
@@ -794,6 +896,26 @@ begin
 
         this.Fixed := True;
     end
+
+    function Pull () : ResultType;
+    begin
+        if GlovesFlag = Off then
+        begin
+            WriteLn('THE LEVER HAS ELECTRICITY COURSING THRU IT!');
+            WriteLn('I''M BEING ELECTROCUTED!');
+            Die ();
+            Exit Handled;
+        end
+
+        if ElectricyFlag = On then
+        begin
+            WriteLn ('THE LEVER GOES ALL THE WAY UP AND CLICKS.');
+            WriteLn ('SOMETHING SEEMS DIFFERENT NOW.');
+            ElectricyFlag := Off;
+            Exit Handled;
+        end
+        Exit Passed;
+    end
 end
 
 /// A BROOM
@@ -832,6 +954,12 @@ begin
 
         this.Fixed := True;
     end
+
+    function Look () : ResultType;
+    begin
+        WriteLn ('I CAN SEE A GLEAMING STONE IN IT.');
+        Exit Handled;        
+    end
 end
 
 /// A RAZOR BLADE
@@ -867,6 +995,12 @@ begin
         this.Description := 'A SIGN ON THE SQUARE';
         this.Keyword     := 'SIG';
         this.Location    := POWER_GENERATOR_ROOM;
+    end
+
+    function Look () : ResultType;
+    begin
+        WriteLn ('THERE''S WRITING ON IT.');
+        Exit Handled;   
     end
 end
 
@@ -1020,6 +1154,18 @@ begin
         this.Keyword     := 'MON';
         this.Location    := SECURITY_OFFICE;
     end
+
+    function Look () : ResultType;
+    begin
+        if ButtonFlag = Off then
+        begin
+            WriteLn ('THE SCREEN IS DARK.');
+            Exit Handled;
+        end
+
+        WriteLn ('I SEE A ROOM WITH A CASE ON A PEDESTAL IN IT.');
+        Exit Handled;  
+    end
 end
 
 /// A CHAOS I.D. CARD
@@ -1044,6 +1190,13 @@ begin
         this.Keyword     := 'MON';
         this.Location    := MONITORING_ROOM;
     end
+
+    function Look () : ResultType;
+    begin
+        WriteLn('I SEE A METAL PIT 1000''S OF FEET DEEP ON ONE MONITOR.');
+        WriteLn('ON THE OTHER SIDE OF THE PIT,I SEE A LARGE HOOK.');        
+        Exit Handled;
+    end
 end
 
 /// A SMALL PAINTING
@@ -1055,6 +1208,12 @@ begin
         this.Description := 'A SMALL PAINTING';
         this.Keyword     := 'PAI';
         this.Location    := LARGE_ROOM;
+    end
+
+    function Look () : ResultType;
+    begin
+       WriteLn ('I SEE A PICTURE OF A GRINNING JACKAL.');
+       Exit Handled;
     end
 
     /// GET spawns a CAPSULE at the current location.
