@@ -324,6 +324,23 @@ begin
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
 end
 
+// METAL HALLWAY - Electricity not turned off :D
+//
+test 'METAL HALLWAY - ELECTRICITY';
+begin
+    Setup ();
+    Location := METAL_HALLWAY;
+    ElectricyFlag := On;
+
+    ParseCommand ('LOOK');
+    Events ();
+
+    AssertEqual (Display.Buffer(-4), 'THE FLOOR IS WIRED WITH ELECTRICITY!');    
+    AssertEqual (Display.Buffer(-3), 'IM BEING ELECTROCUTED!');     
+    AssertEqual (Display.Buffer(-2), 'I''M DEAD!');      
+    AssertEqual (Display.Buffer(-1), 'YOU DIDN''T WIN.');
+end
+
 // LOOK should display IN A SECRET MONITORING ROOM.
 //
 test 'IN A SECRET MONITORING ROOM';
@@ -475,6 +492,57 @@ begin
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
 end
 
+// If Guns is True, GUARD in SHORT CORRIDOR shoots you.
+//
+test 'SHORT CORRIDOR - GUNS';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    Items[ID_CARD].Location := INVENTORY;
+    Guns := True;
+
+    ParseCommand ('LOOK');
+    Events ();
+
+    AssertEqual (Display.Buffer(-3), 'THE GUARD DRAWS HIS GUN AND SHOOTS ME!');     
+    AssertEqual (Display.Buffer(-2), 'I''M DEAD!');      
+    AssertEqual (Display.Buffer(-1), 'YOU DIDN''T WIN.');
+end
+
+// GUARD kicks you out if you don't have ID CARD.
+//
+test 'SHORT CORRIDOR - GUARD KICKS YOU OUT';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    Guns := False;
+    Items[ID_CARD].Location := 0;
+
+    ParseCommand ('LOOK');
+    Events ();
+
+    AssertEqual (Display.Buffer(-6), 'THE GUARD LOOKS AT ME SUSPICIOUSLY, THEN THROWS ME BACK.');     
+    AssertEqual (SMALL_ROOM, Location);
+end
+
+// GUARD takes CUP OF COFFEE and falls asleep.
+//
+test 'SHORT CORRIDOR - GUARD TAKES COFFEE';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    Guns := False;
+    Items[ID_CARD].Location := INVENTORY;
+    Items[CUP_OF_COFFEE].Location := INVENTORY;
+    Items[CUP_OF_COFFEE].IsDrugged := True;
+
+    Events ();
+
+    AssertEqual (Display.Buffer(-2), 'THE GUARD TAKES MY COFFEE');  
+    AssertEqual (Display.Buffer(-1), 'AND FALLS TO SLEEP RIGHT AWAY.'); 
+    AssertEqual (SHORT_CORRIDOR, Items[SLEEPING_GUARD].Location);  
+end
+
 // LOOK should display IN A SIDE CORRIDOR.
 //
 test 'IN A SIDE CORRIDOR';
@@ -547,7 +615,7 @@ test 'IN A SMALL SOUND PROOFED CUBICLE';
 begin
     Setup ();
     Location := SOUND_PROOFED_CUBICLE;
-    ButtonFlag := On;
+    Items[BUTTON].Flag := On;
 
     ParseCommand ('LOOK');
     Events ();

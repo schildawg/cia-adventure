@@ -117,7 +117,7 @@ begin
         if Item = RECORDER then 
         begin
             WriteLn('O.K.');
-            BatteryFlag := On;
+            Items[RECORDER].BatteryFlag := On;
             Items[BATTERY].Location := 0;
             Exit Handled;
         end
@@ -449,6 +449,11 @@ begin
         this.Location    := VISITORS_ROOM;
 
         this.Fixed := True;
+        
+        this.TelevisionFlag := Off;
+        this.BatteryFlag    := Off;
+        this.TapeFlag       := Off;
+
     end
 
     /// LOOK at RECORDER
@@ -532,13 +537,14 @@ begin
         this.Location    := LOBBY;
 
         this.Fixed := True;
+        this.State := Closed;
     end
         
     // GO to SLIDING DOOR leads to SMALL ROOM, if door is open.
     //
     function Go () : ResultType;
     begin
-        if Door = Opened then 
+        if State = Opened then 
         begin
             Location := SMALL_ROOM;
             Exit Handled;
@@ -548,13 +554,13 @@ begin
 
     function Look () : ResultType;
     begin
-        if Door = Opened then
+        if State = Opened then
         begin 
             WriteLn('THE DOORS ARE OPEN.');
             Exit Handled;
         end
 
-        if Door = Closed then
+        if State = Closed then
         begin 
             WriteLn('THERE''S A BUTTON NEAR THE DOORS.');
             Exit Handled;
@@ -575,16 +581,18 @@ begin
 
         this.Fixed := True;
         this.Hidden := True;
+        this.Flag   := Off;
     end
         
     // PUSH BUTTON, yeah!!!
     //
     function Push () : ResultType;
     begin
-        if Door = Closed then
+        if Items[SLIDING_DOORS].State = Closed then
         begin
             WriteLn('THE DOORS OPEN WITH A WHOOSH!');
-            Door := Opened;
+            Items[SLIDING_DOORS].State := Opened;
+            Flag := On;
             Exit Handled;
         end
         Exit Passed;
@@ -708,7 +716,7 @@ begin
         begin
             WriteLn ('O.K. THE TAPE IS IN THE RECORDER.');
             Items[TAPE].Location := 0;
-            TapeFlag := On;
+            Items[RECORDER].TapeFlag := On;
             Exit Handled;
         end
         WriteLn ('NOTHING HAPPENED.');
@@ -940,7 +948,7 @@ begin
     //
     function Push () : ResultType;
     begin
-        if GlovesFlag = Off then
+        if Items[GLOVES].State <> Wearing then
         begin
             WriteLn('THERE''S ELECTRICITY COURSING THRU THE SQUARE!');
             WriteLn('I''M BEING ELECTROCUTED!');
@@ -966,7 +974,7 @@ begin
 
     function Pull () : ResultType;
     begin
-        if GlovesFlag = Off then
+        if Items[GLOVES].State <> Wearing then
         begin
             WriteLn('THE LEVER HAS ELECTRICITY COURSING THRU IT!');
             WriteLn('I''M BEING ELECTROCUTED!');
@@ -1121,14 +1129,19 @@ begin
         this.Description := 'A CUP OF STEAMING HOT COFFEE';
         this.Keyword     := 'CUP';
         this.Location    := 0;
+
+        this.IsDrugged := False;
     end
 
     function Drop () : ResultType;
     begin
         WriteLn ('I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');
         WriteLn ('THE COFFEE SOAKED INTO THE GROUND.');
-        Items[CUP_OF_COFFEE].Location := 0;
-        DruggedFlag := Off;
+        
+        var CupOfCoffee := Items[CUP_OF_COFFEE];
+        CupOfCoffee.Location := 0;
+        CupOfCoffee.IsDrugged := False;
+
         Exit Handled;
     end
 end
@@ -1151,7 +1164,8 @@ begin
             WriteLn ('O.K. I DROPPED IT.');
             WriteLn ('BUT IT FELL IN THE COFFEE!');
             Items[CAPSULE].Location := 0; 
-            DruggedFlag := On;
+            Items[CUP_OF_COFFEE].IsDrugged := True;
+            
             Exit Handled;
         end
         Exit Passed;
@@ -1167,17 +1181,19 @@ begin
         this.Description := 'A LARGE BUTTON ON THE WALL';
         this.Keyword     := 'BUT';
         this.Location    := CHAOS_CONTROL_ROOM;
+
+        this.Flag := Off;
     end
 
     /// PUSH BUTTON turns on BUTTON??
     //
     function Push () : ResultType;
     begin
-        if ButtonFlag = Off then
+        if this.Flag = Off then
         begin
             WriteLn('THE BUTTON ON THE WALL GOES IN .....');
             WriteLn('CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
-            ButtonFlag := On;
+            this.Flag := On;
             Exit Handled;
         end
         Exit Passed;
@@ -1194,14 +1210,15 @@ begin
         this.Keyword     := 'ROP';
         this.Location    := SUB_BASEMENT;
 
-        this.Mock := Nil;
+        this.State := Default;
+        this.Mock  := Nil;
     end
 
     // GO to the ROPE
     //
     function Go () : ResultType;
     begin
-        if RopeFlag = On and Location = LEDGE then 
+        if State = Connected and Location = LEDGE then 
         begin
             Location := OTHER_SIDE;
             Exit Handled;
@@ -1234,8 +1251,9 @@ begin
         end
 
         WriteLn ('I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
-        RopeFlag := On;
-        Items[ROPE].Location := Location;
+        State := Connected;
+        this.Location := Location;
+
         Exit Handled;
     end
 end
@@ -1273,7 +1291,7 @@ begin
             Exit Handled;
         end
 
-        if TelevisionFlag = On then
+        if Items[RECORDER].TelevisionFlag = On then
         begin
             WriteLn ('I DID THAT ALREADY.');
             Exit Handled;
@@ -1286,14 +1304,14 @@ begin
         end
 
         WriteLn ('O.K. THE T.V. IS CONNECTED.');
-        TelevisionFlag := On;
+        Items[RECORDER].TelevisionFlag := On;
         Exit Handled;
     end
 
     /// GET the TELEVISION disconnects it.
     procedure Event (Source : String);
     begin
-       if Source = 'GET' then TelevisionFlag := Off;
+       if Source = 'GET' then Items[RECORDER].TelevisionFlag := Off;
     end
 end
 
@@ -1310,7 +1328,7 @@ begin
 
     function Look () : ResultType;
     begin
-        if ButtonFlag = Off then
+        if Items[BUTTON].Flag = Off then
         begin
             WriteLn ('THE SCREEN IS DARK.');
             Exit Handled;
@@ -1361,6 +1379,8 @@ begin
         this.Description := 'A SMALL PAINTING';
         this.Keyword     := 'PAI';
         this.Location    := LARGE_ROOM;
+
+        this.State := Default;
     end
 
     function Look () : ResultType;
@@ -1373,11 +1393,11 @@ begin
     ///
     procedure Event (Source : String);
     begin
-        if Source = 'GET' and PaintingFlag = Off then 
+        if Source = 'GET' and State <> Moved then 
         begin
             WriteLn ('SOMETHING FELL FROM THE FRAME!');
             Items[CAPSULE].Location := Location;
-            PaintingFlag := On;
+            State := Moved;
         end
     end
 end
@@ -1397,7 +1417,7 @@ begin
     //
     function Drop () : ResultType;
     begin
-        GlovesFlag := Off;
+        Items[GLOVES].State := Default;
         Exit Passed;
     end
 
@@ -1408,7 +1428,7 @@ begin
         if this.Location = INVENTORY then
         begin
             WriteLn ('O.K. IM NOW WEARING THE GLOVES.');
-            GlovesFlag := On;
+            Items[GLOVES].State := Wearing;
             Exit Handled;
         end
     end

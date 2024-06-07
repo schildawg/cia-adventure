@@ -169,7 +169,6 @@ begin
     // Arrange
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    InventoryCount := 0;
     Items[PAPER_WEIGHT].Location := PRESIDENTS_OFFICE;
 
     // Act
@@ -186,7 +185,6 @@ test 'GET - FIXED';
 begin
     // Arrange
     Setup ();
-    InventoryCount := 0;
     Location := BUSY_STREET;
 
     // Act
@@ -204,7 +202,6 @@ test 'GET - ALREADY HAVE';
 begin
     // Arrange
     Setup ();
-    InventoryCount := 0;
     Location := BUSY_STREET;
 
     // Act
@@ -223,7 +220,12 @@ begin
     // Arrange
     Setup ();
     Location := MAINTENANCE_CLOSET;
-    InventoryCount := 5;
+
+    Items[BADGE].Location := INVENTORY;
+    Items[PAPER_WEIGHT].Location := INVENTORY;
+    Items[BROOM].Location := INVENTORY;
+    Items[DUSTPAN].Location := INVENTORY;
+    Items[ANTIQUE_KEY].Location := INVENTORY;
 
     // Act
     ParseCommand ('GET GLOVES');
@@ -240,7 +242,6 @@ begin
     // Arrange
     Setup ();
     Location := MAINTENANCE_CLOSET;
-    InventoryCount := 0;
 
     // Act
     ParseCommand ('TAKE BAG');
@@ -257,7 +258,6 @@ begin
     // Arrange
     Setup ();
     Location := MAINTENANCE_CLOSET;
-    InventoryCount := 0;
 
     // Act
     ParseCommand ('CARRY BROOM');
@@ -543,14 +543,14 @@ end
 test 'CONNECT - ATTACH SYNONYM';
 begin
     Setup ();
-    TelevisionFlag := Off;
+    Items[RECORDER].TelevisionFlag := Off;
     Location := VISITORS_ROOM;
     Items[TELEVISION].Location := VISITORS_ROOM;
 
     ParseCommand ('ATTACH TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
-    AssertEqual (On, TelevisionFlag);
+    AssertEqual (On, Items[RECORDER].TelevisionFlag);
 end
 
 
@@ -573,7 +573,6 @@ end
 //
 test 'BOND-007';
 begin
-    Display.Output := DEBUG;
     Setup ();
     Location := CAFETERIA;
 

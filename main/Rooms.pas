@@ -384,6 +384,16 @@ begin
         this.Exits.Set(EAST,  PLAIN_ROOM);
         this.Exits.Set(WEST,  SHORT_CORRIDOR);
     end
+    
+    procedure Event ();
+    begin
+        if ElectricyFlag = On then
+        begin
+            WriteLn ('THE FLOOR IS WIRED WITH ELECTRICITY!');
+            WriteLn ('IM BEING ELECTROCUTED!');
+            Die();
+        end
+    end
 end
 
 /// IN A SECRET MONITORING ROOM
@@ -512,6 +522,42 @@ begin
         this.Exits.Set(EAST,  0);
         this.Exits.Set(WEST,  SMALL_ROOM);
     end
+
+    /// GUARD shoots you if Guns is True.
+    ///
+    procedure Event ();
+    begin
+        if Items[ID_CARD].Location <> INVENTORY then
+        begin
+            WriteLn('THE GUARD LOOKS AT ME SUSPICIOUSLY, THEN THROWS ME BACK.');
+            Pause (750);
+            Location := SMALL_ROOM;
+            DisplayRoom();
+            Exit;
+        end
+
+        if Guns then
+        begin
+            WriteLn ('THE GUARD DRAWS HIS GUN AND SHOOTS ME!');
+            Die();
+            Exit;
+        end
+
+        var CupOfCoffee := Items[CUP_OF_COFFEE];
+
+        if Location = SHORT_CORRIDOR and CupOfCoffee.Location = INVENTORY and CupOfCoffee.IsDrugged then
+        begin
+            WriteLn ('THE GUARD TAKES MY COFFEE');
+            WriteLn ('AND FALLS TO SLEEP RIGHT AWAY.');
+            DrugCounter := 5 + Random(0, 10);
+
+            Items[ALERT_GUARD].Location := 0;
+            Items[SLEEPING_GUARD].Location := SHORT_CORRIDOR;
+            
+            CupOfCoffee.IsDrugged := False;
+            CupOfCoffee.Location := 0;
+        end
+    end
 end
 
 /// IN A SIDE CORRIDOR
@@ -575,6 +621,17 @@ begin
         this.Exits.Set(SOUTH, PLAIN_ROOM);
         this.Exits.Set(EAST,  0);
         this.Exits.Set(WEST,  0);
+    end
+
+    // Door slams shut behind you.
+    //
+    procedure Event ();
+    begin
+        if Rooms[SOUND_PROOFED_CUBICLE].Exits.Get (1) <> 0 then
+        begin
+            WriteLn ('A SECRET DOOR SLAMS DOWN BEHIND ME!');
+            Rooms[SOUND_PROOFED_CUBICLE].Exits.Set (1 , 0);
+        end
     end
 end
 

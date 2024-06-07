@@ -381,9 +381,9 @@ test 'RECORDER - LOOK NO POWER';
 begin
     Setup ();
     Location := VISITORS_ROOM;
-    BatteryFlag := Off;
-    TelevisionFlag := Off;
-    TapeFlag := Off;
+    Items[RECORDER].BatteryFlag := Off;
+    Items[RECORDER].TelevisionFlag := Off;
+    Items[RECORDER].TapeFlag := Off;
 
     ParseCommand ('LOOK RECORDER');
     Events ();
@@ -397,9 +397,9 @@ test 'RECORDER - LOOK NO T.V.';
 begin
     Setup ();
     Location := VISITORS_ROOM;
-    BatteryFlag := On;
-    TelevisionFlag := Off;
-    TapeFlag := Off;
+    Items[RECORDER].BatteryFlag := On;
+    Items[RECORDER].TelevisionFlag := Off;
+    Items[RECORDER].TapeFlag := Off;
 
     ParseCommand ('LOOK RECORDER');
     Events ();
@@ -415,9 +415,9 @@ begin
     Location := VISITORS_ROOM;
     
     Name := 'JOEL';
-    BatteryFlag := On;
-    TelevisionFlag := On;
-    TapeFlag := On;
+    Items[RECORDER].BatteryFlag := On;
+    Items[RECORDER].TelevisionFlag := On;
+    Items[RECORDER].TapeFlag := On;
     Code := '12345';
 
     ParseCommand ('PLAY RECORDER');
@@ -704,9 +704,9 @@ begin
     // Arrange
     Setup ();
     Location := LEDGE;
+    
     Items[ROPE].Location := LEDGE;
-
-    RopeFlag := On;
+    Items[ROPE].State    := Connected;
 
     // Act
     ParseCommand ('GO ROPE');
@@ -775,7 +775,7 @@ begin
     Setup ();
     Location := LOBBY;
     Items[BADGE].Location := BUSY_STREET;
-    Door := Opened;
+    Items[SLIDING_DOORS].State := Opened;
 
     // Act
     ParseCommand ('GO DOOR');
@@ -815,14 +815,14 @@ begin
     // Arrange
     Setup ();
     Location := SECURITY_OFFICE;
-    TelevisionFlag := On;
+    Items[RECORDER].TelevisionFlag := On;
 
     // Act
     ParseCommand ('GET TELEVISION');
     Events ();
 
     // Assert
-    AssertEqual (TelevisionFlag, Off);
+    AssertEqual (Items[RECORDER].TelevisionFlag, Off);
 end
 
 
@@ -853,14 +853,14 @@ begin
     // Arrange
     Setup ();
     Items[GLOVES].Location := INVENTORY;
-    GlovesFlag := On;
+    Items[GLOVES].State    := Wearing;
 
     // Act
     ParseCommand ('DROP GLOVES');
     Events ();
 
     // Assert
-    AssertEqual(Off, GlovesFlag);
+    AssertEqual(Default, Items[GLOVES].State);
 end
 
 // DROP the CAPSULE should drop into CUP OF COFFEE if it is in INVENTORY.
@@ -891,7 +891,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    GlovesFlag := Off;
+    Items[GLOVES].State := Default;
 
     // Act
     ParseCommand ('PUSH SQUARE');
@@ -903,7 +903,7 @@ begin
     AssertEqual (Display.Buffer(-1), 'YOU DIDN''T WIN.');
 end
 
-// PUSH BUTTON turns on ButtonFlag. (???)
+// PUSH BUTTON turns on Flag
 //
 test 'BUTTON (LARGE) - PUSH';
 begin
@@ -912,7 +912,7 @@ begin
 
     Location := CHAOS_CONTROL_ROOM;
     Items[BOX].Location := 0;
-    ButtonFlag := Off;
+    Items[BUTTON].Flag := Off;
 
     // Act
     ParseCommand ('PUSH BUTTON');
@@ -921,10 +921,10 @@ begin
     // Assert
     AssertEqual (Display.Buffer(-2), 'THE BUTTON ON THE WALL GOES IN .....');      
     AssertEqual (Display.Buffer(-1), 'CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
-    AssertEqual(On, ButtonFlag);
+    AssertEqual(On, Items[BUTTON].Flag);
 end
 
-// PUSH BUTTON opens SLIDING DOORS if they are Closed on ButtonFlag.
+// PUSH BUTTON opens SLIDING DOORS if they are Closed on Flag.
 //
 test 'BUTTON (SLIDING DOORS) - PUSH';
 begin
@@ -940,7 +940,7 @@ begin
 
     // Assert    
     AssertEqual (Display.Buffer(-1), 'THE DOORS OPEN WITH A WHOOSH!');
-    AssertEqual(On, ButtonFlag);
+    AssertEqual(On, Items[SLIDING_DOORS_BUTTON].Flag);
 end
 
 // PUSH BUTTON on BOX
@@ -976,7 +976,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    GlovesFlag := Off;
+    Items[GLOVES].State := Default;
 
     // Act
     ParseCommand ('PULL LEVER');
@@ -997,7 +997,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    GlovesFlag := On;
+    Items[GLOVES].State := Wearing;
     ElectricyFlag := On;
 
     // Act
@@ -1052,8 +1052,8 @@ begin
     Setup ();
 
     Items[BADGE].Location := BUSY_STREET;
+    Items[SLIDING_DOORS].State := Opened;
     Location := LOBBY;
-    Door := Opened;
 
     // Act
     ParseCommand ('LOOK DOORS');
@@ -1134,7 +1134,7 @@ begin
     Setup ();
 
     Location := SECURITY_OFFICE;
-    ButtonFlag := Off;
+    Items[BUTTON].Flag := Off;
 
     // Act
     ParseCommand ('LOOK MONITORS');
@@ -1152,7 +1152,7 @@ begin
     Setup ();
 
     Location := SECURITY_OFFICE;
-    ButtonFlag := On;
+    Items[BUTTON].Flag := On;
 
     // Act
     ParseCommand ('LOOK MONITORS');
@@ -1185,6 +1185,7 @@ begin
     Setup ();
     Location := SHORT_CORRIDOR;
     
+    Guns := False;
     Items[ID_CARD].Location := INVENTORY;
     Items[CREDIT_CARD].Location := INVENTORY;
     Items[CREDIT_CARD].Mock := SLIT;
@@ -1231,7 +1232,7 @@ begin
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE TAPE IS IN THE RECORDER.');
-    AssertEqual (On, TapeFlag);
+    AssertEqual (On, Items[RECORDER].TapeFlag);
 end
 
 // INSERT the QUARTER into the COFFEE MACHINE
@@ -1256,6 +1257,7 @@ end
 test 'SOLID DOOR - OPEN';
 begin
     Setup ();
+    Guns := False;
     Location := SHORT_CORRIDOR;
     
     Items[ID_CARD].Location := INVENTORY;
@@ -1321,7 +1323,7 @@ begin
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K. IM NOW WEARING THE GLOVES.');
-    AssertEqual (On, GlovesFlag);
+    AssertEqual (Wearing, Items[GLOVES].State);
 end
 
 // READ the SIGN.
@@ -1433,7 +1435,7 @@ begin
     ParseCommand ('THROW ROPE');
 
     AssertEqual (Display.Buffer(-1), 'I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
-    AssertEqual (On, RopeFlag);
+    AssertEqual (Connected, Items[ROPE].State);
     AssertEqual (Location, Items[ROPE].Location);
 end
 
@@ -1442,14 +1444,14 @@ end
 test 'TELEVISION - CONNECT';
 begin
     Setup ();
-    TelevisionFlag := Off;
+    Items[RECORDER].TelevisionFlag := Off;
     Location := VISITORS_ROOM;
     Items[TELEVISION].Location := VISITORS_ROOM;
 
     ParseCommand ('CONNECT TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
-    AssertEqual (On, TelevisionFlag);
+    AssertEqual (On, Items[RECORDER].TelevisionFlag);
 end
 
 // CONNECT the TELEVISION already done.
@@ -1457,14 +1459,14 @@ end
 test 'TELEVISION - CONNECT already done';
 begin
     Setup ();
-    TelevisionFlag := On;
+    Items[RECORDER].TelevisionFlag := On;
     Location := VISITORS_ROOM;
     Items[TELEVISION].Location := VISITORS_ROOM;
 
     ParseCommand ('CONNECT TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'I DID THAT ALREADY.');
-    AssertEqual (On, TelevisionFlag);
+    AssertEqual (On, Items[RECORDER].TelevisionFlag);
 end
 
 // CONNECT the TELEVISION can't do yet.
@@ -1472,7 +1474,7 @@ end
 test 'TELEVISION - CAN''T CONNECT';
 begin
     Setup ();
-    TelevisionFlag := Off;
+    Items[RECORDER].TelevisionFlag := Off;
     Location := CAFETERIA;
     Items[TELEVISION].Location := CAFETERIA;
 

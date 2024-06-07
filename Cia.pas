@@ -12,6 +12,7 @@ var Display := Screen();
 type Flag = (On, Off);
 type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
+type ItemState = (Default, Moved, Connected, Wearing); 
 
 uses 'main/Constants';
 uses 'main/Utils';
@@ -23,34 +24,24 @@ uses 'main/Verbs';
 uses 'test/RoomTests';
 uses 'test/ItemTests';
 uses 'test/VerbTests';
+uses 'test/EventTests';
 
 var Name : String;
 var Code : String;
 
 var UpdateTime : Boolean := True;
-var IsDone : Boolean := False;
+var IsDone     : Boolean := False;
 
 var Location    : Integer := 1;
+var Floor       : Integer := 1;
 var Time        : Integer := 0;
+
+// Dumb ways to die :)
+var ElectricyFlag : Flag    := On;
+var Guns          : Boolean := False;
 
 var SleepTimer  : Integer := 0;
 var DrugCounter : Integer := -1;
-
-var InventoryCount : Integer := 0;
-
-var Door              : DoorState := Closed;
-var Floor             : Integer := 1;
-
-var TelevisionFlag    : Flag := Off;
-var ButtonFlag        : Flag := Off;
-var ElectricyFlag     : Flag := On;
-var BatteryFlag       : Flag := Off;
-var TapeFlag          : Flag := Off;
-var RopeFlag          : Flag := Off;
-var PaintingFlag      : Flag := Off;
-var GlovesFlag        : Flag := Off;
-var DruggedFlag       : Flag := Off;
-var Guns              : Integer := 0;
 
 // Maps Verbs to handlers.
 //
@@ -60,17 +51,22 @@ var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, '
     
 procedure Setup ();
 begin
-    Init ();
+    Randomize ();
+
+    Code := Str(Random(1, 9));  
+    for var R := 1; R < 5; R := R + 1 do
+    begin
+       Code := Code + Str(Random(1, 9));  
+    end
+
+    Time := 0;
+    UpdateTime := True; 
     
     AddRooms();
     AddItems();
 end
 
 /// Finds an item number.
-///
-/// # Errors
-///
-/// Raises error if item not found.
 ///
 function  FindItemID (ToMatch : String) : Integer;
 begin
@@ -86,10 +82,6 @@ begin
 end
 
 /// Finds an Item
-///
-/// # Errors
-///
-/// Raises error if item not found.
 ///
 function  FindItem (ToMatch : String) : Item;
 var
@@ -107,19 +99,6 @@ begin
     raise 'I DON''T SEE THAT HERE.';
 end
 
-/// Updates the Time and runs Events.
-//
-procedure UpdateTimer();
-begin
-    Time := Time + 1;
-    if SleepTimer > 0 then SleepTimer := SleepTimer - 1;
-    if Time = 1 then
-    begin
-        Name := ReadLn('ENTER YOUR NAME PARTNER? ') as String;
-    end
-    Events();
-end
-
 /// Checks if is a valid object.
 ///
 function MatchDirectObject (DirectObject : String);
@@ -135,55 +114,11 @@ end
 /// Processes events.
 ///
 procedure Events();
-begin
-    if Location = SHORT_CORRIDOR and Guns = -2 then
+begin    
+    if Time = 1 then 
     begin
-        WriteLn ('THE GUARD DRAWS HIS GUN AND SHOOTS ME!');
-        Die();
-    end
-
-    if Location = SHORT_CORRIDOR and Items[ID_CARD].Location <> INVENTORY then
-    begin
-        WriteLn('THE GUARD LOOKS AT ME SUSPICIOUSLY, THEN THROWS ME BACK.');
-        Pause (750);
-        Location := SMALL_ROOM;
-        DisplayRoom();
-        Exit;
-    end
-
-    if Location = SOUND_PROOFED_CUBICLE and ButtonFlag = Off then
-    begin
-        WriteLn ('SIRENS GO OFF ALL AROUND ME!');
-        WriteLn ('GUARDS RUN IN AND SHOOT ME TO DEATH!');
-        Die();
-    end
-
-    if Location = METAL_HALLWAY and ElectricyFlag = On then
-    begin
-        WriteLn ('THE FLOOR IS WIRED WITH ELECTRICITY!');
-        WriteLn ('IM BEING ELECTROCUTED!');
-        Die();
-    end
-    
-    if Location = SHORT_CORRIDOR and Items[CUP_OF_COFFEE].Location = INVENTORY and DruggedFlag = On then
-    begin
-       WriteLn ('THE GUARD TAKES MY COFFEE');
-       WriteLn ('AND FALLS TO SLEEP RIGHT AWAY.');
-       DrugCounter := 5 + 10; //Random(0, 10);
-       Items[ALERT_GUARD].Location := 0;
-       Items[SLEEPING_GUARD].Location := SHORT_CORRIDOR;
-       DruggedFlag := Off;
-       Items[CUP_OF_COFFEE].Location := 0;
-    end
-    
-    if DrugCounter = 0 then
-    begin
-        WriteLn ('I HEAR A NOISE LIKE SOMEONE IS YAWNING.');
-        Items[11].Location = SHORT_CORRIDOR;
-        Items[12].Location = 0;
-        Guns := -2;
-        DrugCounter := -1;
-        Exit;
+        WriteLn('WRITING ON THE WALL SAYS:');
+        WriteLn('IF YOU WANT INSTRUCTIONS TYPE:ORDERS PLEASE');
     end
 
     if Time > 375 then
@@ -193,20 +128,21 @@ begin
 
     if Time = 400 then 
     begin
-       WriteLn ('OH NO! THEY CAUGHT UP TO ME! HELP! THEYRE PULLING OUT GUNS!');
+       WriteLn ('OH NO! THEY CAUGHT UP TO ME! HELP! THEY''RE PULLING OUT GUNS!');
        Die();
+       Exit;
     end
 
-    if Time = 1 then 
+    if DrugCounter = 0 then
     begin
-        WriteLn('WRITING ON THE WALL SAYS:');
-        WriteLn('IF YOU WANT INSTRUCTIONS TYPE:ORDERS PLEASE');
-    end
+        WriteLn ('I HEAR A NOISE LIKE SOMEONE IS YAWNING.');
+        
+        Items[ALERT_GUARD].Location = SHORT_CORRIDOR;
+        Items[SLEEPING_GUARD].Location = 0;
 
-    if Location = SOUND_PROOFED_CUBICLE and Rooms[SOUND_PROOFED_CUBICLE].Exits.Get (1) <> 0 then
-    begin
-        WriteLn ('A SECRET DOOR SLAMS DOWN BEHIND ME!');
-        Rooms[SOUND_PROOFED_CUBICLE].Exits.Set (1 , 0);
+        Guns := True;
+        DrugCounter := -1;
+        Exit;
     end
 
     var CurrentRoom := Rooms[Location];
@@ -257,32 +193,6 @@ begin
     //if Input = 'Y' then Reset(); else IsDone := True;
 end
 
-procedure Intro ();
-begin
-    ClearScreen ();
-    WriteLn('        C.I.A  ADVENTURE');
-    Setup ();
-
-    DisplayRoom();  
-end
-
-/// Sets up the game.
-///
-procedure Init ();
-begin
-    Randomize ();
-    Door := Closed;
-
-    Code := Str(Random(1, 9));  
-    for var R := 1; R < 5; R := R + 1 do
-    begin
-       Code := Code + Str(Random(1, 9));  
-    end
-
-    Time := 0;
-    UpdateTime := True;
-end
-
 procedure ParseCommand (Command : String);
 var 
     Verb, DirectObject : String;
@@ -302,9 +212,7 @@ begin
 
         if Not Dispatch.Contains (Verb) then 
         begin
-            WriteLn('I DON''T KNOW HOW TO DO THAT.');
-            UpdateTime := False;
-            Exit;
+            raise 'I DON''T KNOW HOW TO DO THAT.';
         end
 
         if Verb = 'QUI' then 
@@ -318,9 +226,8 @@ begin
             if Verb = 'LOO' then DisplayRoom();
             else if Verb = 'BON' then Bond007();
             else if Verb = 'INV' then Inventory();
-            else WriteLn('PLEASE USE 2 WORD COMMANDS SO I CAN UNDERSTAND YOU.');
+            else raise 'PLEASE USE 2 WORD COMMANDS SO I CAN UNDERSTAND YOU.';
 
-            UpdateTime := False;
             Exit;
         end
 
@@ -328,9 +235,7 @@ begin
 
         if Not MatchDirectObject (DirectObject) then
         begin
-            WriteLn('I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.');
-            UpdateTime := False; 
-            Exit;
+            raise 'I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.';
         end
 
         if (Dispatch.Contains(Verb)) then
@@ -350,13 +255,6 @@ var
     Command : String;
 
 begin
-    InventoryCount := 0;
-    for var I := Iterator(Items); I.HasNext(); Nop() do
-    begin
-        var Item := I.Next();
-        if Item.Location = -1 then InventoryCount := InventoryCount + 1;
-    end
-
     UpdateTime := True;
     
     WriteLn('');
@@ -374,11 +272,24 @@ end
 //
 procedure Main();
 begin
-    Intro();
+    ClearScreen ();
+    WriteLn('        C.I.A  ADVENTURE');
+    Setup ();
 
+    DisplayRoom();  
+    Name := ReadLn('ENTER YOUR NAME PARTNER? ') as String;
+    
     while Not IsDone do 
     begin
-        if UpdateTime then UpdateTimer();
+        if UpdateTime then
+        begin
+            Time := Time + 1;
+            if SleepTimer > 0 then SleepTimer := SleepTimer - 1;
+
+            Events();
+        end
+
+        if IsDone then Exit;
 
         try  
             ReadCommand ();

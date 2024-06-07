@@ -16,7 +16,7 @@ begin
         begin
             HasInventory := True;
             Write (Item.Description);
-            if R = GLOVES and GlovesFlag = On then Write ('. WHICH I''M WEARING.');
+            if R = GLOVES and Items[GLOVES].State = Wearing then Write ('. WHICH I''M WEARING.');
             WriteLn ('');
         end    
     end
@@ -86,8 +86,8 @@ end
 ///
 procedure Get (DirectObject : String);
 var 
-    Item  : Item;
-
+    Item           : Item;
+    InventoryCount : Integer;
 begin
     Item := FindItem (DirectObject);
 
@@ -98,6 +98,13 @@ begin
     end
 
     if Item.Location = INVENTORY then raise 'I ALREADY HAVE IT.';
+
+    InventoryCount := 0;
+    for var I := Iterator(Items); I.HasNext(); Nop() do
+    begin
+        var Item := I.Next();
+        if Item.Location = -1 then InventoryCount := InventoryCount + 1;
+    end
     if InventoryCount >= 5 then raise 'I CAN''T CARRY ANYMORE.';
     
     WriteLn ('O.K.');
