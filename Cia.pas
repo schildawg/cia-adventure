@@ -52,6 +52,12 @@ var GlovesFlag        : Flag := Off;
 var DruggedFlag       : Flag := Off;
 var Guns              : Integer := 0;
 
+// Maps Verbs to handlers.
+//
+var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, 'PUL': Pull, 'LOO': Look,
+    'INS': Insert, 'OPE': Open, 'WEA': Wear, 'REA': ReadVerb, 'STA': Start, 'BRE': BreakVerb, 'CUT': Cut, 
+    'THR': Throw, 'CON': Connect, 'QUI': Quit, 'BON': Bond007, 'INV': Inventory];
+    
 procedure Setup ();
 begin
     Init ();
@@ -76,7 +82,7 @@ begin
            Exit I as Integer;
         end 
     end
-    raise 'I DONT SEE THAT HERE.';
+    raise 'I DON''T SEE THAT HERE.';
 end
 
 /// Finds an Item
@@ -98,43 +104,7 @@ begin
            Exit Item;
         end 
     end
-    raise 'I DONT SEE THAT HERE.';
-end
-
-/// Displays a Room.
-///
-procedure DisplayRoom();
-var
-   HasExit : Boolean := False;
-   TheRoom : Room;
-   
-begin
-    TheRoom := Rooms[Location] as Room;
-    WriteLn('WE ARE ' + TheRoom.Description + '.');
-    
-    for var I := Iterator(Items); I.HasNext(); Nop() do
-    begin
-       var Item := I.Next();
-
-       var Hidden := Item.HasProperty ('Hidden') and Item.Hidden;
-       if Item.Location = Location and not Hidden then WriteLn ('I CAN SEE ' + Item.Description + '.');
-    end
-
-    for var R := 0; R < 4; R := R + 1 do
-    begin
-       if TheRoom.Exits[R] > 0 then HasExit := True;
-    end
-    
-    if HasExit then
-    begin
-        Write('WE COULD EASILY GO: ');
-        if TheRoom.Exits[NORTH] > 0 then Write ('NORTH  ');
-        if TheRoom.Exits[SOUTH] > 0 then Write ('SOUTH  ');
-        if TheRoom.Exits[EAST]  > 0 then Write ('EAST  ');
-        if TheRoom.Exits[WEST]  > 0 then Write ('WEST  ');
-    end
-    WriteLn (' ');
-    WriteLn ('>--------------------------------------------------------------<');
+    raise 'I DON''T SEE THAT HERE.';
 end
 
 /// Updates the Time and runs Events.
@@ -160,288 +130,6 @@ begin
         if DirectObject = Item.Keyword then Exit True;
     end
     Exit DirectObject = 'NOR' or DirectObject = 'SOU' or DirectObject = 'EAS' or DirectObject = 'WES';
-end
-
-/// Open Verb
-///
-procedure Open(DirectObject : String);
-var
-   Item     : Integer;
-   Openable : Boolean;
-
-begin  
-    try
-        Item :=  FindItemID (DirectObject);
-        try 
-            if Items[Item].Open() = Handled then Exit;
-        except 
-            on Err2 : String do 
-            begin end
-        end
-
-        Openable := False;
-        try 
-           Openable := Items[Item].Openable;
-        except
-        end
-
-        //if Not Openable then
-        if Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
-        begin
-            raise 'I CAN''T OPEN THAT.';
-        end
-    
-        if Item = SOLID_DOOR then
-        begin
-            WriteLn ('I CAN''T. IT DOESNT WORK.');
-            Exit;
-        end
-
-        if Item = LOCKED_CLOSET and Items[ANTIQUE_KEY].Location = INVENTORY then 
-        begin
-            WriteLn ('O.K. THE CLOSET IS OPENED.');
-            Items[LOCKED_CLOSET].Location := 0;
-            Items[CLOSET].Location := 14;
-            Exit;
-        end
-
-        if Item = PLASTIC_BAG then
-        begin
-            WriteLn ('I CAN''T. IT''S TOO STRONG.');
-            Exit;
-        end
-
-        if Item = LOCK then
-        begin
-            var Input := ReadLn ('WHATS THE COMBINATION? ');
-            if Input = Code then
-            begin
-                WriteLn ('THE DOOR IS SLOWLY OPENING.');
-                Items[LOCK].Location := 0;
-                Items[SOLID_DOOR].Location := 0;
-                Items[OPEN_DOOR].Location := 10;
-                Exit;
-            end
-            WriteLn ('YOU MUST HAVE THE WRONG COMBINATION OR YOU ARE NOT');
-            WriteLn ('SAYING IT RIGHT.');
-            Exit;
-        end
-        WriteLn ('I CAN''T DO THAT......YET!');
-
-    except
-        on Err : String do
-            begin
-               WriteLn (Err);
-            end 
-    end
-end
-
-/// Wear Verb
-///
-procedure Wear (DirectObject : String);
-begin
-    if DirectObject = 'GLO' and Items[GLOVES].Location = INVENTORY then
-    begin
-       WriteLn ('O.K. IM NOW WEARING THE GLOVES.');
-       GlovesFlag := On;
-       Exit;
-    end
-    WriteLn ('I CAN''T WEAR THAT!');
-end
-
-/// Read Verb
-///
-procedure ReadVerb(DirectObject : String);
-var
-   Item : Integer;
-begin
-    if DirectObject <> 'SIG' and DirectObject <> 'NOT' then
-    begin
-        WriteLn ('I CAN''T READ THAT.');
-        Exit;   
-    end 
-   
-    Item := FindItemID  (DirectObject);
-    
-    try if Items[Item].Read() = Handled then Exit;
-    except end
-
-    if Item = SIGN then 
-    begin
-        WriteLn ('IT SAYS: WATCH OUT! DANGEROUS!');
-    end
-end
-
-/// Start Verb
-///
-procedure Start(DirectObject : String);
-var
-   Item : Integer;
-
-begin
-    if  DirectObject <> 'REC' then
-    begin
-        WriteLn ('I CAN''T START THAT.');
-        Exit;
-    end
-    
-    Item :=  FindItemID (DirectObject);
-    try if Items[Item].Start() = Handled then Exit;
-    except
-    end
-    WriteLn('NOTHING HAPPENED.');
-end
-
-/// Break Verb
-///
-procedure BreakVerb(DirectObject : String);
-var
-   Item : Integer;
-
-begin
-    Item :=  FindItemID (DirectObject);
-    try if Items[Item].DoBreak() = Handled then Exit;
-    except end
-
-    WriteLn ('IM TRYING TO BREAK IT, BUT I CAN''T.');
-end
-
-/// Cut Verb.
-///
-procedure Cut (DirectObject : String);
-var
-   Item : Integer;
-
-begin
-    Item :=  FindItemID (DirectObject);
-    
-    if Item <> PLASTIC_BAG and Item <> GLASS_CASE then
-    begin
-       WriteLn ('IM TRYING. IT DOESNT WORK.');
-       Exit;
-    end
-
-    if Items[RAZOR_BLADE].Location <> INVENTORY then
-    begin
-        WriteLn ('I CAN''T DO THAT YET.');
-        Exit;
-    end
-
-    if Item = PLASTIC_BAG then
-    begin
-        WriteLn('RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
-        Items[PLASTIC_BAG].Location := 0;
-        Items[TAPE].Location := Location;
-        Exit;
-    end
-
-    if Item = GLASS_CASE then
-    begin
-        WriteLn ('I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
-        Items[RUBY].Location := INVENTORY;
-        Exit;
-    end
-end
-
-/// Throw Verb.
-///
-procedure Throw(DirectObject : String);
-var
-    IndirectObject : String;
-
-begin
-    if DirectObject <> 'ROP' then
-    begin
-       WriteLn ('I CAN''T THROW THAT.');
-       Exit;
-    end
-    
-    if Items[ROPE].Location <> INVENTORY then
-    begin
-        WriteLn ('I CAN''T DO THAT YET.');
-        Exit;
-    end
-    
-    var Input := ReadLn ('TELL ME,IN ONE WORD,AT WHAT? ');
-    IndirectObject = Copy(Input, 0, 3);
-
-    if IndirectObject = 'HOO' then
-    begin
-        WriteLn ('O.K. I THREW IT.');
-        Items[ROPE].Location := Location;
-        Exit;
-    end
-
-    if Location <> LEDGE then
-    begin
-        WriteLn ('I CAN''T DO THAT YET.');
-        Exit;
-    end
-    WriteLn ('I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
-    RopeFlag := On;
-    Items[ROPE].Location := Location;
-end
-
-/// Connect Verb
-///
-procedure Connect (DirectObject : String);
-begin
-    if DirectObject <> 'TEL' then
-    begin
-        WriteLn ('I CAN''T CONNECT THAT.');
-        Exit;
-    end
-
-    if Items[TELEVISION].Location <> Location then
-    begin
-        WriteLn ('I DONT SEE THE TELEVISION HERE.');
-        Exit;
-    end
-
-    if TelevisionFlag = On then
-    begin
-        WriteLn ('I DID THAT ALREADY.');
-        Exit;
-    end
-    
-    if Location <> VISITORS_ROOM then 
-    begin
-       WriteLn ('I CAN''T DO THAT....YET!');
-       Exit;
-    end
-
-    WriteLn ('O.K. THE T.V. IS CONNECTED.');
-    TelevisionFlag := On;
-end
-
-/// Quit Verb
-///
-procedure Quit();
-begin
-    WriteLn('WHAT? YOU WOULD LEAVE ME HERE TO DIE ALONE?');
-    WriteLn('JUST FOR THAT, IM GOING TO DESTROY THE GAME.');
-    WriteLn(' '); 
-    WriteLn(' '); 
-    WriteLn(' '); 
-    WriteLn('BOOOOOOOOOOOOM!'); 
-    Pause (1000);
-    IsDone := True;
-end
-
-/// Opens trap door to basement.
-///
-procedure Bond007();
-begin
-    if Location = CAFETERIA then
-    begin
-       WriteLn ('WHOOPS! A TRAP DOOR OPENED UNDERNEATH ME AND');
-       WriteLn ('I FIND MYSELF FALLING.');
-       Pause (800);
-       Location := SUB_BASEMENT;
-       DisplayRoom();
-       Exit;
-    end
-    WriteLn ('NOTHING HAPPENED.');
 end
 
 /// Processes events.
@@ -472,7 +160,7 @@ begin
 
     if Location = METAL_HALLWAY and ElectricyFlag = On then
     begin
-        WriteLn ('THE FLOOR IS WIRED WITH ELECDRICITY!');
+        WriteLn ('THE FLOOR IS WIRED WITH ELECTRICITY!');
         WriteLn ('IM BEING ELECTROCUTED!');
         Die();
     end
@@ -614,7 +302,7 @@ begin
 
         if Not Dispatch.Contains (Verb) then 
         begin
-            WriteLn('I DONT KNOW HOW TO DO THAT.');
+            WriteLn('I DON''T KNOW HOW TO DO THAT.');
             UpdateTime := False;
             Exit;
         end
@@ -640,7 +328,7 @@ begin
 
         if Not MatchDirectObject (DirectObject) then
         begin
-            WriteLn('I DONT KNOW WHAT IT IS YOU ARE TALKING ABOUT.');
+            WriteLn('I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.');
             UpdateTime := False; 
             Exit;
         end
@@ -651,11 +339,7 @@ begin
             end
         else WriteLn (Verb + ' NOT SUPPORTED... YET!');
     except
-        on Err : String do
-            begin
-                UpdateTime := False;
-                WriteLn (Err);
-            end
+        on Err : String do Error(Err);
     end
 end
 
@@ -680,33 +364,26 @@ begin
     ParseCommand (Command);
 end
 
-// Maps Verbs to handlers.
-//
-var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, 'PUL': Pull, 'LOO': Look,
-    'INS': Insert, 'OPE': Open, 'WEA': Wear, 'REA': ReadVerb, 'STA': Start, 'BRE': BreakVerb, 'CUT': Cut, 
-    'THR': Throw, 'CON': Connect, 'QUI': Quit, 'BON': Bond007, 'INV': Inventory];
+procedure Error(Err : String);
+begin
+    UpdateTime := False;
+    WriteLn (Err);
+end
 
 /// Main.
 //
 procedure Main();
-var 
-   Item : Item;
-
 begin
     Intro();
 
     while Not IsDone do 
     begin
         if UpdateTime then UpdateTimer();
+
         try  
             ReadCommand ();
-
         except
-            on Err : String do
-                begin
-                    UpdateTime := False;
-                    WriteLn (Err);
-                end
+            on Err : String do Error(Err);
         end
     end 
 end

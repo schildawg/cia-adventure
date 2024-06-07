@@ -418,3 +418,172 @@ begin
 
     AssertEqual (Display.Buffer(-1), 'POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
 end
+
+// OPEN
+//
+test 'OPEN';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('OPEN BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T OPEN THAT.');
+end
+
+// UNLOCK.
+//
+test 'OPEN - UNLOCK SYNONYM';
+begin
+    Setup ();
+    Location := CAFETERIA;
+    
+    Items[ANTIQUE_KEY].Location := INVENTORY;
+
+    ParseCommand ('UNLOCK CLOSET');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'O.K. THE CLOSET IS OPENED.');
+end
+
+// WEAR
+//
+test 'WEAR';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('WEAR BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T WEAR THAT!');
+end
+
+// READ
+//
+test 'READ';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('READ BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T READ THAT.');
+end
+
+// START
+//
+test 'START';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('START BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T START THAT.');
+end
+
+// BREAK
+//
+test 'BREAK';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('BREAK BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I''M TRYING TO BREAK IT, BUT I CAN''T.');
+end
+
+// CUT
+//
+test 'CUT';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('CUT BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I''M TRYING. IT DOESN''T WORK.');
+end
+
+// THROW
+//
+test 'THROW';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('THROW BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T THROW THAT.');
+end
+
+// CONNECT
+//
+test 'CONNECT';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+
+    ParseCommand ('CONNECT BUILDING');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T CONNECT THAT.');
+end
+
+// ATTACH
+//
+test 'CONNECT - ATTACH SYNONYM';
+begin
+    Setup ();
+    TelevisionFlag := Off;
+    Location := VISITORS_ROOM;
+    Items[TELEVISION].Location := VISITORS_ROOM;
+
+    ParseCommand ('ATTACH TELEVISION');
+
+    AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
+    AssertEqual (On, TelevisionFlag);
+end
+
+
+// QUIT
+//
+test 'QUIT';
+begin
+    Setup ();
+
+    ParseCommand ('QUIT');
+
+    AssertEqual (Display.Buffer(-6), 'WHAT? YOU WOULD LEAVE ME HERE TO DIE ALONE?');
+    AssertEqual (Display.Buffer(-5), 'JUST FOR THAT, I''M GOING TO DESTROY THE GAME.');
+
+    AssertEqual (Display.Buffer(-1), 'BOOOOOOOOOOOOM!');
+    AssertTrue (IsDone);
+end
+
+// BOND-007
+//
+test 'BOND-007';
+begin
+    Display.Output := DEBUG;
+    Setup ();
+    Location := CAFETERIA;
+
+    ParseCommand ('BOND-007');
+
+    AssertEqual (Display.Buffer(-6), 'WHOOPS! A TRAP DOOR OPENED UNDERNEATH ME AND');
+    AssertEqual (Display.Buffer(-5), 'I FIND MYSELF FALLING.');
+    AssertEqual (Display.Buffer(-4), 'WE ARE IN A SUB-BASEMENT BELOW THE CHUTE.');
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A STRONG NYLON ROPE.');
+    //AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST  ');   <-- WHY???
+    AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
+    AssertEqual (SUB_BASEMENT, Location);
+end

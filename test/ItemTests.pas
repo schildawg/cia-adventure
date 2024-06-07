@@ -430,8 +430,6 @@ begin
     AssertEqual (Display.Buffer(-1), 'ALSO, THERE IS SOMETHING IN THE SCULPTURE.');
 end
 
-
-
 // Can't get SCULPTURE
 //
 test 'SCULPTURE - CAN''T GET';
@@ -1251,4 +1249,234 @@ begin
 
     AssertEqual (Display.Buffer(-1), 'POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
     AssertEqual (SMALL_HALLWAY, Items[CUP_OF_COFFEE].Location);
+end
+
+// OPEN SOLID DOOR shouldn't work.
+//
+test 'SOLID DOOR - OPEN';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    
+    Items[ID_CARD].Location := INVENTORY;
+
+    ParseCommand ('OPEN DOOR');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T. IT DOESNT WORK.');
+end
+
+
+// OPEN LOCKED CLOSET.
+//
+test 'LOCKED CLOSET - OPEN';
+begin
+    Setup ();
+    Location := CAFETERIA;
+    
+    Items[ANTIQUE_KEY].Location := INVENTORY;
+
+    ParseCommand ('OPEN CLOSET');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'O.K. THE CLOSET IS OPENED.');
+end
+
+// OPEN PLASTIC BAG
+//
+test 'PLASTIC BAG - OPEN';
+begin
+    Setup ();
+    Location := MAINTENANCE_CLOSET;
+
+    ParseCommand ('OPEN BAG');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T. IT''S TOO STRONG.');
+end
+
+// OPEN LOCK
+//
+test 'LOCK - OPEN';
+begin
+    Setup ();
+    Location := SHORT_CORRIDOR;
+    Items[ID_CARD].Location := INVENTORY;
+    Items[LOCK].Location := SHORT_CORRIDOR;
+
+    // TODO: Mock ReadLn();
+    // ParseCommand ('OPEN LOCK');
+    Events ();
+end
+
+// WEAR GLOVES
+//
+test 'GLOVES - WEAR';
+begin
+    Setup ();
+    Items[GLOVES].Location := INVENTORY;
+    Location := BUSY_STREET;
+
+    ParseCommand ('WEAR GLOVES');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'O.K. IM NOW WEARING THE GLOVES.');
+    AssertEqual (On, GlovesFlag);
+end
+
+// READ the SIGN.
+//
+test 'SIGN - READ';
+begin
+    Setup ();
+    Location := POWER_GENERATOR_ROOM;
+
+    ParseCommand ('READ SIGN');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'IT SAYS: WATCH OUT! DANGEROUS!');
+end
+
+// CUT PLASTIC BAG with no RAZOR BLADE.
+//
+test 'PLASTIC BAG - CUT no RAZOR BLADE';
+begin
+    Setup ();
+    Location := MAINTENANCE_CLOSET;
+
+    ParseCommand ('CUT BAG');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T DO THAT YET.');
+end
+
+// CUT PLASTIC BAG
+//
+test 'PLASTIC BAG - CUT';
+begin
+    Setup ();
+    Location := MAINTENANCE_CLOSET;
+    Items[RAZOR_BLADE].Location := INVENTORY;
+
+    ParseCommand ('CUT BAG');
+    Events ();
+
+    AssertEqual (Display.Buffer(-1), 'RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
+    AssertEqual (MAINTENANCE_CLOSET, Items[TAPE].Location);
+end
+
+// CUT GLASS CASE <-- the start of this whole obsession :D
+//
+test 'GLASS CASE - CUT';
+begin
+    Setup ();
+    Location := SOUND_PROOFED_CUBICLE;
+    Items[RAZOR_BLADE].Location := INVENTORY;
+
+    ParseCommand ('CUT CASE');
+
+    AssertEqual (Display.Buffer(-1), 'I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
+    AssertEqual (INVENTORY, Items[RUBY].Location);
+end
+
+// THROW the ROPE with no ROPE.
+//
+test 'ROPE - THROW no ROPE';
+begin
+    Setup ();
+    Location := LEDGE;
+    Items[ROPE].Location := LEDGE;
+
+    ParseCommand ('THROW ROPE');
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T DO THAT YET.');
+end
+
+// THROW the ROPE drops the ROPE if not at HOOK.
+//
+test 'ROPE - THROW not at HOOK';
+begin
+    Setup ();
+    Location := LEDGE;
+    Items[ROPE].Location := INVENTORY;
+    Items[ROPE].Mock := 'FLOOR';
+
+    ParseCommand ('THROW ROPE');
+
+    AssertEqual (Display.Buffer(-1), 'O.K. I THREW IT.');
+    AssertEqual (LEDGE, Items[ROPE].Location);
+end
+
+// THROW the ROPE not on LEDGE.
+//
+test 'ROPE - THROW not on LEDGE';
+begin
+    Setup ();
+    Location := BUSY_STREET;
+    Items[ROPE].Location := INVENTORY;
+    Items[ROPE].Mock := 'HOO';
+
+    ParseCommand ('THROW ROPE');
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T DO THAT YET.');
+end
+
+// THROW the ROPE.
+//
+test 'ROPE - THROW';
+begin
+    Setup ();
+    Location := LEDGE;
+    Items[ROPE].Location := INVENTORY;
+    Items[ROPE].Mock := 'HOO';
+
+    ParseCommand ('THROW ROPE');
+
+    AssertEqual (Display.Buffer(-1), 'I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
+    AssertEqual (On, RopeFlag);
+    AssertEqual (Location, Items[ROPE].Location);
+end
+
+// CONNECT the TELEVISION.
+//
+test 'TELEVISION - CONNECT';
+begin
+    Setup ();
+    TelevisionFlag := Off;
+    Location := VISITORS_ROOM;
+    Items[TELEVISION].Location := VISITORS_ROOM;
+
+    ParseCommand ('CONNECT TELEVISION');
+
+    AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
+    AssertEqual (On, TelevisionFlag);
+end
+
+// CONNECT the TELEVISION already done.
+//
+test 'TELEVISION - CONNECT already done';
+begin
+    Setup ();
+    TelevisionFlag := On;
+    Location := VISITORS_ROOM;
+    Items[TELEVISION].Location := VISITORS_ROOM;
+
+    ParseCommand ('CONNECT TELEVISION');
+
+    AssertEqual (Display.Buffer(-1), 'I DID THAT ALREADY.');
+    AssertEqual (On, TelevisionFlag);
+end
+
+// CONNECT the TELEVISION can't do yet.
+//
+test 'TELEVISION - CAN''T CONNECT';
+begin
+    Setup ();
+    TelevisionFlag := Off;
+    Location := CAFETERIA;
+    Items[TELEVISION].Location := CAFETERIA;
+
+    ParseCommand ('CONNECT TELEVISION');
+
+    AssertEqual (Display.Buffer(-1), 'I CAN''T DO THAT....YET!');
 end

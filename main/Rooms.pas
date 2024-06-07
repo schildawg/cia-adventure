@@ -29,6 +29,41 @@ begin
     end
 end
 
+/// Displays a Room.
+///
+procedure DisplayRoom();
+var
+   HasExit : Boolean := False;
+   TheRoom : Room;
+   
+begin
+    TheRoom := Rooms[Location] as Room;
+    WriteLn('WE ARE ' + TheRoom.Description + '.');
+    
+    for var I := Iterator(Items); I.HasNext(); Nop() do
+    begin
+       var Item := I.Next();
+
+       var Hidden := Item.HasProperty ('Hidden') and Item.Hidden;
+       if Item.Location = Location and not Hidden then WriteLn ('I CAN SEE ' + Item.Description + '.');
+    end
+
+    for var R := 0; R < 4; R := R + 1 do
+    begin
+       if TheRoom.Exits[R] > 0 then HasExit := True;
+    end
+    
+    if HasExit then
+    begin
+        Write('WE COULD EASILY GO: ');
+        if TheRoom.Exits[NORTH] > 0 then Write ('NORTH  ');
+        if TheRoom.Exits[SOUTH] > 0 then Write ('SOUTH  ');
+        if TheRoom.Exits[EAST]  > 0 then Write ('EAST  ');
+        if TheRoom.Exits[WEST]  > 0 then Write ('WEST  ');
+    end
+    WriteLn (' ');
+    WriteLn ('>--------------------------------------------------------------<');
+end
 var Rooms : Array := Array(31) as Array;
 
 /// Add Room prototypes.

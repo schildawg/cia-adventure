@@ -156,6 +156,14 @@ begin
     Exit FindItemID (Copy(IndirectObject, 0, 3));
 end
 
+function GetIndirectObjectAt(Mock : String) : String;
+begin
+    if Mock <> Nil then Exit Mock as String;
+    
+    var IndirectObject := ReadLn ('TELL ME, IN ONE WORD, AT WHAT? ') as String;
+    Exit Copy(IndirectObject, 0, 3);
+end
+
 /// A BLANK CREDIT CARD
 ///
 class CreditCard (Item);
@@ -474,6 +482,7 @@ begin
             Items[SCULPTURE].Flag := On;
             Exit Handled;
         end   
+        WriteLn('NOTHING HAPPENED.');
         Exit Passed;
     end
 end
@@ -719,6 +728,22 @@ begin
 
         this.Fixed := True;
     end
+
+    function Open () : ResultType;
+    begin
+        var Input := ReadLn ('WHATS THE COMBINATION? ');
+        if Input = Code then
+        begin
+            WriteLn ('THE DOOR IS SLOWLY OPENING.');
+            Items[LOCK].Location := 0;
+            Items[SOLID_DOOR].Location := 0;
+            Items[OPEN_DOOR].Location := 10;
+            Exit Handled;
+        end
+        WriteLn ('YOU MUST HAVE THE WRONG COMBINATION OR YOU ARE NOT');
+        WriteLn ('SAYING IT RIGHT.');
+        Exit Handled;
+    end
 end
 
 /// A SOLID LOOKING DOOR
@@ -738,6 +763,12 @@ begin
     begin
         WriteLn('THERE IS A SMALL SLIT NEAR THE DOOR.');
         Exit Handled;        
+    end
+
+    function Open () : ResultType;
+    begin
+        WriteLn ('I CAN''T. IT DOESNT WORK.');
+        Exit Handled; 
     end
 end
 
@@ -804,6 +835,18 @@ begin
 
         this.Fixed := True;
     end
+
+    function Open () : ResultType;
+    begin
+        if Items[ANTIQUE_KEY].Location = INVENTORY then 
+        begin
+            WriteLn ('O.K. THE CLOSET IS OPENED.');
+            Items[LOCKED_CLOSET].Location := 0;
+            Items[CLOSET].Location := 14;
+            Exit Handled;
+        end 
+        Exit Passed;       
+    end
 end
 
 /// A MAINTENANCE CLOSET
@@ -841,6 +884,30 @@ begin
     begin
         WriteLn ('IT''S A VERY STRONG BAG.');
         Exit Handled;
+    end
+
+    // OPEN the PLASTIC BAG.
+    //
+    function Open () : ResultType;
+    begin
+        WriteLn ('I CAN''T. IT''S TOO STRONG.');
+        Exit Handled;
+    end
+
+    // CUT the PLASTIC BAG
+    //
+    function Cut () : ResultType;
+    begin
+        if Items[RAZOR_BLADE].Location <> INVENTORY then
+        begin
+            WriteLn ('I CAN''T DO THAT YET.');
+            Exit Handled;
+        end
+
+        WriteLn('RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
+        Items[PLASTIC_BAG].Location := 0;
+        Items[TAPE].Location := Location;
+        Exit Handled;       
     end
 end
 
@@ -955,10 +1022,27 @@ begin
         this.Fixed := True;
     end
 
+    // LOOK at CASE.
+    //
     function Look () : ResultType;
     begin
         WriteLn ('I CAN SEE A GLEAMING STONE IN IT.');
         Exit Handled;        
+    end
+
+    // CUT the GLASS CASE
+    //
+    function Cut () : ResultType;
+    begin
+        if Items[RAZOR_BLADE].Location <> INVENTORY then
+        begin
+            WriteLn ('I CAN''T DO THAT YET.');
+            Exit Handled;
+        end
+
+        WriteLn ('I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
+        Items[RUBY].Location := INVENTORY;
+        Exit Handled;
     end
 end
 
@@ -997,10 +1081,20 @@ begin
         this.Location    := POWER_GENERATOR_ROOM;
     end
 
+    // LOOK at SIGN.
+    //
     function Look () : ResultType;
     begin
         WriteLn ('THERE''S WRITING ON IT.');
         Exit Handled;   
+    end
+    
+    // READ the SIGN
+    //
+    function Read () : ResultType;
+    begin
+        WriteLn ('IT SAYS: WATCH OUT! DANGEROUS!');
+        Exit Handled;
     end
 end
 
@@ -1099,8 +1193,12 @@ begin
         this.Description := 'A STRONG NYLON ROPE';
         this.Keyword     := 'ROP';
         this.Location    := SUB_BASEMENT;
+
+        this.Mock := Nil;
     end
 
+    // GO to the ROPE
+    //
     function Go () : ResultType;
     begin
         if RopeFlag = On and Location = LEDGE then 
@@ -1109,6 +1207,36 @@ begin
             Exit Handled;
         end
         Exit Passed;
+    end
+
+    // THROW the ROPE.
+    //
+    function Throw () : ResultType;
+    begin
+        if this.Location <> INVENTORY then
+        begin
+           WriteLn ('I CAN''T DO THAT YET.');
+           Exit Handled;
+        end
+    
+        var IndirectObject := GetIndirectObjectAt(Mock);
+        if IndirectObject <> 'HOO' then
+        begin
+            WriteLn ('O.K. I THREW IT.');
+            Items[ROPE].Location := Location;
+            Exit Handled;
+        end
+
+        if Location <> LEDGE then
+        begin
+            WriteLn ('I CAN''T DO THAT YET.');
+            Exit Handled;
+        end
+
+        WriteLn ('I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
+        RopeFlag := On;
+        Items[ROPE].Location := Location;
+        Exit Handled;
     end
 end
 
@@ -1135,6 +1263,31 @@ begin
         this.Description := 'A PORTABLE TELEVISION';
         this.Keyword     := 'TEL';
         this.Location    := SECURITY_OFFICE;
+    end
+
+    function Connect () : ResultType;
+    begin
+        if this.Location <> Location then 
+        begin
+            WriteLn ('I DON''T SEE THE TELEVISION HERE.');
+            Exit Handled;
+        end
+
+        if TelevisionFlag = On then
+        begin
+            WriteLn ('I DID THAT ALREADY.');
+            Exit Handled;
+        end
+        
+        if Location <> VISITORS_ROOM then 
+        begin
+            WriteLn ('I CAN''T DO THAT....YET!');
+            Exit Handled;
+        end
+
+        WriteLn ('O.K. THE T.V. IS CONNECTED.');
+        TelevisionFlag := On;
+        Exit Handled;
     end
 
     /// GET the TELEVISION disconnects it.
@@ -1239,11 +1392,25 @@ begin
         this.Keyword     := 'GLO';
         this.Location    := MAINTENANCE_CLOSET;
     end
-
+   
+    // Stop wearing GLOVES if DROP.
+    //
     function Drop () : ResultType;
     begin
         GlovesFlag := Off;
         Exit Passed;
+    end
+
+    // WEAR the GLOVES.
+    //
+    function Wear () : ResultType;
+    begin
+        if this.Location = INVENTORY then
+        begin
+            WriteLn ('O.K. IM NOW WEARING THE GLOVES.');
+            GlovesFlag := On;
+            Exit Handled;
+        end
     end
 end
 
