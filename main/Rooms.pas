@@ -40,7 +40,7 @@ begin
     TheRoom := Rooms[Location] as Room;
     WriteLn('WE ARE ' + TheRoom.Description + '.');
     
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
        var Item := I.Next();
 
@@ -155,7 +155,7 @@ begin
     ///
     procedure Event ();
     begin
-        if Items[RUBY].Location = INVENTORY then
+        if Items[Ruby].Location = INVENTORY then
         begin
            WriteLn ('HURRAY! YOUVE RECOVERED THE RUBY!');
            WriteLn ('YOU WIN!');
@@ -328,7 +328,7 @@ begin
     //
     procedure Event ();
     begin
-        if Items[BADGE].Location = INVENTORY then 
+        if Items[Badge].Location = INVENTORY then 
         begin
             WriteLn ('THE DOOR MAN LOOKS AT MY BADGE AND THEN THROWS ME OUT.');
             Pause (1000);
@@ -527,7 +527,7 @@ begin
     ///
     procedure Event ();
     begin
-        if Items[ID_CARD].Location <> INVENTORY then
+        if Items[IdCard].Location <> INVENTORY then
         begin
             WriteLn('THE GUARD LOOKS AT ME SUSPICIOUSLY, THEN THROWS ME BACK.');
             Pause (750);
@@ -543,19 +543,17 @@ begin
             Exit;
         end
 
-        var CupOfCoffee := Items[CUP_OF_COFFEE];
-
-        if Location = SHORT_CORRIDOR and CupOfCoffee.Location = INVENTORY and CupOfCoffee.IsDrugged then
+        if Location = SHORT_CORRIDOR and Items[CupOfCoffee].Location = INVENTORY and Items[CupOfCoffee].IsDrugged then
         begin
             WriteLn ('THE GUARD TAKES MY COFFEE');
             WriteLn ('AND FALLS TO SLEEP RIGHT AWAY.');
             DrugCounter := 5 + Random(0, 10);
 
-            Items[ALERT_GUARD].Location := 0;
-            Items[SLEEPING_GUARD].Location := SHORT_CORRIDOR;
+            Items[AlertGuard].Location := 0;
+            Items[SleepingGuard].Location := SHORT_CORRIDOR;
             
-            CupOfCoffee.IsDrugged := False;
-            CupOfCoffee.Location := 0;
+            Items[CupOfCoffee].IsDrugged := False;
+            Items[CupOfCoffee].Location := 0;
         end
     end
 end

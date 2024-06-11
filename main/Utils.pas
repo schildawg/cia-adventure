@@ -5,7 +5,7 @@ begin
     constructor Init (TheArray : Array);
     begin
        this.TheArray := TheArray;
-       this.Current := 0;
+       this.Current := -1;
     end
 
     /// Does Iterator have more items?

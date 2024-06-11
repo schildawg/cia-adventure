@@ -7,118 +7,46 @@ var
     Location    : Integer;
 
 begin
-    constructor Init (Description : String, Keyword : String, Location : Integer);
-    begin
-        this.Description := Description;
-        this.Keyword := Keyword;
-        this.Location := Location; 
-    end
+    // constructor Init (Description : String, Keyword : String, Location : Integer);
+    // begin
+    //     this.Description := Description;
+    //     this.Keyword := Keyword;
+    //     this.Location := Location; 
+    // end
 end
 
-var Items : Array := Array(53) as Array;
-
-// Add Item prototypes.
-//
-procedure AddItems();
-begin
-    Items.Set (BADGE, Badge());
-    Items.Set (BUILDING, Building());
-    Items.Set (SCULPTURE, Sculpture());
-    Items.Set (SLIDING_DOORS, SlidingDoors());
-    Items.Set (RECORDER, Recorder());
-    Items.Set (LOCKED_WOODEN_DOOR, LockedWoodenDoor());
-    Items.Set (OPEN_WOODEN_DOOR, OpenWoodenDoor());
-    Items.Set(PAPER_WEIGHT, PaperWeight());
-    Items.Set(MAHOGANY_DESK, MohoganyDesk());
-    Items.Set(MAHOGANY_DRAWER, MohoganyDrawer());
-    Items.Set(SPIRAL_NOTEBOOK, SpiralNotebook());
-    Items.Set(BATTERY, BatteryItem());
-    Items.Set(CREDIT_CARD, CreditCard());
-    Items.Set(QUARTER, Quarter());
-
-    Items.Set(PANEL, PanelOfButtons());
-    Items.Set(ONE, ButtonOne());
-    Items.Set(TWO, ButtonTwo());
-    Items.Set(THREE, ButtonThree());
-
-    Items.Set(TAPE, Tape());
-    Items.Set(LOCK, Lock());
-    Items.Set(SOLID_DOOR, SolidDoor());
-    Items.Set(OPEN_DOOR, OpenDoor());
-    Items.Set(ALERT_GUARD, AlertGuard());
-    Items.Set(SLEEPING_GUARD, SleepingGuard());
-    Items.Set(LOCKED_CLOSET, LockedCloset());
-    Items.Set(CLOSET,  MaintenanceClosetItem());
-    Items.Set(PLASTIC_BAG, PlasticBag());
-    Items.Set(ANTIQUE_KEY, AntiqueKey());
-    Items.Set(METAL_SQUARE, MetalSquare());
-    Items.Set(LEVER, Lever());
-    Items.Set(BROOM, Broom());
-    Items.Set(DUSTPAN, Dustpan());
-    Items.Set(GLASS_CASE, GlassCase());
-    Items.Set(RAZOR_BLADE, RazorBlade());
-    Items.Set(RUBY, Ruby());
-    Items.Set(SIGN, Sign());
-    Items.Set(COFFEE_MACHINE, CoffeeMachine());
-    Items.Set(CUP_OF_COFFEE, CupOfCoffee());
-    Items.Set(CAPSULE, Capsule());
-    Items.Set(BUTTON, Button());
-    Items.Set(ROPE, Rope());
-    Items.Set(HOOK, Hook());
-    Items.Set(TELEVISION, Television());
-    Items.Set(PEDISTAL_MONITOR, PedistalMonitor());
-    Items.Set(ID_CARD, IdCard());
-    Items.Set(MONITORS, Monitors());
-    Items.Set(PAINTING, Painting());
-    Items.Set(GLOVES, Gloves());
-    Items.Set(BOX, Box());
-    Items.Set(SLIT, Slit());
-
-    Items.Set(SLIDING_DOORS_BUTTON, SlidingDoorsButton());
-    Items.Set(BOX_BUTTON,           BoxButton());
-end
 
 /// A C.I.A. IDENTIFICATION BADGE
 ///
-class Badge (Item);
-begin
-    /// Creates instance.
-    // 
-    constructor Init ();
-    begin       
-        this.Description := 'A C.I.A. IDENTIFICATION BADGE';
-        this.Keyword     := 'BAD';
-        this.Location    := INVENTORY;
-    end
+object Badge (Item)     
+    Description := 'A C.I.A. IDENTIFICATION BADGE';
+    Keyword     := 'BAD';
+    Location    := INVENTORY;
+
+    Order := 390;
 end
 
 /// A LARGE BATTERY
 ///
-class BatteryItem (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A LARGE BATTERY';
-        this.Keyword     := 'BAT';
-        this.Location    := 0;
+object BatteryItem (Item)
+    Description := 'A LARGE BATTERY';
+    Keyword     := 'BAT';
+    Location    := 0;
 
-        this.Mock := Nil;
-    end
+    Mock :=  Nil;
+    Order := 30;
 
     // INSERT BATTERY into RECORDER.
     //
     function Insert() : ResultType;
-    var 
-        Item : Integer;
-
     begin
-        Item := GetIndirectObject(Mock);
+        var Item := GetIndirectObject(Mock);
             
-        if Item = RECORDER then 
+        if Item = Recorder then 
         begin
             WriteLn('O.K.');
-            Items[RECORDER].BatteryFlag := On;
-            Items[BATTERY].Location := 0;
+            Items[Recorder].BatteryFlag := On;
+            Items[BatteryItem].Location := 0;
             Exit Handled;
         end
         WriteLn ('NOTHING HAPPENED.');
@@ -128,16 +56,13 @@ end
 
 /// A TALL OFFICE BUILDING
 ///
-class Building (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A TALL OFFICE BUILDING';
-        this.Keyword     := 'BUI';
-        this.Location    := BUSY_STREET;
+object Building (Item)
+    Description := 'A TALL OFFICE BUILDING';
+    Keyword     := 'BUI';
+    Location    := BUSY_STREET;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 330;
 
     // GO to BUILDING should lead to LOBBY.
     //
@@ -148,10 +73,15 @@ begin
     end   
 end
 
-function GetIndirectObject(Mock : Integer) : Integer;
+function GetIndirectObject(Mock : Identifier) : Identifier;
 begin
-    if Mock <> Nil then Exit Mock as Integer;
-    
+    if Mock <> Nil then 
+    begin 
+        WriteLn ('MOCK ' + Mock);
+
+        Exit Mock as Identifier;
+    end
+
     var IndirectObject := ReadLn ('TELL ME, IN ONE WORD, INTO WHAT? ') as String;
     Exit FindItemID (Copy(IndirectObject, 0, 3));
 end
@@ -164,60 +94,15 @@ begin
     Exit Copy(IndirectObject, 0, 3);
 end
 
-/// A BLANK CREDIT CARD
-///
-class CreditCard (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A BLANK CREDIT CARD';
-        this.Keyword     := 'CAR';
-        this.Location    := 0;
-        
-        this.Mock := Nil;
-    end
-
-    // INSERT CREDIT CARD into SLIT.
-    //
-    function Insert() : ResultType;
-    var 
-        Item : Integer;
-
-    begin
-        Item := GetIndirectObject(Mock);
-            
-        if Item = SLIT and DrugCounter <= 0 then
-        begin
-            WriteLn ('THE GUARD WON''T LET ME!');
-            Exit Handled;
-        end
-
-        if Item = SLIT then 
-        begin 
-            WriteLn('POP! A SECTION OF THE WALL OPENS.....');
-            WriteLn('REVEALING SOMETHING VERY INTERESTING.');
-            Items[CREDIT_CARD].Location := 0;
-            Items[LOCK].Location := Location;
-            Exit Handled;
-        end
-
-        WriteLn ('NOTHING HAPPENED.');
-        Exit Handled;
-    end 
-end
-
 /// AN OLD MAHOGANY DESK
 ///
-class MohoganyDesk (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'AN OLD MAHOGANY DESK';
-        this.Keyword     := 'DES';
-        this.Location    := PRESIDENTS_OFFICE;
+object MohoganyDesk (Item)
+    Description := 'AN OLD MAHOGANY DESK';
+    Keyword     := 'DES';
+    Location    := PRESIDENTS_OFFICE;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 190;
 
     /// LOOK at DESK
     ///
@@ -230,17 +115,15 @@ end
 
 /// A MAHOGANY DRAWER
 ///
-class MohoganyDrawer (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A MAHOGANY DRAWER';
-        this.Keyword     := 'DRA';
-        this.Location    := PRESIDENTS_OFFICE;
+object MohoganyDrawer (Item)
+    Description := 'A MAHOGANY DRAWER';
+    Keyword     := 'DRA';
+    Location    := PRESIDENTS_OFFICE;
 
-        this.Fixed := True;
-        this.Hidden := True;
-    end
+    Fixed := True;
+    Hidden := True;
+    
+    Order := 230;
 
     /// LOOK at DRAWER
     ///
@@ -262,7 +145,7 @@ begin
     ///
     function DoBreak() : ResultType;
     begin
-        if Items[PAPER_WEIGHT].Location <> INVENTORY then
+        if Items[PaperWeight].Location <> INVENTORY then
         begin
            WriteLn('I CAN''T DO THAT YET.');
            Exit Handled;
@@ -271,8 +154,8 @@ begin
         if Location = PRESIDENTS_OFFICE then
         begin
             WriteLn ('IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
-            Items[BATTERY].Location := Location;
-            Items[SPIRAL_NOTEBOOK].Location := Location;
+            Items[BatteryItem].Location := Location;
+            Items[SpiralNotebook].Location := Location;
             
             Hidden := False;
             Exit Handled;
@@ -294,31 +177,26 @@ end
 
 /// A PANEL OF BUTTONS NUMBERED ONE THRU THREE
 ///
-class PanelOfButtons (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A PANEL OF BUTTONS NUMBERED ONE THRU THREE';
-        this.Keyword     := 'PAN';
-        this.Location    := SMALL_ROOM;
+object PanelOfButtons (Item)
+    Description := 'A PANEL OF BUTTONS NUMBERED ONE THRU THREE';
+    Keyword     := 'PAN';
+    Location    := SMALL_ROOM;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 360;
 end
 
 /// Button One on Panel
 ///
-class ButtonOne (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'ONE';
-        this.Keyword     := 'ONE';
-        this.Location    := SMALL_ROOM;
+object ButtonOne (Item)
+    Description := 'ONE';
+    Keyword     := 'ONE';
+    Location    := SMALL_ROOM;
 
-        this.Fixed  := True;
-        this.Hidden := True;
-    end
+    Fixed  := True;
+    Hidden := True;
+
+    Order := 470;
 
     function Push() : ResultType;
     begin
@@ -334,17 +212,15 @@ end
 
 /// Button Two on Panel
 ///
-class ButtonTwo (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'TWO';
-        this.Keyword     := 'TWO';
-        this.Location    := SMALL_ROOM;
+object ButtonTwo (Item)
+    Description := 'TWO';
+    Keyword     := 'TWO';
+    Location    := SMALL_ROOM;
 
-        this.Fixed := True;
-        this.Hidden := True;
-    end
+    Fixed := True;
+    Hidden := True;
+
+    Order := 480;
 
     function Push() : ResultType;
     begin
@@ -360,17 +236,15 @@ end
 
 /// Button Three on Panel
 ///
-class ButtonThree (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'THR';
-        this.Keyword     := 'THR';
-        this.Location    := SMALL_ROOM;
+object ButtonThree (Item)
+    Description := 'THR';
+    Keyword     := 'THR';
+    Location    := SMALL_ROOM;
 
-        this.Fixed := True;
-        this.Hidden := True;
-    end
+    Fixed := True;
+    Hidden := True;
+
+    Order := 490;
 
     function Push() : ResultType;
     begin
@@ -386,14 +260,12 @@ end
 
 /// AN ELABORATE PAPER WEIGHT
 ///
-class PaperWeight (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'AN ELABORATE PAPER WEIGHT';
-        this.Keyword     := 'WEI';
-        this.Location    := PRESIDENTS_OFFICE;
-    end
+object PaperWeight (Item)
+    Description := 'AN ELABORATE PAPER WEIGHT';
+    Keyword     := 'WEI';
+    Location    := PRESIDENTS_OFFICE;
+    
+    Order := 60;
 
     /// LOOK at WEIGHT
     ///
@@ -406,31 +278,26 @@ end
 
 /// A QUARTER
 ///
-class Quarter (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A QUARTER';
-        this.Keyword     := 'QUA';
-        this.Location    := 0;
+object Quarter (Item)   
+    Description := 'A QUARTER';
+    Keyword     := 'QUA';
+    Location    := 0;
 
-        this.Mock := Nil;
-    end
+    Mock  := Nil;
+    Order := 280;
 
     // INSERT QUARTER into COFFEE MACHINE.
     //
     function Insert() : ResultType;
-    var 
-        Item : Integer;
-
     begin
-        Item := GetIndirectObject(Mock);
+        // FIXME: var section
+        var Item := GetIndirectObject(Mock);
 
-        if Item = COFFEE_MACHINE then 
+        if Item = CoffeeMachine then 
         begin
             WriteLn ('POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
-            Items[QUARTER].Location := 0;
-            Items[CUP_OF_COFFEE].Location := Location;
+            Items[Quarter].Location := 0;
+            Items[CupOfCoffee].Location := Location;
             Exit Handled;
         end
         WriteLn ('NOTHING HAPPENED.');
@@ -440,21 +307,18 @@ end
 
 /// A VIDEO CASSETTE RECORDER
 ///
-class Recorder (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A VIDEO CASSETTE RECORDER';
-        this.Keyword     := 'REC';
-        this.Location    := VISITORS_ROOM;
+object Recorder (Item)
+    Description := 'A VIDEO CASSETTE RECORDER';
+    Keyword     := 'REC';
+    Location    := VISITORS_ROOM;
 
-        this.Fixed := True;
-        
-        this.TelevisionFlag := Off;
-        this.BatteryFlag    := Off;
-        this.TapeFlag       := Off;
+    Fixed := True;
+    
+    TelevisionFlag := Off;
+    BatteryFlag    := Off;
+    TapeFlag       := Off;
 
-    end
+    Order := 10;
 
     /// LOOK at RECORDER
     ///
@@ -484,7 +348,7 @@ begin
             WriteLn ('WE HAVE UNCOVERED A NUMBER THAT MAY HELP YOU.');
             WriteLn ('THAT NUMBER IS:' + Code + '. PLEASE WATCH OUT FOR HIDDEN TRAPS.');
             WriteLn ('ALSO, THERE IS SOMETHING IN THE SCULPTURE.');
-            Items[SCULPTURE].Flag := On;
+            Items[Sculpture].Flag := On;
             Exit Handled;
         end   
         WriteLn('NOTHING HAPPENED.');
@@ -494,30 +358,28 @@ end
 
 /// A LARGE SCULPTURE
 ///
-class Sculpture (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A LARGE SCULPTURE';
-        this.Keyword     := 'SCU';
-        this.Location    := LOBBY;
+object Sculpture (Item)
+    Description := 'A LARGE SCULPTURE';
+    Keyword     := 'SCU';
+    Location    := LOBBY;
 
-        this.Fixed    := True;
-        this.Openable := True;
-        this.Flag     := Off;
-    end
+    Fixed    := True;
+    Openable := True;
+    Flag     := Off;
+    
+    Order := 320;
 
     // Opening this SCULPTURE spawns a QUARTER and a CREDIT CARD.
     //
     function Open() : ResultType;
     begin
-        if Items[QUARTER].Location = 0 and Items[CREDIT_CARD].Location = 0 and Flag = On then
+        if Items[Quarter].Location = 0 and Items[CreditCard].Location = 0 and Flag = On then
         begin
             WriteLn('I OPEN THE SCULPTURE.');
             WriteLn('SOMETHING FALLS OUT.');
             
-            Items[QUARTER].Location := Location;
-            Items[CREDIT_CARD].Location := Location;
+            Items[Quarter].Location := Location;
+            Items[CreditCard].Location := Location;
             Exit Handled;
         end 
         Exit Passed;
@@ -526,20 +388,15 @@ end
 
 /// A PAIR OF SLIDING DOORS
 ///
-class SlidingDoors (Item);
-begin
-    /// Creates instance.
-    // 
-    constructor Init ();
-    begin
-        this.Description := 'A PAIR OF SLIDING DOORS';
-        this.Keyword     := 'DOO';
-        this.Location    := LOBBY;
+object SlidingDoors (Item)
+    Description := 'A PAIR OF SLIDING DOORS';
+    Keyword     := 'DOO';
+    Location    := LOBBY;
 
-        this.Fixed := True;
-        this.State := Closed;
-    end
-        
+    Fixed := True;
+    State := Closed;
+    Order := 340;
+
     // GO to SLIDING DOOR leads to SMALL ROOM, if door is open.
     //
     function Go () : ResultType;
@@ -571,27 +428,25 @@ end
 
 /// BUTTON near SLIDING DOORS
 ///
-class SlidingDoorsButton (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'NOTHING TO SEE HERE!';
-        this.Keyword     := 'BUT';
-        this.Location    := LOBBY;
+object SlidingDoorsButton (Item)
+    Description := 'BUTTON NEAR SLIDING DOORS';
+    Keyword     := 'BUT';
+    Location    := LOBBY;
 
-        this.Fixed := True;
-        this.Hidden := True;
-        this.Flag   := Off;
-    end
-        
+    Fixed := True;
+    Hidden := True;
+    Flag   := Off;
+
+    Order := 530;
+
     // PUSH BUTTON, yeah!!!
     //
     function Push () : ResultType;
     begin
-        if Items[SLIDING_DOORS].State = Closed then
+        if Items[SlidingDoors].State = Closed then
         begin
             WriteLn('THE DOORS OPEN WITH A WHOOSH!');
-            Items[SLIDING_DOORS].State := Opened;
+            Items[SlidingDoors].State := Opened;
             Flag := On;
             Exit Handled;
         end
@@ -601,14 +456,12 @@ end
 
 /// A SPIRAL NOTEBOOK
 ///
-class SpiralNotebook (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A SPIRAL NOTEBOOK';
-        this.Keyword     := 'NOT';
-        this.Location    := 0;
-    end
+object SpiralNotebook (Item)
+    Description := 'A SPIRAL NOTEBOOK';
+    Keyword     := 'NOT';
+    Location    := 0;
+    
+    Order := 220;
 
     /// LOOK at NOTEBOOK
     ///
@@ -632,17 +485,14 @@ end
 
 /// A LOCKED WOODEN DOOR
 ///
-class LockedWoodenDoor (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A LOCKED WOODEN DOOR';
-        this.Keyword     := 'DOO';
-        this.Location    := ANTE_ROOM;
+object LockedWoodenDoor (Item)
+    Description := 'A LOCKED WOODEN DOOR';
+    Keyword     := 'DOO';
+    Location    := ANTE_ROOM;
 
-        this.Fixed := True;
-        this.Openable := True;
-    end
+    Fixed := True;
+    Openable := True;
+    Order := 70;
 
     // LOOK at DOOR shows it's locked.
     //
@@ -656,11 +506,11 @@ begin
     //
     function Open() : ResultType;
     begin
-        if Items[ANTIQUE_KEY].Location = INVENTORY then
+        if Items[AntiqueKey].Location = INVENTORY then
         begin
             WriteLn ('O.K. I OPENED THE DOOR.');
-            Items[LOCKED_WOODEN_DOOR].Location := 0;
-            Items[OPEN_WOODEN_DOOR].Location := ANTE_ROOM;
+            Items[LockedWoodenDoor].Location := 0;
+            Items[OpenWoodenDoor].Location := ANTE_ROOM;
             Exit Handled;
         end
         Exit Passed;
@@ -669,16 +519,13 @@ end
 
 /// A OPEN WOODEN DOOR
 ///
-class OpenWoodenDoor (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'A OPEN WOODEN DOOR';
-        this.Keyword     := 'DOO';
-        this.Location    := 0;
+object OpenWoodenDoor (Item)
+    Description := 'A OPEN WOODEN DOOR';
+    Keyword     := 'DOO';
+    Location    := 0;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 80;
 
     // GO to DOOR should lead to PRESIDENTS_OFFICE.
     //
@@ -689,34 +536,26 @@ begin
     end   
 end
 
-
 /// A VIDEO TAPE
 ///
-class Tape (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A VIDEO TAPE';
-        this.Keyword     := 'TAP';
-        this.Location    := 0;
+object Tape (Item)     
+    Description := 'A VIDEO TAPE';
+    Keyword     := 'TAP';
+    Location    := 0;
 
-        this.Mock := Nil;
-    end
+    Mock := Nil;
+    Order := 20;
 
     // INSERT TAPE into RECORDER.
     //
     function Insert() : ResultType;
-    var 
-        Item : Integer;
-
     begin
-        Item := GetIndirectObject(Mock);
-            
-        if Item = RECORDER then 
+        var Item := GetIndirectObject(Mock);  
+        if Item = Recorder then 
         begin
             WriteLn ('O.K. THE TAPE IS IN THE RECORDER.');
-            Items[TAPE].Location := 0;
-            Items[RECORDER].TapeFlag := On;
+            Items[Tape].Location := 0;
+            Items[Recorder].TapeFlag := On;
             Exit Handled;
         end
         WriteLn ('NOTHING HAPPENED.');
@@ -726,16 +565,13 @@ end
 
 /// AN ELECTRONIC LOCK
 ///
-class Lock (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'AN ELECTRONIC LOCK';
-        this.Keyword     := 'LOC';
-        this.Location    := 0;
+object Lock (Item)     
+    Description := 'AN ELECTRONIC LOCK';
+    Keyword     := 'LOC';
+    Location    := 0;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 50;
 
     function Open () : ResultType;
     begin
@@ -743,9 +579,9 @@ begin
         if Input = Code then
         begin
             WriteLn ('THE DOOR IS SLOWLY OPENING.');
-            Items[LOCK].Location := 0;
-            Items[SOLID_DOOR].Location := 0;
-            Items[OPEN_DOOR].Location := 10;
+            Items[Lock].Location := 0;
+            Items[SolidDoor].Location := 0;
+            Items[OpenDoor].Location := 10; 
             Exit Handled;
         end
         WriteLn ('YOU MUST HAVE THE WRONG COMBINATION OR YOU ARE NOT');
@@ -756,16 +592,13 @@ end
 
 /// A SOLID LOOKING DOOR
 ///
-class SolidDoor (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SOLID LOOKING DOOR';
-        this.Keyword     := 'DOO';
-        this.Location    := SHORT_CORRIDOR;
+object SolidDoor (Item)   
+    Description := 'A SOLID LOOKING DOOR';
+    Keyword     := 'DOO';
+    Location    := SHORT_CORRIDOR;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 90;
 
     function Look () : ResultType;
     begin
@@ -782,16 +615,13 @@ end
 
 /// AN OPEN DOOR
 ///
-class OpenDoor (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'AN OPEN DOOR';
-        this.Keyword     := 'DOO';
-        this.Location    := 0;
+object OpenDoor (Item)    
+    Description := 'AN OPEN DOOR';
+    Keyword     := 'DOO';
+    Location    := 0;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 100;
 
     // GO to DOOR leads to METAL HALLWAY
     //
@@ -805,52 +635,43 @@ end
 
 /// AN ALERT SECURITY GUARD
 ///
-class AlertGuard (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'AN ALERT SECURITY GUARD';
-        this.Keyword     := 'GUA';
-        this.Location    := SHORT_CORRIDOR;
+object AlertGuard (Item)  
+    Description := 'AN ALERT SECURITY GUARD';
+    Keyword     := 'GUA';
+    Location    := SHORT_CORRIDOR;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 110;
 end
 
 /// A SLEEPING SECURITY GUARD
 ///
-class SleepingGuard (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SLEEPING SECURITY GUARD';
-        this.Keyword     := 'GUA';
-        this.Location    := 0;
+object SleepingGuard (Item)   
+    Description := 'A SLEEPING SECURITY GUARD';
+    Keyword     := 'GUA';
+    Location    := 0;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 120;
 end
 
 /// A LOCKED MAINTENANCE CLOSET
 ///
-class LockedCloset (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A LOCKED MAINTENANCE CLOSET';
-        this.Keyword     := 'CLO';
-        this.Location    := CAFETERIA;
+object LockedCloset (Item)    
+    Description := 'A LOCKED MAINTENANCE CLOSET';
+    Keyword     := 'CLO';
+    Location    := CAFETERIA;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 130;
 
     function Open () : ResultType;
     begin
-        if Items[ANTIQUE_KEY].Location = INVENTORY then 
+        if Items[AntiqueKey].Location = INVENTORY then 
         begin
             WriteLn ('O.K. THE CLOSET IS OPENED.');
-            Items[LOCKED_CLOSET].Location := 0;
-            Items[CLOSET].Location := 14;
+            Items[LockedCloset].Location := 0;
+            Items[MaintenanceClosetItem].Location := 14;
             Exit Handled;
         end 
         Exit Passed;       
@@ -859,16 +680,13 @@ end
 
 /// A MAINTENANCE CLOSET
 ///
-class MaintenanceClosetItem (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A MAINTENANCE CLOSET';
-        this.Keyword     := 'CLO';
-        this.Location    := 0;
+object MaintenanceClosetItem (Item)       
+    Description := 'A MAINTENANCE CLOSET';
+    Keyword     := 'CLO';
+    Location    := 0;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 140;
 
     function Go () : ResultType;
     begin
@@ -879,15 +697,13 @@ end
 
 /// A PLASTIC BAG
 ///
-class PlasticBag (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A PLASTIC BAG';
-        this.Keyword     := 'BAG';
-        this.Location    := MAINTENANCE_CLOSET;
-    end
-
+object PlasticBag (Item)    
+    Description := 'A PLASTIC BAG';
+    Keyword     := 'BAG';
+    Location    := MAINTENANCE_CLOSET;
+    
+    Order := 150; 
+    
     function Look () : ResultType;
     begin
         WriteLn ('IT''S A VERY STRONG BAG.');
@@ -906,49 +722,44 @@ begin
     //
     function Cut () : ResultType;
     begin
-        if Items[RAZOR_BLADE].Location <> INVENTORY then
+        if Items[RazorBlade].Location <> INVENTORY then
         begin
             WriteLn ('I CAN''T DO THAT YET.');
             Exit Handled;
         end
 
         WriteLn('RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
-        Items[PLASTIC_BAG].Location := 0;
-        Items[TAPE].Location := Location;
+        Items[PlasticBag].Location := 0;
+        Items[Tape].Location := Location;
         Exit Handled;       
     end
 end
 
 /// AN OLDE FASHIONED KEY
 ///
-class AntiqueKey (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'AN OLDE FASHIONED KEY';
-        this.Keyword     := 'KEY';
-        this.Location    := SMALL_ROOM;
-    end
+object AntiqueKey (Item)     
+    Description := 'AN OLDE FASHIONED KEY';
+    Keyword     := 'KEY';
+    Location    := SMALL_ROOM;
+
+    Order := 160;
 end
 
 /// A SMALL METAL SQUARE ON THE WALL
 ///
-class MetalSquare (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SMALL METAL SQUARE ON THE WALL';
-        this.Keyword     := 'SQU';
-        this.Location    := POWER_GENERATOR_ROOM;
+object MetalSquare (Item) 
+    Description := 'A SMALL METAL SQUARE ON THE WALL';
+    Keyword     := 'SQU';
+    Location    := POWER_GENERATOR_ROOM;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 170;
 
     // PUSH METAL SQUARE without GLOVES leads to death!
     //
     function Push () : ResultType;
     begin
-        if Items[GLOVES].State <> Wearing then
+        if Items[Gloves].State <> Wearing then
         begin
             WriteLn('THERE''S ELECTRICITY COURSING THRU THE SQUARE!');
             WriteLn('I''M BEING ELECTROCUTED!');
@@ -961,20 +772,17 @@ end
 
 /// A LEVER ON THE SQUARE
 ///
-class Lever (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A LEVER ON THE SQUARE';
-        this.Keyword     := 'LEV';
-        this.Location    := POWER_GENERATOR_ROOM;
+object Lever (Item)    
+    Description := 'A LEVER ON THE SQUARE';
+    Keyword     := 'LEV';
+    Location    := POWER_GENERATOR_ROOM;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 180;
 
     function Pull () : ResultType;
     begin
-        if Items[GLOVES].State <> Wearing then
+        if Items[Gloves].State <> Wearing then
         begin
             WriteLn('THE LEVER HAS ELECTRICITY COURSING THRU IT!');
             WriteLn('I''M BEING ELECTROCUTED!');
@@ -995,40 +803,33 @@ end
 
 /// A BROOM
 ///
-class Broom (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A BROOM';
-        this.Keyword     := 'BRO';
-        this.Location    := MAINTENANCE_CLOSET;
-    end
+object Broom (Item)      
+    Description := 'A BROOM';
+    Keyword     := 'BRO';
+    Location    := MAINTENANCE_CLOSET;
+    
+    Order := 200;
 end
 
 /// A DUSTPAN
 ///
-class Dustpan (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A DUSTPAN';
-        this.Keyword     := 'DUS';
-        this.Location    := MAINTENANCE_CLOSET;
-    end
+object Dustpan (Item)     
+    Description := 'A DUSTPAN';
+    Keyword     := 'DUS';
+    Location    := MAINTENANCE_CLOSET;
+
+    Order := 210;
 end
 
 /// A GLASS CASE ON A PEDESTAL
 ///
-class GlassCase (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A GLASS CASE ON A PEDESTAL';
-        this.Keyword     := 'CAS';
-        this.Location    := SOUND_PROOFED_CUBICLE;
+object GlassCase (Item)     
+    Description := 'A GLASS CASE ON A PEDESTAL';
+    Keyword     := 'CAS';
+    Location    := SOUND_PROOFED_CUBICLE;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 240;
 
     // LOOK at CASE.
     //
@@ -1042,52 +843,46 @@ begin
     //
     function Cut () : ResultType;
     begin
-        if Items[RAZOR_BLADE].Location <> INVENTORY then
+        if Items[RazorBlade].Location <> INVENTORY then
         begin
             WriteLn ('I CAN''T DO THAT YET.');
             Exit Handled;
         end
 
         WriteLn ('I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
-        Items[RUBY].Location := INVENTORY;
+        Items[Ruby].Location := INVENTORY;
         Exit Handled;
     end
 end
 
 /// A RAZOR BLADE
 ///
-class RazorBlade (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A RAZOR BLADE';
-        this.Keyword     := 'BLA';
-        this.Location    := BATHROOM;
-    end
+object RazorBlade (Item)     
+    Description := 'A RAZOR BLADE';
+    Keyword     := 'BLA';
+    Location    := BATHROOM;
+
+    Order := 250;
 end
 
 /// A VERY LARGE RUBY
 ///
-class Ruby (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A VERY LARGE RUBY';
-        this.Keyword     := 'RUB';
-        this.Location    := 0;
-    end
+object Ruby (Item)    
+    Description := 'A VERY LARGE RUBY';
+    Keyword     := 'RUB';
+    Location    := 0;
+
+    Order := 260;
 end
 
 /// A SIGN ON THE SQUARE
 ///
-class Sign (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SIGN ON THE SQUARE';
-        this.Keyword     := 'SIG';
-        this.Location    := POWER_GENERATOR_ROOM;
-    end
+object Sign (Item)   
+    Description := 'A SIGN ON THE SQUARE';
+    Keyword     := 'SIG';
+    Location    := POWER_GENERATOR_ROOM;
+
+    Order := 270;
 
     // LOOK at SIGN.
     //
@@ -1108,37 +903,31 @@ end
 
 /// A COFFEE MACHINE
 ///
-class CoffeeMachine (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A COFFEE MACHINE';
-        this.Keyword     := 'MAC';
-        this.Location    := SMALL_HALLWAY;
+object CoffeeMachine (Item) 
+    Description := 'A COFFEE MACHINE';
+    Keyword     := 'MAC';
+    Location    := SMALL_HALLWAY;
 
-        this.Fixed := True;
-    end
+    Fixed := True;
+    Order := 290;
 end
 
 /// A CUP OF STEAMING HOT COFFEE
 ///
-class CupOfCoffee (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A CUP OF STEAMING HOT COFFEE';
-        this.Keyword     := 'CUP';
-        this.Location    := 0;
+object CupOfCoffee (Item)   
+    Description := 'A CUP OF STEAMING HOT COFFEE';
+    Keyword     := 'CUP';
+    Location    := 0;
 
-        this.IsDrugged := False;
-    end
+    IsDrugged := False;
+    Order := 300;
 
     function Drop () : ResultType;
     begin
         WriteLn ('I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');
         WriteLn ('THE COFFEE SOAKED INTO THE GROUND.');
         
-        var CupOfCoffee := Items[CUP_OF_COFFEE];
+        var CupOfCoffee := Items[CupOfCoffee];
         CupOfCoffee.Location := 0;
         CupOfCoffee.IsDrugged := False;
 
@@ -1148,23 +937,21 @@ end
 
 /// A SMALL CAPSULE
 ///
-class Capsule (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SMALL CAPSULE';
-        this.Keyword     := 'CAP';
-        this.Location    := 0;
-    end
+object Capsule (Item)     
+    Description := 'A SMALL CAPSULE';
+    Keyword     := 'CAP';
+    Location    := 0;
+    
+    Order := 310;
 
     function Drop () : ResultType;
     begin
-        if Items[CUP_OF_COFFEE].Location = INVENTORY then
+        if Items[CupOfCoffee].Location = INVENTORY then
         begin
             WriteLn ('O.K. I DROPPED IT.');
             WriteLn ('BUT IT FELL IN THE COFFEE!');
-            Items[CAPSULE].Location := 0; 
-            Items[CUP_OF_COFFEE].IsDrugged := True;
+            Items[Capsule].Location := 0; 
+            Items[CupOfCoffee].IsDrugged := True;
             
             Exit Handled;
         end
@@ -1174,16 +961,13 @@ end
 
 /// A LARGE BUTTON ON THE WALL
 ///
-class Button (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A LARGE BUTTON ON THE WALL';
-        this.Keyword     := 'BUT';
-        this.Location    := CHAOS_CONTROL_ROOM;
-
-        this.Flag := Off;
-    end
+object Button (Item)   
+    Description := 'A LARGE BUTTON ON THE WALL';
+    Keyword     := 'BUT';
+    Location    := CHAOS_CONTROL_ROOM;
+    
+    Flag := Off;
+    Order := 520;
 
     /// PUSH BUTTON turns on BUTTON??
     //
@@ -1202,17 +986,14 @@ end
 
 /// A STRONG NYLON ROPE
 ///
-class Rope (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A STRONG NYLON ROPE';
-        this.Keyword     := 'ROP';
-        this.Location    := SUB_BASEMENT;
+object Rope (Item)
+    Description := 'A STRONG NYLON ROPE';
+    Keyword     := 'ROP';
+    Location    := SUB_BASEMENT;
 
-        this.State := Default;
-        this.Mock  := Nil;
-    end
+    State := Default;
+    Mock  := Nil;
+    Order := 370;
 
     // GO to the ROPE
     //
@@ -1240,7 +1021,7 @@ begin
         if IndirectObject <> 'HOO' then
         begin
             WriteLn ('O.K. I THREW IT.');
-            Items[ROPE].Location := Location;
+            Items[Rope].Location := Location;
             Exit Handled;
         end
 
@@ -1260,28 +1041,23 @@ end
 
 /// A LARGE HOOK WITH A ROPE HANGING FROM IT
 ///
-class Hook (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A LARGE HOOK WITH A ROPE HANGING FROM IT';
-        this.Keyword     := 'HOO';
-        this.Location    := OTHER_SIDE;
-        
-        this.Fixed := True;
-    end
+object Hook (Item)     
+    Description := 'A LARGE HOOK WITH A ROPE HANGING FROM IT';
+    Keyword     := 'HOO';
+    Location    := OTHER_SIDE;
+    
+    Fixed := True;
+    Order := 380;
 end
 
 /// A PORTABLE TELEVISION
 ///
-class Television (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A PORTABLE TELEVISION';
-        this.Keyword     := 'TEL';
-        this.Location    := SECURITY_OFFICE;
-    end
+object Television (Item)   
+    Description := 'A PORTABLE TELEVISION';
+    Keyword     := 'TEL';
+    Location    := SECURITY_OFFICE;
+    
+    Order := 400;
 
     function Connect () : ResultType;
     begin
@@ -1291,7 +1067,7 @@ begin
             Exit Handled;
         end
 
-        if Items[RECORDER].TelevisionFlag = On then
+        if Items[Recorder].TelevisionFlag = On then
         begin
             WriteLn ('I DID THAT ALREADY.');
             Exit Handled;
@@ -1304,31 +1080,29 @@ begin
         end
 
         WriteLn ('O.K. THE T.V. IS CONNECTED.');
-        Items[RECORDER].TelevisionFlag := On;
+        Items[Recorder].TelevisionFlag := On;
         Exit Handled;
     end
 
     /// GET the TELEVISION disconnects it.
     procedure Event (Source : String);
     begin
-       if Source = 'GET' then Items[RECORDER].TelevisionFlag := Off;
+       if Source = 'GET' then Items[Recorder].TelevisionFlag := Off;
     end
 end
 
 /// A BANK OF MONITORS
 ///
-class PedistalMonitor (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A BANK OF MONITORS';
-        this.Keyword     := 'MON';
-        this.Location    := SECURITY_OFFICE;
-    end
+object PedistalMonitor (Item)      
+    Description := 'A BANK OF MONITORS';
+    Keyword     := 'MON';
+    Location    := SECURITY_OFFICE;
+
+    Order := 430;
 
     function Look () : ResultType;
     begin
-        if Items[BUTTON].Flag = Off then
+        if Items[Button].Flag = Off then
         begin
             WriteLn ('THE SCREEN IS DARK.');
             Exit Handled;
@@ -1341,26 +1115,58 @@ end
 
 /// A CHAOS I.D. CARD
 ///
-class IdCard (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A CHAOS I.D. CARD';
-        this.Keyword     := 'CAR';
-        this.Location    := END_OF_COMPLEX;
-    end
+object IdCard (Item)    
+    Description := 'A CHAOS I.D. CARD';
+    Keyword     := 'CAR';
+    Location    := END_OF_COMPLEX;
+
+    Order := 420;
+end
+
+/// A BLANK CREDIT CARD
+///
+object CreditCard (Item)     
+    Description := 'A BLANK CREDIT CARD';
+    Keyword     := 'CAR';
+    Location    := 0;
+    
+    Mock  := Nil;
+    Order := 40;
+
+    // INSERT CREDIT CARD into SLIT.
+    //
+    function Insert() : ResultType;
+    begin
+        var Item := GetIndirectObject(Mock);
+            
+        if Item = Slit and DrugCounter <= 0 then
+        begin
+            WriteLn ('THE GUARD WON''T LET ME!');
+            Exit Handled;
+        end
+
+        if Item = Slit then 
+        begin 
+            WriteLn('POP! A SECTION OF THE WALL OPENS.....');
+            WriteLn('REVEALING SOMETHING VERY INTERESTING.');
+            Items[CreditCard].Location := 0;
+            Items[Lock].Location := Location;
+            Exit Handled;
+        end
+
+        WriteLn ('NOTHING HAPPENED.');
+        Exit Handled;
+    end 
 end
 
 /// A BANK OF MONITORS
 ///
-class Monitors (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A BANK OF MONITORS';
-        this.Keyword     := 'MON';
-        this.Location    := MONITORING_ROOM;
-    end
+object Monitors (Item)   
+    Description := 'A BANK OF MONITORS';
+    Keyword     := 'MON';
+    Location    := MONITORING_ROOM;
+
+    Order := 410;
 
     function Look () : ResultType;
     begin
@@ -1372,16 +1178,13 @@ end
 
 /// A SMALL PAINTING
 ///
-class Painting (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A SMALL PAINTING';
-        this.Keyword     := 'PAI';
-        this.Location    := LARGE_ROOM;
+object Painting (Item)     
+    Description := 'A SMALL PAINTING';
+    Keyword     := 'PAI';
+    Location    := LARGE_ROOM;
 
-        this.State := Default;
-    end
+    State := Default;
+    Order := 440;
 
     function Look () : ResultType;
     begin
@@ -1396,7 +1199,7 @@ begin
         if Source = 'GET' and State <> Moved then 
         begin
             WriteLn ('SOMETHING FELL FROM THE FRAME!');
-            Items[CAPSULE].Location := Location;
+            Items[Capsule].Location := Location;
             State := Moved;
         end
     end
@@ -1404,20 +1207,19 @@ end
 
 /// A PAIR OF RUBBER GLOVES
 ///
-class Gloves (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A PAIR OF RUBBER GLOVES';
-        this.Keyword     := 'GLO';
-        this.Location    := MAINTENANCE_CLOSET;
-    end
-   
+object Gloves (Item)      
+    Description := 'A PAIR OF RUBBER GLOVES';
+    Keyword     := 'GLO';
+    Location    := MAINTENANCE_CLOSET;
+    State       := Default;
+    
+    Order := 450;
+
     // Stop wearing GLOVES if DROP.
     //
     function Drop () : ResultType;
     begin
-        Items[GLOVES].State := Default;
+        Items[Gloves].State := Default;
         Exit Passed;
     end
 
@@ -1428,42 +1230,39 @@ begin
         if this.Location = INVENTORY then
         begin
             WriteLn ('O.K. IM NOW WEARING THE GLOVES.');
-            Items[GLOVES].State := Wearing;
+            Items[Gloves].State := Wearing;
             Exit Handled;
         end
     end
 end
+// 48869
 
 /// A BOX WITH A BUTTON ON IT
 ///
-class Box (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'A BOX WITH A BUTTON ON IT';
-        this.Keyword     := 'BOX';
-        this.Location    := LABORATORY;
-    end
+object Box (Item)     
+    Description := 'A BOX WITH A BUTTON ON IT';
+    Keyword     := 'BOX';
+    Location    := LABORATORY;
+
+    Order := 460;
 end
 
 /// BUTTON on the BOX!
 ///
-class BoxButton (Item);
-begin
-    constructor Init ();
-    begin
-        this.Description := 'NOTHING TO SEE HERE';
-        this.Keyword     := 'BUT';
-        this.Location    := GLOBAL;
-    end
+object BoxButton (Item)
+    Description := 'A BUTTON ON THE BOX';
+    Keyword     := 'BUT';
+    Location    := GLOBAL;
+
+    Order := 350;
 
     function Push () : ResultType;
     begin
-        if Items[BOX].Location = INVENTORY then
+        if Items[Box].Location = INVENTORY then
         begin
             WriteLn ('I PUSH THE BUTTON ON THE BOX AND');
 
-            if Location=SOUND_PROOFED_CUBICLE OR Location=CHAOS_CONTROL_ROOM then
+            if Location = SOUND_PROOFED_CUBICLE OR Location = CHAOS_CONTROL_ROOM then
             begin
                 WriteLn('THERE IS A BLINDING FLASH....');
                 Pause (750);
@@ -1483,16 +1282,13 @@ end
 
 /// SLIT
 ///
-class Slit (Item);
-begin
-    constructor Init ();
-    begin       
-        this.Description := 'NOTHING TO SEE HERE!';
-        this.Keyword     := 'SLI';
-        this.Location    := SHORT_CORRIDOR;
+object Slit (Item)    
+    Description := 'SLIT NEAR DOOR';
+    Keyword     := 'SLI';
+    Location    := SHORT_CORRIDOR;
 
-        this.Fixed := True;
-        this.Hidden := True;
-    end
+    Fixed := True;
+    Hidden := True;
+
+    Order := 500;
 end
-

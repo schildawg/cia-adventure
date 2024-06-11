@@ -59,23 +59,24 @@ begin
        Code := Code + Str(Random(1, 9));  
     end
 
+    Items.Reset();
+    
     Time := 0;
     UpdateTime := True; 
     
     AddRooms();
-    AddItems();
 end
 
 /// Finds an item number.
 ///
-function  FindItemID (ToMatch : String) : Integer;
+function  FindItemID (ToMatch : String) : Identifier;
 begin
-    for var I := 1; I < Items.Length; I := I + 1 do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
-        var Item := Items[I];
+        Item := I.Next() as Item;
         if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY) then
         begin
-           Exit I as Integer;
+           Exit Item.Id;
         end 
     end
     raise 'I DON''T SEE THAT HERE.';
@@ -88,7 +89,7 @@ var
    Item : Item;
 
 begin
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         Item := I.Next() as Item;
         if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY or Location = GLOBAL) then
@@ -103,7 +104,7 @@ end
 ///
 function MatchDirectObject (DirectObject : String);
 begin
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
         if DirectObject = Item.Keyword then Exit True;
@@ -137,8 +138,8 @@ begin
     begin
         WriteLn ('I HEAR A NOISE LIKE SOMEONE IS YAWNING.');
         
-        Items[ALERT_GUARD].Location = SHORT_CORRIDOR;
-        Items[SLEEPING_GUARD].Location = 0;
+        Items[AlertGuard].Location = SHORT_CORRIDOR;
+        Items[SleepingGuard].Location = 0;
 
         Guns := True;
         DrugCounter := -1;
@@ -235,7 +236,7 @@ begin
 
         if Not MatchDirectObject (DirectObject) then
         begin
-            raise 'I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.';
+            raise 'I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.' + DirectObject;
         end
 
         if (Dispatch.Contains(Verb)) then
@@ -267,6 +268,7 @@ begin
     UpdateTime := False;
     WriteLn (Err);
 end
+
 
 /// Main.
 //

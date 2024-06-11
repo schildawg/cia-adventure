@@ -133,7 +133,7 @@ begin
     // Arrange
     Setup ();
     Location := BUSY_STREET;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     // Act
     ParseCommand ('WALK BUILDING');
@@ -151,7 +151,7 @@ begin
     // Arrange
     Setup ();
     Location := BUSY_STREET;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     // Act
     ParseCommand ('RUN BUILDING');
@@ -169,14 +169,14 @@ begin
     // Arrange
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[PAPER_WEIGHT].Location := PRESIDENTS_OFFICE;
+    Items[PaperWeight].Location := PRESIDENTS_OFFICE;
 
     // Act
     ParseCommand ('GET WEIGHT');
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[PAPER_WEIGHT].Location);
+    AssertEqual (INVENTORY, Items[PaperWeight].Location);
 end
 
 /// Tests Can't GET fixed items. 
@@ -193,7 +193,7 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (BUSY_STREET, Items[BUILDING].Location);
+    AssertEqual (BUSY_STREET, Items[Building].Location);
 end
 
 /// Tests Can't GET an item already in INVENTORY. 
@@ -221,11 +221,11 @@ begin
     Setup ();
     Location := MAINTENANCE_CLOSET;
 
-    Items[BADGE].Location := INVENTORY;
-    Items[PAPER_WEIGHT].Location := INVENTORY;
-    Items[BROOM].Location := INVENTORY;
-    Items[DUSTPAN].Location := INVENTORY;
-    Items[ANTIQUE_KEY].Location := INVENTORY;
+    Items[Badge].Location := INVENTORY;
+    Items[PaperWeight].Location := INVENTORY;
+    Items[Broom].Location := INVENTORY;
+    Items[Dustpan].Location := INVENTORY;
+    Items[AntiqueKey].Location := INVENTORY;
 
     // Act
     ParseCommand ('GET GLOVES');
@@ -248,7 +248,7 @@ begin
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[PLASTIC_BAG].Location);
+    AssertEqual (INVENTORY, Items[PlasticBag].Location);
 end
 
 /// Tests CARRY 
@@ -264,7 +264,7 @@ begin
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[BROOM].Location);
+    AssertEqual (INVENTORY, Items[Broom].Location);
 end
 
 /// Tests DROP 
@@ -274,14 +274,14 @@ begin
     // Arrange
     Setup ();
     Location := BUSY_STREET;
-    Items[BADGE].Location := INVENTORY;
+    Items[Badge].Location := INVENTORY;
 
     // Act
     ParseCommand ('DROP BADGE');
     Events ();
 
     // Assert
-    AssertEqual (BUSY_STREET, Items[BADGE].Location);
+    AssertEqual (BUSY_STREET, Items[Badge].Location);
     AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
 end
 
@@ -292,14 +292,14 @@ begin
     // Arrange
     Setup ();
     Location := BUSY_STREET;
-    Items[BADGE].Location := INVENTORY;
+    Items[Badge].Location := INVENTORY;
 
     // Act
     ParseCommand ('LEAVE BADGE');
     Events ();
 
     // Assert
-    AssertEqual (BUSY_STREET, Items[BADGE].Location);
+    AssertEqual (BUSY_STREET, Items[Badge].Location);
     AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
 end
 
@@ -327,7 +327,7 @@ begin
     Setup ();
 
     Location := LOBBY;
-    Items[BADGE].Location := BUSY_STREET;
+    Items[Badge].Location := BUSY_STREET;
 
     // Act
     ParseCommand ('PRESS BUTTON');
@@ -410,8 +410,8 @@ begin
     Setup ();
     Location := SMALL_HALLWAY;
     
-    Items[QUARTER].Location := INVENTORY;
-    Items[QUARTER].Mock := COFFEE_MACHINE;
+    Items[Quarter].Location := INVENTORY;
+    Items[Quarter].Mock := CoffeeMachine;
 
     ParseCommand ('PUT QUARTER');
     Events ();
@@ -439,7 +439,7 @@ begin
     Setup ();
     Location := CAFETERIA;
     
-    Items[ANTIQUE_KEY].Location := INVENTORY;
+    Items[AntiqueKey].Location := INVENTORY;
 
     ParseCommand ('UNLOCK CLOSET');
     Events ();
@@ -543,14 +543,14 @@ end
 test 'CONNECT - ATTACH SYNONYM';
 begin
     Setup ();
-    Items[RECORDER].TelevisionFlag := Off;
+    Items[Recorder].TelevisionFlag := Off;
     Location := VISITORS_ROOM;
-    Items[TELEVISION].Location := VISITORS_ROOM;
+    Items[Television].Location := VISITORS_ROOM;
 
     ParseCommand ('ATTACH TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
-    AssertEqual (On, Items[RECORDER].TelevisionFlag);
+    AssertEqual (On, Items[Recorder].TelevisionFlag);
 end
 
 

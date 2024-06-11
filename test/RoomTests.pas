@@ -17,10 +17,10 @@ end
 // GO WEST should lead to LOBBY
 //
 test 'ANTE ROOM - GO WEST';
-begin
+begin    
     Setup ();
     Location := ANTE_ROOM;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('GO WEST');
     Events ();
@@ -73,7 +73,7 @@ begin
     // Arrange
     Setup ();
     Location := BUSY_STREET;
-    Items[RUBY].Location := -1;
+    Items[Ruby].Location := -1;
     
     // Act
     Events ();
@@ -232,7 +232,7 @@ test 'IN THE LOBBY OF THE BUILDING';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('LOOK');
     Events ();
@@ -266,7 +266,7 @@ test 'LOBBY - PUSH BUTTON';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
   
     ParseCommand ('PUSH BUTTON');
     Events ();
@@ -480,7 +480,7 @@ test 'IN A SHORT CORRIDOR';
 begin
     Setup ();
     Location := SHORT_CORRIDOR;
-    Items[ID_CARD].Location := INVENTORY;
+    Items[IdCard].Location := INVENTORY;
 
     ParseCommand ('LOOK');
     Events ();
@@ -498,7 +498,7 @@ test 'SHORT CORRIDOR - GUNS';
 begin
     Setup ();
     Location := SHORT_CORRIDOR;
-    Items[ID_CARD].Location := INVENTORY;
+    Items[IdCard].Location := INVENTORY;
     Guns := True;
 
     ParseCommand ('LOOK');
@@ -516,7 +516,7 @@ begin
     Setup ();
     Location := SHORT_CORRIDOR;
     Guns := False;
-    Items[ID_CARD].Location := 0;
+    Items[IdCard].Location := 0;
 
     ParseCommand ('LOOK');
     Events ();
@@ -532,15 +532,15 @@ begin
     Setup ();
     Location := SHORT_CORRIDOR;
     Guns := False;
-    Items[ID_CARD].Location := INVENTORY;
-    Items[CUP_OF_COFFEE].Location := INVENTORY;
-    Items[CUP_OF_COFFEE].IsDrugged := True;
+    Items[IdCard].Location := INVENTORY;
+    Items[CupOfCoffee].Location := INVENTORY;
+    Items[CupOfCoffee].IsDrugged := True;
 
     Events ();
 
     AssertEqual (Display.Buffer(-2), 'THE GUARD TAKES MY COFFEE');  
     AssertEqual (Display.Buffer(-1), 'AND FALLS TO SLEEP RIGHT AWAY.'); 
-    AssertEqual (SHORT_CORRIDOR, Items[SLEEPING_GUARD].Location);  
+    AssertEqual (SHORT_CORRIDOR, Items[SleepingGuard].Location);  
 end
 
 // LOOK should display IN A SIDE CORRIDOR.
@@ -597,7 +597,7 @@ test 'SMALL ROOM - GO NORTH';
 begin
     Setup ();
     Location := SMALL_ROOM;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('GO NORTH');
     Events ();
@@ -615,7 +615,7 @@ test 'IN A SMALL SOUND PROOFED CUBICLE';
 begin
     Setup ();
     Location := SOUND_PROOFED_CUBICLE;
-    Items[BUTTON].Flag := On;
+    Items[Button].Flag := On;
 
     ParseCommand ('LOOK');
     Events ();
@@ -667,7 +667,7 @@ test 'VISITORS ROOM - GO EAST';
 begin
     Setup ();
     Location := VISITORS_ROOM;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('GO EAST');
     Events ();

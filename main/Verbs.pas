@@ -8,15 +8,15 @@ begin
     HasInventory := False;
    
     WriteLn('WE ARE PRESENTLY CARRYING:');
-    for var R := 1; R  <= 46; R := R + 1 do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
-        var Item := Items[R];
+        Item := I.Next() as Item;
 
         if Item.Location = INVENTORY then
         begin
             HasInventory := True;
             Write (Item.Description);
-            if R = GLOVES and Items[GLOVES].State = Wearing then Write ('. WHICH I''M WEARING.');
+            if Item.Id = Gloves and Items[Gloves].State = Wearing then Write ('. WHICH I''M WEARING.');
             WriteLn ('');
         end    
     end
@@ -100,7 +100,7 @@ begin
     if Item.Location = INVENTORY then raise 'I ALREADY HAVE IT.';
 
     InventoryCount := 0;
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
         if Item.Location = -1 then InventoryCount := InventoryCount + 1;
@@ -123,7 +123,7 @@ var
    Matched : Item;
 
 begin
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
         if Item.Keyword = DirectObject and Item.Location = INVENTORY then
@@ -152,7 +152,7 @@ var
 
 begin
     var Matched := False;
-    for var I := Iterator(Items); I.HasNext(); Nop() do
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
         if Item.Keyword = DirectObject and (Item.Location = Location or Item.Location = GLOBAL) then
@@ -200,11 +200,8 @@ end
 /// Insert Verb.
 ///
 procedure Insert (DirectObject : String);
-var
-    Item   : Item;
-
 begin
-    Item :=  FindItem (DirectObject);
+    var Item :=  FindItem (DirectObject);
     if Item.GetClass().HasProperty ('Insert') and Item.Insert() = Handled then Exit;
 
     raise 'I CAN''T INSERT THAT!';
@@ -226,6 +223,7 @@ begin
     // Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
     if Not Openable then
     begin
+        WriteLn (Item);
         raise 'I CAN''T OPEN THAT.';
     end
     WriteLn ('I CAN''T DO THAT......YET!');
@@ -234,11 +232,8 @@ end
 /// Wear Verb
 ///
 procedure Wear (DirectObject : String);
-var
-   Item : Item;
-   
 begin
-    Item :=  FindItem (DirectObject);
+    var Item :=  FindItem (DirectObject);
     if Item.GetClass().HasProperty('Wear') and Item.Wear() = Handled then Exit;
 
     WriteLn ('I CAN''T WEAR THAT!');
@@ -247,11 +242,8 @@ end
 /// Read Verb
 ///
 procedure ReadVerb(DirectObject : String);
-var
-   Item : Item;
-
 begin
-    Item := FindItem  (DirectObject);
+    var Item := FindItem  (DirectObject);
     if Item.GetClass().HasProperty ('Read') and Item.Read() = Handled then Exit;
 
     WriteLn ('I CAN''T READ THAT.');
@@ -260,11 +252,8 @@ end
 /// Start Verb
 ///
 procedure Start(DirectObject : String);
-var
-   Item : Item;
-
 begin
-    Item :=  FindItem (DirectObject);
+    var Item :=  FindItem (DirectObject);
     if Item.GetClass().HasProperty ('Start') and Item.Start() = Handled then Exit;
 
     WriteLn ('I CAN''T START THAT.');
@@ -273,11 +262,8 @@ end
 /// Break Verb
 ///
 procedure BreakVerb(DirectObject : String);
-var
-   Item : Item;
-
 begin
-    Item :=  FindItem (DirectObject);
+    var Item :=  FindItem (DirectObject);
     if Item.GetClass().HasProperty ('DoBreak') and Item.DoBreak() = Handled then Exit;
 
     WriteLn ('I''M TRYING TO BREAK IT, BUT I CAN''T.');
@@ -286,13 +272,10 @@ end
 /// Cut Verb.
 ///
 procedure Cut (DirectObject : String);
-var
-   Item : Integer;
-
 begin
-    Item :=  FindItemID (DirectObject);
-    
-    if Items[Item].GetClass().HasProperty('Cut') and Items[Item].Cut() = Handled then Exit;
+    var Item :=  FindItem(DirectObject);
+
+    if Item.GetClass().HasProperty('Cut') and Item.Cut() = Handled then Exit;
 
     raise 'I''M TRYING. IT DOESN''T WORK.';
 end
@@ -300,11 +283,8 @@ end
 /// Throw Verb.
 ///
 procedure Throw(DirectObject : String);
-var
-    Item : Item;
-
 begin
-    Item := FindItem (DirectObject);
+    var Item := FindItem (DirectObject);
     if Item.GetClass().HasProperty ('Throw') and Item.Throw () = Handled then Exit;
 
     WriteLn ('I CAN''T THROW THAT.');
@@ -313,11 +293,8 @@ end
 /// Connect Verb
 ///
 procedure Connect (DirectObject : String);
-var
-    Item : Item;
-
 begin
-    Item := FindItem (DirectObject);
+    var Item := FindItem (DirectObject);
     if Item.GetClass().HasProperty('Connect') and Item.Connect() = Handled then Exit;
     
     raise 'I CAN''T CONNECT THAT.';

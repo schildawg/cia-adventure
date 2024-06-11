@@ -13,7 +13,7 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
-    AssertEqual (BUSY_STREET, Items[BADGE].Location);
+    AssertEqual (BUSY_STREET, Items[Badge].Location);
 end
 
 // GET the BATTERY
@@ -22,13 +22,13 @@ test 'BATTERY - GET';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[BATTERY].Location := PRESIDENTS_OFFICE;
+    Items[BatteryItem].Location := PRESIDENTS_OFFICE;
 
     ParseCommand ('GET BATTERY');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K.');
-    AssertEqual(INVENTORY, Items[BATTERY].Location);
+    AssertEqual(INVENTORY, Items[BatteryItem].Location);
 end
 
 // INSERT the BATTERY
@@ -37,14 +37,14 @@ test 'BATTERY - INSERT';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[BATTERY].Location := INVENTORY;
-    Items[BATTERY].Mock := RECORDER;
+    Items[BatteryItem].Location := INVENTORY;
+    Items[BatteryItem].Mock := Recorder;
 
     ParseCommand ('INSERT BATTERY');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K.');
-    AssertEqual(0, Items[BATTERY].Location);
+    AssertEqual(0, Items[BatteryItem].Location);
 end
 
 // Can't get A TALL OFFICE BUILDING 
@@ -61,7 +61,7 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (BUSY_STREET, Items[BUILDING].Location);
+    AssertEqual (BUSY_STREET, Items[Building].Location);
 end
 
 // DROP BADGE and GO BUILDING should go to LOBBY.
@@ -171,14 +171,14 @@ test 'DRAWER - BREAK with WEIGHT';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[PAPER_WEIGHT].Location := INVENTORY;
+    Items[PaperWeight].Location := INVENTORY;
 
     ParseCommand ('BREAK DRAWER');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
-    AssertEqual (PRESIDENTS_OFFICE, Items[SPIRAL_NOTEBOOK].Location);
-    AssertEqual (PRESIDENTS_OFFICE, Items[BATTERY].Location);
+    AssertEqual (PRESIDENTS_OFFICE, Items[SpiralNotebook].Location);
+    AssertEqual (PRESIDENTS_OFFICE, Items[BatteryItem].Location);
 end
 
 
@@ -189,13 +189,13 @@ test 'PANEL - CAN''T GET';
 begin
     Setup ();
     Location := SMALL_ROOM;
-    Items[ONE].Location := SMALL_ROOM;
+    Items[ButtonOne].Location := SMALL_ROOM;
 
     ParseCommand ('GET PANEL');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (SMALL_ROOM, Items[PANEL].Location);
+    AssertEqual (SMALL_ROOM, Items[PanelOfButtons].Location);
 end
 
 // Can't GET button ONE.
@@ -204,13 +204,13 @@ test 'ONE - CAN''T GET';
 begin
     Setup ();
     Location := SMALL_ROOM;
-    Items[ONE].Location := SMALL_ROOM;
+    Items[ButtonOne].Location := SMALL_ROOM;
 
     ParseCommand ('GET ONE');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (SMALL_ROOM, Items[ONE].Location);
+    AssertEqual (SMALL_ROOM, Items[ButtonOne].Location);
 end
 
 // PUSH ONE on floor one.
@@ -254,7 +254,7 @@ begin
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (SMALL_ROOM, Items[TWO].Location);
+    AssertEqual (SMALL_ROOM, Items[ButtonTwo].Location);
 end
 
 // PUSH TWO on floor two.
@@ -298,7 +298,7 @@ begin
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (SMALL_ROOM, Items[THREE].Location);
+    AssertEqual (SMALL_ROOM, Items[ButtonThree].Location);
 end
 
 // PUSH THREE on floor three.
@@ -331,7 +331,14 @@ begin
     AssertEqual (3, Floor);
 end
 
-
+procedure DropAll();
+begin
+    for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
+    begin
+       var Item := I.Next();
+       if Item.Location = INVENTORY then Item.Location := 0;
+    end
+end
 
 // GET the WEIGHT
 //
@@ -340,11 +347,16 @@ begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
 
+    Items[PaperWeight].Location := PRESIDENTS_OFFICE; 
+
+    // TODO: Reset state!!!
+    DropAll();
+
     ParseCommand ('GET WEIGHT');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K.');
-    AssertEqual(INVENTORY, Items[PAPER_WEIGHT].Location);
+    AssertEqual(INVENTORY, Items[PaperWeight].Location);
 end
 
 // LOOK at WEIGHT.
@@ -381,9 +393,9 @@ test 'RECORDER - LOOK NO POWER';
 begin
     Setup ();
     Location := VISITORS_ROOM;
-    Items[RECORDER].BatteryFlag := Off;
-    Items[RECORDER].TelevisionFlag := Off;
-    Items[RECORDER].TapeFlag := Off;
+    Items[Recorder].BatteryFlag := Off;
+    Items[Recorder].TelevisionFlag := Off;
+    Items[Recorder].TapeFlag := Off;
 
     ParseCommand ('LOOK RECORDER');
     Events ();
@@ -397,9 +409,9 @@ test 'RECORDER - LOOK NO T.V.';
 begin
     Setup ();
     Location := VISITORS_ROOM;
-    Items[RECORDER].BatteryFlag := On;
-    Items[RECORDER].TelevisionFlag := Off;
-    Items[RECORDER].TapeFlag := Off;
+    Items[Recorder].BatteryFlag := On;
+    Items[Recorder].TelevisionFlag := Off;
+    Items[Recorder].TapeFlag := Off;
 
     ParseCommand ('LOOK RECORDER');
     Events ();
@@ -415,9 +427,9 @@ begin
     Location := VISITORS_ROOM;
     
     Name := 'JOEL';
-    Items[RECORDER].BatteryFlag := On;
-    Items[RECORDER].TelevisionFlag := On;
-    Items[RECORDER].TapeFlag := On;
+    Items[Recorder].BatteryFlag := On;
+    Items[Recorder].TelevisionFlag := On;
+    Items[Recorder].TapeFlag := On;
     Code := '12345';
 
     ParseCommand ('PLAY RECORDER');
@@ -436,7 +448,7 @@ test 'SCULPTURE - CAN''T GET';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('GET SCULPTURE');
     Events ();
@@ -450,8 +462,8 @@ test 'SCULPTURE - CAN''T OPEN';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
-    Items[SCULPTURE].Flag := Off;
+    Items[Badge].Location := 0;
+    Items[Sculpture].Flag := Off;
 
     ParseCommand ('OPEN SCULPTURE');
     Events ();
@@ -465,16 +477,16 @@ test 'SCULPTURE - OPEN';
 begin    
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
-    Items[SCULPTURE].Flag := On;
+    Items[Badge].Location := 0;
+    Items[Sculpture].Flag := On;
 
     ParseCommand ('OPEN SCULPTURE');
     Events ();
 
     AssertEqual (Display.Buffer(-2), 'I OPEN THE SCULPTURE.');
     AssertEqual (Display.Buffer(-1), 'SOMETHING FALLS OUT.');
-    AssertEqual (LOBBY, Items[QUARTER].Location);
-    AssertEqual (LOBBY, Items[CREDIT_CARD].Location);
+    AssertEqual (LOBBY, Items[Quarter].Location);
+    AssertEqual (LOBBY, Items[CreditCard].Location);
 end
 
 
@@ -484,7 +496,7 @@ test 'SLIDING DOORS - CAN''T GET';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('GET DOORS');
     Events ();
@@ -498,7 +510,7 @@ test 'SLIDING DOORS - CAN''T OPEN';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
 
     ParseCommand ('OPEN DOORS');
     Events ();
@@ -512,13 +524,13 @@ test 'NOTEBOOK - GET';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[SPIRAL_NOTEBOOK].Location := PRESIDENTS_OFFICE;
+    Items[SpiralNotebook].Location := PRESIDENTS_OFFICE;
 
     ParseCommand ('GET NOTEBOOK');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K.');
-    AssertEqual(INVENTORY, Items[SPIRAL_NOTEBOOK].Location);
+    AssertEqual(INVENTORY, Items[SpiralNotebook].Location);
 end
 
 // LOOK at NOTEBOOK.
@@ -527,7 +539,7 @@ test 'NOTEBOOK - LOOK';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[SPIRAL_NOTEBOOK].Location := PRESIDENTS_OFFICE;
+    Items[SpiralNotebook].Location := PRESIDENTS_OFFICE;
 
     ParseCommand ('LOOK NOTEBOOK');
     Events ();
@@ -541,7 +553,7 @@ test 'NOTEBOOK - READ';
 begin
     Setup ();
     Location := PRESIDENTS_OFFICE;
-    Items[SPIRAL_NOTEBOOK].Location := PRESIDENTS_OFFICE;
+    Items[SpiralNotebook].Location := PRESIDENTS_OFFICE;
     Name := 'JOEL';
 
     ParseCommand ('READ NOTEBOOK');
@@ -568,7 +580,7 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (ANTE_ROOM, Items[LOCKED_WOODEN_DOOR].Location);
+    AssertEqual (ANTE_ROOM, Items[LockedWoodenDoor].Location);
 end
 
 // LOOK at LOCKED WOODEN DOOR
@@ -627,7 +639,7 @@ begin
     // Arrange
     Setup ();
     Location := ANTE_ROOM;
-    Items[ANTIQUE_KEY].Location := INVENTORY;
+    Items[AntiqueKey].Location := INVENTORY;
 
     // Act
     ParseCommand ('OPEN DOOR');
@@ -635,8 +647,8 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'O.K. I OPENED THE DOOR.');
-    AssertEqual (0, Items[LOCKED_WOODEN_DOOR].Location);
-    AssertEqual (ANTE_ROOM, Items[OPEN_WOODEN_DOOR].Location);
+    AssertEqual (0, Items[LockedWoodenDoor].Location);
+    AssertEqual (ANTE_ROOM, Items[OpenWoodenDoor].Location);
 end
 
 // Can't get AN OPEN WOODEN DOOR
@@ -646,8 +658,8 @@ begin
     // Arrange
     Setup ();
     Location := ANTE_ROOM;
-    Items[LOCKED_WOODEN_DOOR].Location := 0;
-    Items[OPEN_WOODEN_DOOR].Location := Location;
+    Items[LockedWoodenDoor].Location := 0;
+    Items[OpenWoodenDoor].Location := Location;
 
     // Act
     ParseCommand ('GET DOOR');
@@ -655,7 +667,7 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (ANTE_ROOM, Items[OPEN_WOODEN_DOOR].Location);
+    AssertEqual (ANTE_ROOM, Items[OpenWoodenDoor].Location);
 end
 
 // LOOK at OPEN WOODEN DOOR
@@ -665,8 +677,8 @@ begin
     // Arrange
     Setup ();
     Location := ANTE_ROOM;
-    Items[LOCKED_WOODEN_DOOR].Location := 0;
-    Items[OPEN_WOODEN_DOOR].Location := Location;
+    Items[LockedWoodenDoor].Location := 0;
+    Items[OpenWoodenDoor].Location := Location;
 
     // Act
     ParseCommand ('LOOK DOOR');
@@ -683,8 +695,8 @@ begin
     // Arrange
     Setup ();
     Location := ANTE_ROOM;
-    Items[LOCKED_WOODEN_DOOR].Location := 0;
-    Items[OPEN_WOODEN_DOOR].Location := Location;
+    Items[LockedWoodenDoor].Location := 0;
+    Items[OpenWoodenDoor].Location := Location;
 
     // Act
     ParseCommand ('GO DOOR');
@@ -705,8 +717,8 @@ begin
     Setup ();
     Location := LEDGE;
     
-    Items[ROPE].Location := LEDGE;
-    Items[ROPE].State    := Connected;
+    Items[Rope].Location := LEDGE;
+    Items[Rope].State    := Connected;
 
     // Act
     ParseCommand ('GO ROPE');
@@ -727,8 +739,8 @@ begin
     // Arrange
     Setup ();
     Location := SHORT_CORRIDOR;
-    Items[OPEN_DOOR].Location := SHORT_CORRIDOR;
-    Items[SOLID_DOOR].Location := 0;
+    Items[OpenDoor].Location := SHORT_CORRIDOR;
+    Items[SolidDoor].Location := 0;
     ElectricyFlag := Off;
 
     // Act
@@ -749,8 +761,8 @@ begin
     // Arrange
     Setup ();
     Location := CAFETERIA;
-    Items[LOCKED_CLOSET].Location := 0;
-    Items[CLOSET].Location := CAFETERIA;
+    Items[LockedCloset].Location := 0;
+    Items[MaintenanceClosetItem].Location := CAFETERIA;
 
     // Act
     ParseCommand ('GO CLOSET');
@@ -774,8 +786,8 @@ begin
     // Arrange
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := BUSY_STREET;
-    Items[SLIDING_DOORS].State := Opened;
+    Items[Badge].Location := BUSY_STREET;
+    Items[SlidingDoors].State := Opened;
 
     // Act
     ParseCommand ('GO DOOR');
@@ -783,8 +795,8 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-5), 'WE ARE IN A SMALL ROOM.');
-    AssertEqual (Display.Buffer(-4), 'I CAN SEE AN OLDE FASHIONED KEY.');
-    AssertEqual (Display.Buffer(-3), 'I CAN SEE A PANEL OF BUTTONS NUMBERED ONE THRU THREE.');  
+    AssertEqual (Display.Buffer(-3), 'I CAN SEE A PANEL OF BUTTONS NUMBERED ONE THRU THREE.'); 
+    AssertEqual (Display.Buffer(-4), 'I CAN SEE AN OLDE FASHIONED KEY.'); 
     AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: NORTH   ');      
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
     AssertEqual (SMALL_ROOM, Location);
@@ -805,7 +817,7 @@ begin
     // Assert
     AssertEqual (Display.Buffer(-2), 'O.K.');      
     AssertEqual (Display.Buffer(-1), 'SOMETHING FELL FROM THE FRAME!');
-    AssertEqual (LARGE_ROOM, Items[CAPSULE].Location);
+    AssertEqual (LARGE_ROOM, Items[Capsule].Location);
 end
 
 // GET TELEVISION should disconnect it.
@@ -814,15 +826,19 @@ test 'TELEVISION - GET';
 begin
     // Arrange
     Setup ();
+    DropAll();
+
     Location := SECURITY_OFFICE;
-    Items[RECORDER].TelevisionFlag := On;
+    Items[Television].Location := Location;
+
+    Items[Recorder].TelevisionFlag := On;
 
     // Act
     ParseCommand ('GET TELEVISION');
     Events ();
 
     // Assert
-    AssertEqual (Items[RECORDER].TelevisionFlag, Off);
+    AssertEqual (Items[Recorder].TelevisionFlag, Off);
 end
 
 
@@ -834,7 +850,7 @@ begin
     Setup ();
 
     Location := CAFETERIA;
-    Items[CUP_OF_COFFEE].Location := INVENTORY;
+    Items[CupOfCoffee].Location := INVENTORY;
 
     // Act
     ParseCommand ('DROP CUP');
@@ -843,7 +859,7 @@ begin
     // Assert
     AssertEqual (Display.Buffer(-2), 'I DROPPED THE CUP BUT IT BROKE INTO SMALL PEICES.');      
     AssertEqual (Display.Buffer(-1), 'THE COFFEE SOAKED INTO THE GROUND.');
-    AssertEqual(0, Items[CUP_OF_COFFEE].Location);
+    AssertEqual(0, Items[CupOfCoffee].Location);
 end
 
 // DROP GLOVES should remove wearing them!
@@ -852,15 +868,15 @@ test 'GLOVES - DROP';
 begin
     // Arrange
     Setup ();
-    Items[GLOVES].Location := INVENTORY;
-    Items[GLOVES].State    := Wearing;
+    Items[Gloves].Location := INVENTORY;
+    Items[Gloves].State    := Wearing;
 
     // Act
     ParseCommand ('DROP GLOVES');
     Events ();
 
     // Assert
-    AssertEqual(Default, Items[GLOVES].State);
+    AssertEqual(Default, Items[Gloves].State);
 end
 
 // DROP the CAPSULE should drop into CUP OF COFFEE if it is in INVENTORY.
@@ -869,8 +885,8 @@ test 'CAPSULE - DROP INTO COFFEE';
 begin
     // Arrange
     Setup ();
-    Items[CAPSULE].Location := INVENTORY;
-    Items[CUP_OF_COFFEE].Location := INVENTORY;
+    Items[Capsule].Location := INVENTORY;
+    Items[CupOfCoffee].Location := INVENTORY;
     Location := BUSY_STREET;
 
     // Act
@@ -880,7 +896,7 @@ begin
     // Assert
     AssertEqual (Display.Buffer(-2), 'O.K. I DROPPED IT.');      
     AssertEqual (Display.Buffer(-1), 'BUT IT FELL IN THE COFFEE!');
-    AssertEqual(0, Items[CAPSULE].Location);
+    AssertEqual(0, Items[Capsule].Location);
 end
 
 // Should electrocute you if PUSH METAL SQUARE without GLOVES.
@@ -891,7 +907,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    Items[GLOVES].State := Default;
+    Items[Gloves].State := Default;
 
     // Act
     ParseCommand ('PUSH SQUARE');
@@ -911,8 +927,8 @@ begin
     Setup ();
 
     Location := CHAOS_CONTROL_ROOM;
-    Items[BOX].Location := 0;
-    Items[BUTTON].Flag := Off;
+    Items[Box].Location := 0;
+    Items[Button].Flag := Off;
 
     // Act
     ParseCommand ('PUSH BUTTON');
@@ -921,7 +937,7 @@ begin
     // Assert
     AssertEqual (Display.Buffer(-2), 'THE BUTTON ON THE WALL GOES IN .....');      
     AssertEqual (Display.Buffer(-1), 'CLICK! SOMETHING SEEMS DIFFFERENT NOW.');
-    AssertEqual(On, Items[BUTTON].Flag);
+    AssertEqual(On, Items[Button].Flag);
 end
 
 // PUSH BUTTON opens SLIDING DOORS if they are Closed on Flag.
@@ -932,7 +948,7 @@ begin
     Setup ();
 
     Location := LOBBY;
-    Items[BADGE].Location := BUSY_STREET;
+    Items[Badge].Location := BUSY_STREET;
 
     // Act
     ParseCommand ('PUSH BUTTON');
@@ -940,7 +956,7 @@ begin
 
     // Assert    
     AssertEqual (Display.Buffer(-1), 'THE DOORS OPEN WITH A WHOOSH!');
-    AssertEqual(On, Items[SLIDING_DOORS_BUTTON].Flag);
+    AssertEqual(On, Items[SlidingDoorsButton].Flag);
 end
 
 // PUSH BUTTON on BOX
@@ -951,7 +967,7 @@ begin
     Setup ();
 
     Location := CHAOS_CONTROL_ROOM;
-    Items[BOX].Location := INVENTORY;
+    Items[Box].Location := INVENTORY;
 
     // Act
     ParseCommand ('PUSH BUTTON');
@@ -976,7 +992,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    Items[GLOVES].State := Default;
+    Items[Gloves].State := Default;
 
     // Act
     ParseCommand ('PULL LEVER');
@@ -997,7 +1013,7 @@ begin
     Setup ();
 
     Location := POWER_GENERATOR_ROOM;
-    Items[GLOVES].State := Wearing;
+    Items[Gloves].State := Wearing;
     ElectricyFlag := On;
 
     // Act
@@ -1051,8 +1067,8 @@ begin
     // Arrange
     Setup ();
 
-    Items[BADGE].Location := BUSY_STREET;
-    Items[SLIDING_DOORS].State := Opened;
+    Items[Badge].Location := BUSY_STREET;
+    Items[SlidingDoors].State := Opened;
     Location := LOBBY;
 
     // Act
@@ -1069,7 +1085,7 @@ test 'SLIDING DOOR (CLOSED) - LOOK';
 begin
     Setup ();
     Location := LOBBY;
-    Items[BADGE].Location := 0;
+    Items[Badge].Location := 0;
   
     ParseCommand ('LOOK DOORS');
     Events ();
@@ -1134,7 +1150,7 @@ begin
     Setup ();
 
     Location := SECURITY_OFFICE;
-    Items[BUTTON].Flag := Off;
+    Items[Button].Flag := Off;
 
     // Act
     ParseCommand ('LOOK MONITORS');
@@ -1152,7 +1168,7 @@ begin
     Setup ();
 
     Location := SECURITY_OFFICE;
-    Items[BUTTON].Flag := On;
+    Items[Button].Flag := On;
 
     // Act
     ParseCommand ('LOOK MONITORS');
@@ -1186,9 +1202,9 @@ begin
     Location := SHORT_CORRIDOR;
     
     Guns := False;
-    Items[ID_CARD].Location := INVENTORY;
-    Items[CREDIT_CARD].Location := INVENTORY;
-    Items[CREDIT_CARD].Mock := SLIT;
+    Items[IdCard].Location := INVENTORY;
+    Items[CreditCard].Location := INVENTORY;
+    Items[CreditCard].Mock := Slit;
 
     ParseCommand ('INSERT CARD');
     Events ();
@@ -1203,9 +1219,9 @@ begin
     Setup ();
     Location := SHORT_CORRIDOR;
     
-    Items[ID_CARD].Location := INVENTORY;
-    Items[CREDIT_CARD].Location := INVENTORY;
-    Items[CREDIT_CARD].Mock := SLIT;
+    Items[IdCard].Location := INVENTORY;
+    Items[CreditCard].Location := INVENTORY;
+    Items[CreditCard].Mock := Slit;
     DrugCounter := 10;
 
     ParseCommand ('INSERT CARD');
@@ -1214,8 +1230,8 @@ begin
     AssertEqual (Display.Buffer(-2), 'POP! A SECTION OF THE WALL OPENS.....');
     AssertEqual (Display.Buffer(-1), 'REVEALING SOMETHING VERY INTERESTING.');
 
-    AssertEqual(0, Items[CREDIT_CARD].Location);
-    AssertEqual(SHORT_CORRIDOR, Items[LOCK].Location);
+    AssertEqual(0, Items[CreditCard].Location);
+    AssertEqual(SHORT_CORRIDOR, Items[Lock].Location);
 end
 
 // INSERT the TAPE into the RECORDER
@@ -1225,14 +1241,14 @@ begin
     Setup ();
     Location := VISITORS_ROOM;
     
-    Items[TAPE].Location := INVENTORY;
-    Items[TAPE].Mock := RECORDER;
+    Items[Tape].Location := INVENTORY;
+    Items[Tape].Mock := Recorder;
 
     ParseCommand ('INSERT TAPE');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE TAPE IS IN THE RECORDER.');
-    AssertEqual (On, Items[RECORDER].TapeFlag);
+    AssertEqual (On, Items[Recorder].TapeFlag);
 end
 
 // INSERT the QUARTER into the COFFEE MACHINE
@@ -1242,25 +1258,25 @@ begin
     Setup ();
     Location := SMALL_HALLWAY;
     
-    Items[QUARTER].Location := INVENTORY;
-    Items[QUARTER].Mock := COFFEE_MACHINE;
+    Items[Quarter].Location := INVENTORY;
+    Items[Quarter].Mock := CoffeeMachine;
 
     ParseCommand ('INSERT QUARTER');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
-    AssertEqual (SMALL_HALLWAY, Items[CUP_OF_COFFEE].Location);
+    AssertEqual (SMALL_HALLWAY, Items[CupOfCoffee].Location);
 end
 
 // OPEN SOLID DOOR shouldn't work.
 //
 test 'SOLID DOOR - OPEN';
-begin
+begin    
     Setup ();
     Guns := False;
     Location := SHORT_CORRIDOR;
     
-    Items[ID_CARD].Location := INVENTORY;
+    Items[IdCard].Location := INVENTORY;
 
     ParseCommand ('OPEN DOOR');
     Events ();
@@ -1276,7 +1292,7 @@ begin
     Setup ();
     Location := CAFETERIA;
     
-    Items[ANTIQUE_KEY].Location := INVENTORY;
+    Items[AntiqueKey].Location := INVENTORY;
 
     ParseCommand ('OPEN CLOSET');
     Events ();
@@ -1303,8 +1319,8 @@ test 'LOCK - OPEN';
 begin
     Setup ();
     Location := SHORT_CORRIDOR;
-    Items[ID_CARD].Location := INVENTORY;
-    Items[LOCK].Location := SHORT_CORRIDOR;
+    Items[IdCard].Location := INVENTORY;
+    Items[Lock].Location := SHORT_CORRIDOR;
 
     // TODO: Mock ReadLn();
     // ParseCommand ('OPEN LOCK');
@@ -1316,14 +1332,14 @@ end
 test 'GLOVES - WEAR';
 begin
     Setup ();
-    Items[GLOVES].Location := INVENTORY;
+    Items[Gloves].Location := INVENTORY;
     Location := BUSY_STREET;
 
     ParseCommand ('WEAR GLOVES');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'O.K. IM NOW WEARING THE GLOVES.');
-    AssertEqual (Wearing, Items[GLOVES].State);
+    AssertEqual (Wearing, Items[Gloves].State);
 end
 
 // READ the SIGN.
@@ -1358,13 +1374,13 @@ test 'PLASTIC BAG - CUT';
 begin
     Setup ();
     Location := MAINTENANCE_CLOSET;
-    Items[RAZOR_BLADE].Location := INVENTORY;
+    Items[RazorBlade].Location := INVENTORY;
 
     ParseCommand ('CUT BAG');
     Events ();
 
     AssertEqual (Display.Buffer(-1), 'RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
-    AssertEqual (MAINTENANCE_CLOSET, Items[TAPE].Location);
+    AssertEqual (MAINTENANCE_CLOSET, Items[Tape].Location);
 end
 
 // CUT GLASS CASE <-- the start of this whole obsession :D
@@ -1373,12 +1389,12 @@ test 'GLASS CASE - CUT';
 begin
     Setup ();
     Location := SOUND_PROOFED_CUBICLE;
-    Items[RAZOR_BLADE].Location := INVENTORY;
+    Items[RazorBlade].Location := INVENTORY;
 
     ParseCommand ('CUT CASE');
 
     AssertEqual (Display.Buffer(-1), 'I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
-    AssertEqual (INVENTORY, Items[RUBY].Location);
+    AssertEqual (INVENTORY, Items[Ruby].Location);
 end
 
 // THROW the ROPE with no ROPE.
@@ -1387,7 +1403,7 @@ test 'ROPE - THROW no ROPE';
 begin
     Setup ();
     Location := LEDGE;
-    Items[ROPE].Location := LEDGE;
+    Items[Rope].Location := LEDGE;
 
     ParseCommand ('THROW ROPE');
 
@@ -1400,13 +1416,13 @@ test 'ROPE - THROW not at HOOK';
 begin
     Setup ();
     Location := LEDGE;
-    Items[ROPE].Location := INVENTORY;
-    Items[ROPE].Mock := 'FLOOR';
+    Items[Rope].Location := INVENTORY;
+    Items[Rope].Mock := 'FLOOR';
 
     ParseCommand ('THROW ROPE');
 
     AssertEqual (Display.Buffer(-1), 'O.K. I THREW IT.');
-    AssertEqual (LEDGE, Items[ROPE].Location);
+    AssertEqual (LEDGE, Items[Rope].Location);
 end
 
 // THROW the ROPE not on LEDGE.
@@ -1415,8 +1431,8 @@ test 'ROPE - THROW not on LEDGE';
 begin
     Setup ();
     Location := BUSY_STREET;
-    Items[ROPE].Location := INVENTORY;
-    Items[ROPE].Mock := 'HOO';
+    Items[Rope].Location := INVENTORY;
+    Items[Rope].Mock := 'HOO';
 
     ParseCommand ('THROW ROPE');
 
@@ -1429,14 +1445,14 @@ test 'ROPE - THROW';
 begin
     Setup ();
     Location := LEDGE;
-    Items[ROPE].Location := INVENTORY;
-    Items[ROPE].Mock := 'HOO';
+    Items[Rope].Location := INVENTORY;
+    Items[Rope].Mock := 'HOO';
 
     ParseCommand ('THROW ROPE');
 
     AssertEqual (Display.Buffer(-1), 'I THREW THE ROPE AND IT SNAGGED ON THE HOOK.');
-    AssertEqual (Connected, Items[ROPE].State);
-    AssertEqual (Location, Items[ROPE].Location);
+    AssertEqual (Connected, Items[Rope].State);
+    AssertEqual (Location, Items[Rope].Location);
 end
 
 // CONNECT the TELEVISION.
@@ -1444,14 +1460,14 @@ end
 test 'TELEVISION - CONNECT';
 begin
     Setup ();
-    Items[RECORDER].TelevisionFlag := Off;
+    Items[Recorder].TelevisionFlag := Off;
     Location := VISITORS_ROOM;
-    Items[TELEVISION].Location := VISITORS_ROOM;
+    Items[Television].Location := VISITORS_ROOM;
 
     ParseCommand ('CONNECT TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'O.K. THE T.V. IS CONNECTED.');
-    AssertEqual (On, Items[RECORDER].TelevisionFlag);
+    AssertEqual (On, Items[Recorder].TelevisionFlag);
 end
 
 // CONNECT the TELEVISION already done.
@@ -1459,14 +1475,14 @@ end
 test 'TELEVISION - CONNECT already done';
 begin
     Setup ();
-    Items[RECORDER].TelevisionFlag := On;
+    Items[Recorder].TelevisionFlag := On;
     Location := VISITORS_ROOM;
-    Items[TELEVISION].Location := VISITORS_ROOM;
+    Items[Television].Location := VISITORS_ROOM;
 
     ParseCommand ('CONNECT TELEVISION');
 
     AssertEqual (Display.Buffer(-1), 'I DID THAT ALREADY.');
-    AssertEqual (On, Items[RECORDER].TelevisionFlag);
+    AssertEqual (On, Items[Recorder].TelevisionFlag);
 end
 
 // CONNECT the TELEVISION can't do yet.
@@ -1474,9 +1490,9 @@ end
 test 'TELEVISION - CAN''T CONNECT';
 begin
     Setup ();
-    Items[RECORDER].TelevisionFlag := Off;
+    Items[Recorder].TelevisionFlag := Off;
     Location := CAFETERIA;
-    Items[TELEVISION].Location := CAFETERIA;
+    Items[Television].Location := CAFETERIA;
 
     ParseCommand ('CONNECT TELEVISION');
 
