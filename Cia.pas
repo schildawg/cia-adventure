@@ -14,7 +14,6 @@ type ResultType = (Handled, Failed, Passed);
 type DoorState = (Opened, Closed); 
 type ItemState = (Default, Moved, Connected, Wearing); 
 
-uses 'main/Constants';
 uses 'main/Utils';
 
 uses 'main/Rooms';
@@ -32,7 +31,7 @@ var Code : String;
 var UpdateTime : Boolean := True;
 var IsDone     : Boolean := False;
 
-var Location    : Integer := 1;
+var Location    : Identifier;
 var Floor       : Integer := 1;
 var Time        : Integer := 0;
 
@@ -47,7 +46,7 @@ var DrugCounter : Integer := -1;
 //
 var Dispatch := ['GO ': Go, 'GET': Get, 'DRO': Drop, 'OPE': Open, 'PUS': Push, 'PUL': Pull, 'LOO': Look,
     'INS': Insert, 'OPE': Open, 'WEA': Wear, 'REA': ReadVerb, 'STA': Start, 'BRE': BreakVerb, 'CUT': Cut, 
-    'THR': Throw, 'CON': Connect, 'QUI': Quit, 'BON': Bond007, 'INV': Inventory];
+    'THR': Throw, 'CON': Connect, 'QUI': Quit, 'BON': Bond007, 'INV': ShowInventory];
     
 procedure Setup ();
 begin
@@ -63,8 +62,7 @@ begin
     
     Time := 0;
     UpdateTime := True; 
-    
-    AddRooms();
+    MoveTo(BusyStreet);
 end
 
 /// Finds an item number.
@@ -74,7 +72,7 @@ begin
     for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         Item := I.Next() as Item;
-        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY) then
+        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = Inventory) then
         begin
            Exit Item.Id;
         end 
@@ -92,7 +90,7 @@ begin
     for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         Item := I.Next() as Item;
-        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = INVENTORY or Location = GLOBAL) then
+        if Item.Keyword = ToMatch and (Item.Location = Location or Item.Location = Inventory or Location = Global) then
         begin
            Exit Item;
         end 
@@ -110,6 +108,11 @@ begin
         if DirectObject = Item.Keyword then Exit True;
     end
     Exit DirectObject = 'NOR' or DirectObject = 'SOU' or DirectObject = 'EAS' or DirectObject = 'WES';
+end
+
+procedure MoveTo (Place);
+begin
+   Location := Place as Identifier;
 end
 
 /// Processes events.
@@ -138,7 +141,7 @@ begin
     begin
         WriteLn ('I HEAR A NOISE LIKE SOMEONE IS YAWNING.');
         
-        Items[AlertGuard].Location = SHORT_CORRIDOR;
+        Items[AlertGuard].Location = ShortCorridor;
         Items[SleepingGuard].Location = 0;
 
         Guns := True;
@@ -226,7 +229,7 @@ begin
         begin
             if Verb = 'LOO' then DisplayRoom();
             else if Verb = 'BON' then Bond007();
-            else if Verb = 'INV' then Inventory();
+            else if Verb = 'INV' then ShowInventory();
             else raise 'PLEASE USE 2 WORD COMMANDS SO I CAN UNDERSTAND YOU.';
 
             Exit;
@@ -236,12 +239,12 @@ begin
 
         if Not MatchDirectObject (DirectObject) then
         begin
-            raise 'I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.' + DirectObject;
+            raise 'I DON''T KNOW WHAT IT IS YOU ARE TALKING ABOUT.';
         end
 
         if (Dispatch.Contains(Verb)) then
             begin
-                Dispatch.Get (Verb) (DirectObject);
+                Dispatch[Verb](DirectObject);
             end
         else WriteLn (Verb + ' NOT SUPPORTED... YET!');
     except
@@ -269,6 +272,7 @@ begin
     WriteLn (Err);
 end
 
+type Direction = (North, South, East, West);
 
 /// Main.
 //
@@ -278,7 +282,8 @@ begin
     WriteLn('        C.I.A  ADVENTURE');
     Setup ();
 
-    DisplayRoom();  
+    DisplayRoom();
+
     Name := ReadLn('ENTER YOUR NAME PARTNER? ') as String;
     
     while Not IsDone do 

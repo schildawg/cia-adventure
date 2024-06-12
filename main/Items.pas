@@ -4,15 +4,24 @@ class Item;
 var
     Description : String;
     Keyword     : String;
-    Location    : Integer;
+    Location    : Identifier;
 
 begin
-    // constructor Init (Description : String, Keyword : String, Location : Integer);
-    // begin
-    //     this.Description := Description;
-    //     this.Keyword := Keyword;
-    //     this.Location := Location; 
-    // end
+    /// Moves item to specified place.
+    ///
+    procedure MoveTo (Place);
+    begin
+        this.Location := Place as Identifier;
+    end 
+
+    /// Removes this item, and replaces it with another.
+    ///
+    procedure Swap(I : Identifier);
+    begin
+        Items[I].MoveTo(this.Location);
+        
+        this.Location := None as Identifier;
+    end
 end
 
 
@@ -21,7 +30,7 @@ end
 object Badge (Item)     
     Description := 'A C.I.A. IDENTIFICATION BADGE';
     Keyword     := 'BAD';
-    Location    := INVENTORY;
+    Location    := Inventory;
 
     Order := 390;
 end
@@ -31,7 +40,7 @@ end
 object BatteryItem (Item)
     Description := 'A LARGE BATTERY';
     Keyword     := 'BAT';
-    Location    := 0;
+    Location    := None;
 
     Mock :=  Nil;
     Order := 30;
@@ -46,7 +55,7 @@ object BatteryItem (Item)
         begin
             WriteLn('O.K.');
             Items[Recorder].BatteryFlag := On;
-            Items[BatteryItem].Location := 0;
+            Items[BatteryItem].Location := None;
             Exit Handled;
         end
         WriteLn ('NOTHING HAPPENED.');
@@ -59,16 +68,16 @@ end
 object Building (Item)
     Description := 'A TALL OFFICE BUILDING';
     Keyword     := 'BUI';
-    Location    := BUSY_STREET;
+    Location    := BusyStreet;
 
     Fixed := True;
     Order := 330;
 
-    // GO to BUILDING should lead to LOBBY.
+    // GO to BUILDING should lead to Lobby.
     //
     function Go() : ResultType;
     begin
-        Location := LOBBY;
+        Location := Lobby;
         Exit Handled;
     end   
 end
@@ -77,8 +86,6 @@ function GetIndirectObject(Mock : Identifier) : Identifier;
 begin
     if Mock <> Nil then 
     begin 
-        WriteLn ('MOCK ' + Mock);
-
         Exit Mock as Identifier;
     end
 
@@ -99,7 +106,7 @@ end
 object MohoganyDesk (Item)
     Description := 'AN OLD MAHOGANY DESK';
     Keyword     := 'DES';
-    Location    := PRESIDENTS_OFFICE;
+    Location    := PresidentsOffice;
 
     Fixed := True;
     Order := 190;
@@ -118,7 +125,7 @@ end
 object MohoganyDrawer (Item)
     Description := 'A MAHOGANY DRAWER';
     Keyword     := 'DRA';
-    Location    := PRESIDENTS_OFFICE;
+    Location    := PresidentsOffice;
 
     Fixed := True;
     Hidden := True;
@@ -145,13 +152,13 @@ object MohoganyDrawer (Item)
     ///
     function DoBreak() : ResultType;
     begin
-        if Items[PaperWeight].Location <> INVENTORY then
+        if Items[PaperWeight].Location <> Inventory then
         begin
            WriteLn('I CAN''T DO THAT YET.');
            Exit Handled;
         end
 
-        if Location = PRESIDENTS_OFFICE then
+        if Location = PresidentsOffice then
         begin
             WriteLn ('IT''S HARD....BUT I GOT IT. TWO THINGS FELL OUT.');
             Items[BatteryItem].Location := Location;
@@ -180,7 +187,7 @@ end
 object PanelOfButtons (Item)
     Description := 'A PANEL OF BUTTONS NUMBERED ONE THRU THREE';
     Keyword     := 'PAN';
-    Location    := SMALL_ROOM;
+    Location    := SmallRoom;
 
     Fixed := True;
     Order := 360;
@@ -191,7 +198,7 @@ end
 object ButtonOne (Item)
     Description := 'ONE';
     Keyword     := 'ONE';
-    Location    := SMALL_ROOM;
+    Location    := SmallRoom;
 
     Fixed  := True;
     Hidden := True;
@@ -202,7 +209,7 @@ object ButtonOne (Item)
     begin
         if Floor <> 1 then 
         begin
-            Rooms[SMALL_ROOM].Exits.Set(0, LOBBY);
+            Rooms[SmallRoom].Exits.Put(North, Lobby);
             Elevator (1);
             Exit Handled;
         end
@@ -215,7 +222,7 @@ end
 object ButtonTwo (Item)
     Description := 'TWO';
     Keyword     := 'TWO';
-    Location    := SMALL_ROOM;
+    Location    := SmallRoom;
 
     Fixed := True;
     Hidden := True;
@@ -226,7 +233,7 @@ object ButtonTwo (Item)
     begin
         if Floor <> 2 then 
         begin
-            Rooms[SMALL_ROOM].Exits.Set(0, SMALL_HALLWAY);
+            Rooms[SmallRoom].Exits.Put(North, SmallHallway);
             Elevator (2);
             Exit Handled;
         end
@@ -239,7 +246,7 @@ end
 object ButtonThree (Item)
     Description := 'THR';
     Keyword     := 'THR';
-    Location    := SMALL_ROOM;
+    Location    := SmallRoom;
 
     Fixed := True;
     Hidden := True;
@@ -250,7 +257,7 @@ object ButtonThree (Item)
     begin
         if Floor <> 3 then 
         begin
-            Rooms[SMALL_ROOM].Exits.Set(0, SHORT_CORRIDOR);
+            Rooms[SmallRoom].Exits.Put(North, ShortCorridor);
             Elevator (3);
             Exit Handled;
         end
@@ -263,7 +270,7 @@ end
 object PaperWeight (Item)
     Description := 'AN ELABORATE PAPER WEIGHT';
     Keyword     := 'WEI';
-    Location    := PRESIDENTS_OFFICE;
+    Location    := PresidentsOffice;
     
     Order := 60;
 
@@ -281,7 +288,7 @@ end
 object Quarter (Item)   
     Description := 'A QUARTER';
     Keyword     := 'QUA';
-    Location    := 0;
+    Location    := None;
 
     Mock  := Nil;
     Order := 280;
@@ -296,7 +303,7 @@ object Quarter (Item)
         if Item = CoffeeMachine then 
         begin
             WriteLn ('POP! A CUP OF COFFEE COMES OUT OF THE MACHINE.');
-            Items[Quarter].Location := 0;
+            Items[Quarter].Location := None;
             Items[CupOfCoffee].Location := Location;
             Exit Handled;
         end
@@ -310,7 +317,7 @@ end
 object Recorder (Item)
     Description := 'A VIDEO CASSETTE RECORDER';
     Keyword     := 'REC';
-    Location    := VISITORS_ROOM;
+    Location    := VisitorsRoom;
 
     Fixed := True;
     
@@ -361,7 +368,7 @@ end
 object Sculpture (Item)
     Description := 'A LARGE SCULPTURE';
     Keyword     := 'SCU';
-    Location    := LOBBY;
+    Location    := Lobby;
 
     Fixed    := True;
     Openable := True;
@@ -373,7 +380,7 @@ object Sculpture (Item)
     //
     function Open() : ResultType;
     begin
-        if Items[Quarter].Location = 0 and Items[CreditCard].Location = 0 and Flag = On then
+        if Items[Quarter].Location = None and Items[CreditCard].Location = None and Flag = On then
         begin
             WriteLn('I OPEN THE SCULPTURE.');
             WriteLn('SOMETHING FALLS OUT.');
@@ -391,7 +398,7 @@ end
 object SlidingDoors (Item)
     Description := 'A PAIR OF SLIDING DOORS';
     Keyword     := 'DOO';
-    Location    := LOBBY;
+    Location    := Lobby;
 
     Fixed := True;
     State := Closed;
@@ -403,7 +410,7 @@ object SlidingDoors (Item)
     begin
         if State = Opened then 
         begin
-            Location := SMALL_ROOM;
+            Location := SmallRoom;
             Exit Handled;
         end
         Exit Passed;
@@ -431,7 +438,7 @@ end
 object SlidingDoorsButton (Item)
     Description := 'BUTTON NEAR SLIDING DOORS';
     Keyword     := 'BUT';
-    Location    := LOBBY;
+    Location    := Lobby;
 
     Fixed := True;
     Hidden := True;
@@ -459,7 +466,7 @@ end
 object SpiralNotebook (Item)
     Description := 'A SPIRAL NOTEBOOK';
     Keyword     := 'NOT';
-    Location    := 0;
+    Location    := None;
     
     Order := 220;
 
@@ -488,7 +495,7 @@ end
 object LockedWoodenDoor (Item)
     Description := 'A LOCKED WOODEN DOOR';
     Keyword     := 'DOO';
-    Location    := ANTE_ROOM;
+    Location    := AnteRoom;
 
     Fixed := True;
     Openable := True;
@@ -502,15 +509,14 @@ object LockedWoodenDoor (Item)
         Exit Handled;
     end 
 
-    // OPEN then DOOR if ANTIQUE KEY in INVENTORY.
+    // OPEN then DOOR if ANTIQUE KEY in Inventory.
     //
     function Open() : ResultType;
     begin
-        if Items[AntiqueKey].Location = INVENTORY then
+        if Items[AntiqueKey].Location = Inventory then
         begin
             WriteLn ('O.K. I OPENED THE DOOR.');
-            Items[LockedWoodenDoor].Location := 0;
-            Items[OpenWoodenDoor].Location := ANTE_ROOM;
+            Items[LockedWoodenDoor].Swap (OpenWoodenDoor);
             Exit Handled;
         end
         Exit Passed;
@@ -522,7 +528,7 @@ end
 object OpenWoodenDoor (Item)
     Description := 'A OPEN WOODEN DOOR';
     Keyword     := 'DOO';
-    Location    := 0;
+    Location    := None;
 
     Fixed := True;
     Order := 80;
@@ -531,7 +537,7 @@ object OpenWoodenDoor (Item)
     //
     function Go() : ResultType;
     begin
-        Location := PRESIDENTS_OFFICE;
+        Location := PresidentsOffice;
         Exit Handled;
     end   
 end
@@ -541,7 +547,7 @@ end
 object Tape (Item)     
     Description := 'A VIDEO TAPE';
     Keyword     := 'TAP';
-    Location    := 0;
+    Location    := None;
 
     Mock := Nil;
     Order := 20;
@@ -554,7 +560,7 @@ object Tape (Item)
         if Item = Recorder then 
         begin
             WriteLn ('O.K. THE TAPE IS IN THE RECORDER.');
-            Items[Tape].Location := 0;
+            Items[Tape].Location := None;
             Items[Recorder].TapeFlag := On;
             Exit Handled;
         end
@@ -568,7 +574,7 @@ end
 object Lock (Item)     
     Description := 'AN ELECTRONIC LOCK';
     Keyword     := 'LOC';
-    Location    := 0;
+    Location    := None;
 
     Fixed := True;
     Order := 50;
@@ -579,9 +585,8 @@ object Lock (Item)
         if Input = Code then
         begin
             WriteLn ('THE DOOR IS SLOWLY OPENING.');
-            Items[Lock].Location := 0;
-            Items[SolidDoor].Location := 0;
-            Items[OpenDoor].Location := 10; 
+            Items[Lock].Location := None;
+            Items[SolidDoor].Swap(OpenDoor);
             Exit Handled;
         end
         WriteLn ('YOU MUST HAVE THE WRONG COMBINATION OR YOU ARE NOT');
@@ -595,7 +600,7 @@ end
 object SolidDoor (Item)   
     Description := 'A SOLID LOOKING DOOR';
     Keyword     := 'DOO';
-    Location    := SHORT_CORRIDOR;
+    Location    := ShortCorridor;
 
     Fixed := True;
     Order := 90;
@@ -618,7 +623,7 @@ end
 object OpenDoor (Item)    
     Description := 'AN OPEN DOOR';
     Keyword     := 'DOO';
-    Location    := 0;
+    Location    := None;
 
     Fixed := True;
     Order := 100;
@@ -627,7 +632,7 @@ object OpenDoor (Item)
     //
     function Go () : ResultType;
     begin
-        Location := METAL_HALLWAY;
+        MoveTo(MetalHallway);
         Exit Handled;
     end
 end
@@ -638,7 +643,7 @@ end
 object AlertGuard (Item)  
     Description := 'AN ALERT SECURITY GUARD';
     Keyword     := 'GUA';
-    Location    := SHORT_CORRIDOR;
+    Location    := ShortCorridor;
 
     Fixed := True;
     Order := 110;
@@ -649,7 +654,7 @@ end
 object SleepingGuard (Item)   
     Description := 'A SLEEPING SECURITY GUARD';
     Keyword     := 'GUA';
-    Location    := 0;
+    Location    := None;
 
     Fixed := True;
     Order := 120;
@@ -660,18 +665,17 @@ end
 object LockedCloset (Item)    
     Description := 'A LOCKED MAINTENANCE CLOSET';
     Keyword     := 'CLO';
-    Location    := CAFETERIA;
+    Location    := Cafeteria;
 
     Fixed := True;
     Order := 130;
 
     function Open () : ResultType;
     begin
-        if Items[AntiqueKey].Location = INVENTORY then 
+        if Items[AntiqueKey].Location = Inventory then 
         begin
             WriteLn ('O.K. THE CLOSET IS OPENED.');
-            Items[LockedCloset].Location := 0;
-            Items[MaintenanceClosetItem].Location := 14;
+            Items[LockedCloset].Swap(MaintenanceClosetItem);
             Exit Handled;
         end 
         Exit Passed;       
@@ -683,14 +687,14 @@ end
 object MaintenanceClosetItem (Item)       
     Description := 'A MAINTENANCE CLOSET';
     Keyword     := 'CLO';
-    Location    := 0;
+    Location    := None;
 
     Fixed := True;
     Order := 140;
 
     function Go () : ResultType;
     begin
-        Location := MAINTENANCE_CLOSET;
+        MoveTo(MaintenanceCloset);
         Exit Handled;
     end
 end
@@ -700,7 +704,7 @@ end
 object PlasticBag (Item)    
     Description := 'A PLASTIC BAG';
     Keyword     := 'BAG';
-    Location    := MAINTENANCE_CLOSET;
+    Location    := MaintenanceCloset;
     
     Order := 150; 
     
@@ -722,14 +726,14 @@ object PlasticBag (Item)
     //
     function Cut () : ResultType;
     begin
-        if Items[RazorBlade].Location <> INVENTORY then
+        if Items[RazorBlade].Location <> Inventory then
         begin
             WriteLn ('I CAN''T DO THAT YET.');
             Exit Handled;
         end
 
         WriteLn('RIP! THE BAG GOES TO PIECES, AND SOMETHING FALLS OUT!');
-        Items[PlasticBag].Location := 0;
+        Items[PlasticBag].Location := None;
         Items[Tape].Location := Location;
         Exit Handled;       
     end
@@ -740,7 +744,7 @@ end
 object AntiqueKey (Item)     
     Description := 'AN OLDE FASHIONED KEY';
     Keyword     := 'KEY';
-    Location    := SMALL_ROOM;
+    Location    := SmallRoom;
 
     Order := 160;
 end
@@ -750,7 +754,7 @@ end
 object MetalSquare (Item) 
     Description := 'A SMALL METAL SQUARE ON THE WALL';
     Keyword     := 'SQU';
-    Location    := POWER_GENERATOR_ROOM;
+    Location    := PowerGeneratorRoom;
 
     Fixed := True;
     Order := 170;
@@ -775,7 +779,7 @@ end
 object Lever (Item)    
     Description := 'A LEVER ON THE SQUARE';
     Keyword     := 'LEV';
-    Location    := POWER_GENERATOR_ROOM;
+    Location    := PowerGeneratorRoom;
 
     Fixed := True;
     Order := 180;
@@ -806,7 +810,7 @@ end
 object Broom (Item)      
     Description := 'A BROOM';
     Keyword     := 'BRO';
-    Location    := MAINTENANCE_CLOSET;
+    Location    := MaintenanceCloset;
     
     Order := 200;
 end
@@ -816,7 +820,7 @@ end
 object Dustpan (Item)     
     Description := 'A DUSTPAN';
     Keyword     := 'DUS';
-    Location    := MAINTENANCE_CLOSET;
+    Location    := MaintenanceCloset;
 
     Order := 210;
 end
@@ -826,7 +830,7 @@ end
 object GlassCase (Item)     
     Description := 'A GLASS CASE ON A PEDESTAL';
     Keyword     := 'CAS';
-    Location    := SOUND_PROOFED_CUBICLE;
+    Location    := SoundProofedCubicle;
 
     Fixed := True;
     Order := 240;
@@ -843,14 +847,14 @@ object GlassCase (Item)
     //
     function Cut () : ResultType;
     begin
-        if Items[RazorBlade].Location <> INVENTORY then
+        if Items[RazorBlade].Location <> Inventory then
         begin
             WriteLn ('I CAN''T DO THAT YET.');
             Exit Handled;
         end
 
         WriteLn ('I CUT THE CASE AND REACH IN TO PULL SOMETHING OUT.');
-        Items[Ruby].Location := INVENTORY;
+        Items[Ruby].Location := Inventory;
         Exit Handled;
     end
 end
@@ -860,7 +864,7 @@ end
 object RazorBlade (Item)     
     Description := 'A RAZOR BLADE';
     Keyword     := 'BLA';
-    Location    := BATHROOM;
+    Location    := Bathroom;
 
     Order := 250;
 end
@@ -870,7 +874,7 @@ end
 object Ruby (Item)    
     Description := 'A VERY LARGE RUBY';
     Keyword     := 'RUB';
-    Location    := 0;
+    Location    := None;
 
     Order := 260;
 end
@@ -880,7 +884,7 @@ end
 object Sign (Item)   
     Description := 'A SIGN ON THE SQUARE';
     Keyword     := 'SIG';
-    Location    := POWER_GENERATOR_ROOM;
+    Location    := PowerGeneratorRoom;
 
     Order := 270;
 
@@ -906,7 +910,7 @@ end
 object CoffeeMachine (Item) 
     Description := 'A COFFEE MACHINE';
     Keyword     := 'MAC';
-    Location    := SMALL_HALLWAY;
+    Location    := SmallHallway;
 
     Fixed := True;
     Order := 290;
@@ -917,7 +921,7 @@ end
 object CupOfCoffee (Item)   
     Description := 'A CUP OF STEAMING HOT COFFEE';
     Keyword     := 'CUP';
-    Location    := 0;
+    Location    := None;
 
     IsDrugged := False;
     Order := 300;
@@ -928,7 +932,7 @@ object CupOfCoffee (Item)
         WriteLn ('THE COFFEE SOAKED INTO THE GROUND.');
         
         var CupOfCoffee := Items[CupOfCoffee];
-        CupOfCoffee.Location := 0;
+        CupOfCoffee.Location := None;
         CupOfCoffee.IsDrugged := False;
 
         Exit Handled;
@@ -940,17 +944,17 @@ end
 object Capsule (Item)     
     Description := 'A SMALL CAPSULE';
     Keyword     := 'CAP';
-    Location    := 0;
+    Location    := None;
     
     Order := 310;
 
     function Drop () : ResultType;
     begin
-        if Items[CupOfCoffee].Location = INVENTORY then
+        if Items[CupOfCoffee].Location = Inventory then
         begin
             WriteLn ('O.K. I DROPPED IT.');
             WriteLn ('BUT IT FELL IN THE COFFEE!');
-            Items[Capsule].Location := 0; 
+            Items[Capsule].Location := None; 
             Items[CupOfCoffee].IsDrugged := True;
             
             Exit Handled;
@@ -964,7 +968,7 @@ end
 object Button (Item)   
     Description := 'A LARGE BUTTON ON THE WALL';
     Keyword     := 'BUT';
-    Location    := CHAOS_CONTROL_ROOM;
+    Location    := ChaosControlRoom;
     
     Flag := Off;
     Order := 520;
@@ -989,7 +993,7 @@ end
 object Rope (Item)
     Description := 'A STRONG NYLON ROPE';
     Keyword     := 'ROP';
-    Location    := SUB_BASEMENT;
+    Location    := SubBasement;
 
     State := Default;
     Mock  := Nil;
@@ -999,9 +1003,9 @@ object Rope (Item)
     //
     function Go () : ResultType;
     begin
-        if State = Connected and Location = LEDGE then 
+        if State = Connected and Location = Ledge then 
         begin
-            Location := OTHER_SIDE;
+            Location := OtherSide;
             Exit Handled;
         end
         Exit Passed;
@@ -1011,7 +1015,7 @@ object Rope (Item)
     //
     function Throw () : ResultType;
     begin
-        if this.Location <> INVENTORY then
+        if this.Location <> Inventory then
         begin
            WriteLn ('I CAN''T DO THAT YET.');
            Exit Handled;
@@ -1025,7 +1029,7 @@ object Rope (Item)
             Exit Handled;
         end
 
-        if Location <> LEDGE then
+        if Location <> Ledge then
         begin
             WriteLn ('I CAN''T DO THAT YET.');
             Exit Handled;
@@ -1044,7 +1048,7 @@ end
 object Hook (Item)     
     Description := 'A LARGE HOOK WITH A ROPE HANGING FROM IT';
     Keyword     := 'HOO';
-    Location    := OTHER_SIDE;
+    Location    := OtherSide;
     
     Fixed := True;
     Order := 380;
@@ -1055,7 +1059,7 @@ end
 object Television (Item)   
     Description := 'A PORTABLE TELEVISION';
     Keyword     := 'TEL';
-    Location    := SECURITY_OFFICE;
+    Location    := SecurityOffice;
     
     Order := 400;
 
@@ -1073,7 +1077,7 @@ object Television (Item)
             Exit Handled;
         end
         
-        if Location <> VISITORS_ROOM then 
+        if Location <> VisitorsRoom then 
         begin
             WriteLn ('I CAN''T DO THAT....YET!');
             Exit Handled;
@@ -1096,7 +1100,7 @@ end
 object PedistalMonitor (Item)      
     Description := 'A BANK OF MONITORS';
     Keyword     := 'MON';
-    Location    := SECURITY_OFFICE;
+    Location    := SecurityOffice;
 
     Order := 430;
 
@@ -1118,7 +1122,7 @@ end
 object IdCard (Item)    
     Description := 'A CHAOS I.D. CARD';
     Keyword     := 'CAR';
-    Location    := END_OF_COMPLEX;
+    Location    := EndOfComplex;
 
     Order := 420;
 end
@@ -1128,7 +1132,7 @@ end
 object CreditCard (Item)     
     Description := 'A BLANK CREDIT CARD';
     Keyword     := 'CAR';
-    Location    := 0;
+    Location    := None;
     
     Mock  := Nil;
     Order := 40;
@@ -1149,7 +1153,7 @@ object CreditCard (Item)
         begin 
             WriteLn('POP! A SECTION OF THE WALL OPENS.....');
             WriteLn('REVEALING SOMETHING VERY INTERESTING.');
-            Items[CreditCard].Location := 0;
+            Items[CreditCard].Location := None;
             Items[Lock].Location := Location;
             Exit Handled;
         end
@@ -1164,7 +1168,7 @@ end
 object Monitors (Item)   
     Description := 'A BANK OF MONITORS';
     Keyword     := 'MON';
-    Location    := MONITORING_ROOM;
+    Location    := MonitoringRoom;
 
     Order := 410;
 
@@ -1181,7 +1185,7 @@ end
 object Painting (Item)     
     Description := 'A SMALL PAINTING';
     Keyword     := 'PAI';
-    Location    := LARGE_ROOM;
+    Location    := LargeRoom;
 
     State := Default;
     Order := 440;
@@ -1210,9 +1214,9 @@ end
 object Gloves (Item)      
     Description := 'A PAIR OF RUBBER GLOVES';
     Keyword     := 'GLO';
-    Location    := MAINTENANCE_CLOSET;
+    Location    := MaintenanceCloset;
     State       := Default;
-    
+
     Order := 450;
 
     // Stop wearing GLOVES if DROP.
@@ -1227,7 +1231,7 @@ object Gloves (Item)
     //
     function Wear () : ResultType;
     begin
-        if this.Location = INVENTORY then
+        if this.Location = Inventory then
         begin
             WriteLn ('O.K. IM NOW WEARING THE GLOVES.');
             Items[Gloves].State := Wearing;
@@ -1235,14 +1239,13 @@ object Gloves (Item)
         end
     end
 end
-// 48869
 
 /// A BOX WITH A BUTTON ON IT
 ///
 object Box (Item)     
     Description := 'A BOX WITH A BUTTON ON IT';
     Keyword     := 'BOX';
-    Location    := LABORATORY;
+    Location    := Laboratory;
 
     Order := 460;
 end
@@ -1252,25 +1255,26 @@ end
 object BoxButton (Item)
     Description := 'A BUTTON ON THE BOX';
     Keyword     := 'BUT';
-    Location    := GLOBAL;
+    Location    := Global;
 
     Order := 350;
 
     function Push () : ResultType;
     begin
-        if Items[Box].Location = INVENTORY then
+        if Items[Box].Location = Inventory then
         begin
             WriteLn ('I PUSH THE BUTTON ON THE BOX AND');
 
-            if Location = SOUND_PROOFED_CUBICLE OR Location = CHAOS_CONTROL_ROOM then
+            if Location = SoundProofedCubicle OR Location = ChaosControlRoom then
             begin
                 WriteLn('THERE IS A BLINDING FLASH....');
                 Pause (750);
-                Location := BUSY_STREET;
+                Location := BusyStreet;
 
                 Floor := 1;
-                Rooms[SMALL_ROOM].Exits.Set(0, LOBBY);
+                Rooms[SmallRoom].Exits.Put(North, Lobby);
                 DisplayRoom();
+
                 Exit Handled;
             end
             WriteLn('NOTHING HAPPENS!');
@@ -1285,7 +1289,7 @@ end
 object Slit (Item)    
     Description := 'SLIT NEAR DOOR';
     Keyword     := 'SLI';
-    Location    := SHORT_CORRIDOR;
+    Location    := ShortCorridor;
 
     Fixed := True;
     Hidden := True;

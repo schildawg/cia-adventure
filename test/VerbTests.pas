@@ -6,7 +6,7 @@ begin
     // Arrange
     Setup ();
     Name := 'JOEL';
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('ORDERS PLEASE');
@@ -28,13 +28,13 @@ begin
     AssertEqual (Display.Buffer(-1), 'NEIGHBORHOOD. GOOD LUCK!');
 end
 
-/// Tests INVENTORY
+/// Tests Inventory
 //
 test 'INVENTORY';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('INVENTORY');
@@ -51,14 +51,14 @@ test 'GO NORTH';
 begin
     // Arrange
     Setup ();
-    Location := LEDGE;
+    MoveTo(Ledge);
 
     // Act
     ParseCommand ('GO NORTH');
     Events ();
 
     // Assert
-    AssertEqual (SECRET_COMPLEX, Location);
+    AssertEqual (SecretComplex, Location);
 end
 
 /// Tests GO SOUTH
@@ -67,14 +67,14 @@ test 'GO SOUTH';
 begin
     // Arrange
     Setup ();
-    Location := SMALL_HALLWAY;
+    MoveTo(SmallHallway);
 
     // Act
     ParseCommand ('GO SOUTH');
     Events ();
 
     // Assert
-    AssertEqual (CAFETERIA, Location);
+    AssertEqual (Cafeteria, Location);
 end
 
 /// Tests GO EAST
@@ -83,14 +83,14 @@ test 'GO EAST';
 begin
     // Arrange
     Setup ();
-    Location := SMALL_HALLWAY;
+    MoveTo(SmallHallway);
 
     // Act
     ParseCommand ('GO EAST');
     Events ();
 
     // Assert
-    AssertEqual (SMALL_ROOM, Location);
+    AssertEqual (SmallRoom, Location);
 end
 
 /// Tests GO WEST
@@ -99,14 +99,14 @@ test 'GO WEST';
 begin
     // Arrange
     Setup ();
-    Location := SMALL_HALLWAY;
+    MoveTo(SmallHallway);
 
     // Act
     ParseCommand ('GO WEST');
     Events ();
 
     // Assert
-    AssertEqual (SECURITY_OFFICE, Location);
+    AssertEqual (SecurityOffice, Location);
 end
 
 /// Tests can't GO to non-mapped direction.
@@ -115,14 +115,14 @@ test 'GO - CAN''T GO';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('GO NORTH');
     Events ();
 
     // Assert
-    AssertEqual (BUSY_STREET, Location);
+    AssertEqual (BusyStreet, Location);
     AssertEqual (Display.Buffer(-1), 'I CAN''T GO THAT WAY AT THE MOMENT.');
 end
 
@@ -132,15 +132,15 @@ test 'GO - WALK SYNONYM';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
-    Items[Badge].Location := 0;
+    MoveTo(BusyStreet);
+    Items[Badge].MoveTo(None);
 
     // Act
     ParseCommand ('WALK BUILDING');
     Events ();
 
     // Assert
-    AssertEqual (LOBBY, Location);
+    AssertEqual (Lobby, Location);
 end
 
 
@@ -150,15 +150,15 @@ test 'GO - RUN SYNONYM';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
-    Items[Badge].Location := 0;
+    MoveTo(BusyStreet);
+    Items[Badge].MoveTo(None);
 
     // Act
     ParseCommand ('RUN BUILDING');
     Events ();
 
     // Assert
-    AssertEqual (LOBBY, Location);
+    AssertEqual (Lobby, Location);
 end
 
 
@@ -168,15 +168,15 @@ test 'GET';
 begin
     // Arrange
     Setup ();
-    Location := PRESIDENTS_OFFICE;
-    Items[PaperWeight].Location := PRESIDENTS_OFFICE;
+    MoveTo(PresidentsOffice);
+    Items[PaperWeight].MoveTo(PresidentsOffice);
 
     // Act
     ParseCommand ('GET WEIGHT');
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[PaperWeight].Location);
+    AssertEqual (Inventory, Items[PaperWeight].Location);
 end
 
 /// Tests Can't GET fixed items. 
@@ -185,7 +185,7 @@ test 'GET - FIXED';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('GET BUILDING');
@@ -193,16 +193,16 @@ begin
 
     // Assert
     AssertEqual (Display.Buffer(-1), 'I CAN''T CARRY THAT!');
-    AssertEqual (BUSY_STREET, Items[Building].Location);
+    AssertEqual (BusyStreet, Items[Building].Location);
 end
 
-/// Tests Can't GET an item already in INVENTORY. 
+/// Tests Can't GET an item already in Inventory. 
 //
 test 'GET - ALREADY HAVE';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('GET BADGE');
@@ -219,13 +219,13 @@ test 'GET - TOO MANY';
 begin
     // Arrange
     Setup ();
-    Location := MAINTENANCE_CLOSET;
+    MoveTo(MaintenanceCloset);
 
-    Items[Badge].Location := INVENTORY;
-    Items[PaperWeight].Location := INVENTORY;
-    Items[Broom].Location := INVENTORY;
-    Items[Dustpan].Location := INVENTORY;
-    Items[AntiqueKey].Location := INVENTORY;
+    Items[Badge].MoveTo(Inventory);
+    Items[PaperWeight].MoveTo(Inventory);
+    Items[Broom].MoveTo(Inventory);
+    Items[Dustpan].MoveTo(Inventory);
+    Items[AntiqueKey].MoveTo(Inventory);
 
     // Act
     ParseCommand ('GET GLOVES');
@@ -241,14 +241,14 @@ test 'GET - TAKE SYNONYM';
 begin
     // Arrange
     Setup ();
-    Location := MAINTENANCE_CLOSET;
+    MoveTo(MaintenanceCloset);
 
     // Act
     ParseCommand ('TAKE BAG');
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[PlasticBag].Location);
+    AssertEqual (Inventory, Items[PlasticBag].Location);
 end
 
 /// Tests CARRY 
@@ -257,14 +257,14 @@ test 'GET - CARRY SYNONYM';
 begin
     // Arrange
     Setup ();
-    Location := MAINTENANCE_CLOSET;
+    MoveTo(MaintenanceCloset);
 
     // Act
     ParseCommand ('CARRY BROOM');
     Events ();
 
     // Assert
-    AssertEqual (INVENTORY, Items[Broom].Location);
+    AssertEqual (Inventory, Items[Broom].Location);
 end
 
 /// Tests DROP 
@@ -273,15 +273,15 @@ test 'DROP';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
-    Items[Badge].Location := INVENTORY;
+    MoveTo(BusyStreet);
+    Items[Badge].MoveTo(Inventory);
 
     // Act
     ParseCommand ('DROP BADGE');
     Events ();
 
     // Assert
-    AssertEqual (BUSY_STREET, Items[Badge].Location);
+    AssertEqual (BusyStreet, Items[Badge].Location);
     AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
 end
 
@@ -291,15 +291,15 @@ test 'DROP - LEAVE SYNONYM';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
-    Items[Badge].Location := INVENTORY;
+    MoveTo(BusyStreet);
+    Items[Badge].MoveTo(Inventory);
 
     // Act
     ParseCommand ('LEAVE BADGE');
     Events ();
 
     // Assert
-    AssertEqual (BUSY_STREET, Items[Badge].Location);
+    AssertEqual (BusyStreet, Items[Badge].Location);
     AssertEqual (Display.Buffer(-1), 'O.K. I DROPPED IT.');
 end
 
@@ -309,7 +309,7 @@ test 'PUSH - NOTHING HAPPENS';
 begin
     // Arrange
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('PUSH BUILDING');
@@ -326,8 +326,8 @@ begin
     // Arrange
     Setup ();
 
-    Location := LOBBY;
-    Items[Badge].Location := BUSY_STREET;
+    MoveTo(Lobby);
+    Items[Badge].MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('PRESS BUTTON');
@@ -344,7 +344,7 @@ begin
     // Arrange
     Setup ();
 
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('PULL BUILDING');
@@ -361,7 +361,7 @@ begin
     // Arrange
     Setup ();
 
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     // Act
     ParseCommand ('LOOK BUILDING');
@@ -378,7 +378,7 @@ begin
     // Arrange
     Setup ();
 
-    Location := LARGE_ROOM;
+    MoveTo(LargeRoom);
 
     // Act
     ParseCommand ('EXAMINE PAINTING');
@@ -394,7 +394,7 @@ begin
     // Arrange
     Setup ();
 
-    Location := LARGE_ROOM;
+    MoveTo(LargeRoom);
 
     // Act
     ParseCommand ('INSERT PAINTING');
@@ -408,9 +408,9 @@ end
 test 'INSERT - PUT SYNONYM';
 begin
     Setup ();
-    Location := SMALL_HALLWAY;
+    MoveTo(SmallHallway);
     
-    Items[Quarter].Location := INVENTORY;
+    Items[Quarter].MoveTo(Inventory);
     Items[Quarter].Mock := CoffeeMachine;
 
     ParseCommand ('PUT QUARTER');
@@ -424,7 +424,7 @@ end
 test 'OPEN';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('OPEN BUILDING');
     Events ();
@@ -437,9 +437,9 @@ end
 test 'OPEN - UNLOCK SYNONYM';
 begin
     Setup ();
-    Location := CAFETERIA;
+    MoveTo(Cafeteria);
     
-    Items[AntiqueKey].Location := INVENTORY;
+    Items[AntiqueKey].MoveTo(Inventory);
 
     ParseCommand ('UNLOCK CLOSET');
     Events ();
@@ -452,7 +452,7 @@ end
 test 'WEAR';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('WEAR BUILDING');
     Events ();
@@ -465,7 +465,7 @@ end
 test 'READ';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('READ BUILDING');
     Events ();
@@ -478,7 +478,7 @@ end
 test 'START';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('START BUILDING');
     Events ();
@@ -491,7 +491,7 @@ end
 test 'BREAK';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('BREAK BUILDING');
     Events ();
@@ -504,7 +504,7 @@ end
 test 'CUT';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('CUT BUILDING');
     Events ();
@@ -517,7 +517,7 @@ end
 test 'THROW';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('THROW BUILDING');
     Events ();
@@ -530,7 +530,7 @@ end
 test 'CONNECT';
 begin
     Setup ();
-    Location := BUSY_STREET;
+    MoveTo(BusyStreet);
 
     ParseCommand ('CONNECT BUILDING');
     Events ();
@@ -544,8 +544,8 @@ test 'CONNECT - ATTACH SYNONYM';
 begin
     Setup ();
     Items[Recorder].TelevisionFlag := Off;
-    Location := VISITORS_ROOM;
-    Items[Television].Location := VISITORS_ROOM;
+    MoveTo(VisitorsRoom);
+    Items[Television].MoveTo(VisitorsRoom);
 
     ParseCommand ('ATTACH TELEVISION');
 
@@ -574,7 +574,7 @@ end
 test 'BOND-007';
 begin
     Setup ();
-    Location := CAFETERIA;
+    MoveTo(Cafeteria);
 
     ParseCommand ('BOND-007');
 
@@ -584,5 +584,5 @@ begin
     AssertEqual (Display.Buffer(-3), 'I CAN SEE A STRONG NYLON ROPE.');
     //AssertEqual (Display.Buffer(-2), 'WE COULD EASILY GO: EAST  ');   <-- WHY???
     AssertEqual (Display.Buffer(-1), '>--------------------------------------------------------------<');
-    AssertEqual (SUB_BASEMENT, Location);
+    AssertEqual (SubBasement, Location);
 end

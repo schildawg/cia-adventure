@@ -1,6 +1,6 @@
 // "INVENTORY" Verb.
 //
-procedure Inventory();
+procedure ShowInventory();
 var
    HasInventory : Boolean;
 
@@ -12,7 +12,7 @@ begin
     begin
         Item := I.Next() as Item;
 
-        if Item.Location = INVENTORY then
+        if Item.Location = Inventory then
         begin
             HasInventory := True;
             Write (Item.Description);
@@ -52,19 +52,20 @@ var
 
 begin    
     Room := Rooms[Location] as Room;
+
     if Direction = 'NOR' or Direction = 'SOU' or Direction = 'EAS' or Direction = 'WES' then
     begin
-        if Direction = 'NOR' and Room.Exits[NORTH] > 0 then 
-            Location := Room.Exits[NORTH] as Integer;
+        if Direction = 'NOR' and Room.Exits[North] then 
+            MoveTo (Room.Exits[North]);
         
-        else if Direction = 'SOU' and Room.Exits[SOUTH] > 0 then 
-            Location := Room.Exits[SOUTH] as Integer;
+        else if Direction = 'SOU' and Room.Exits[South] then 
+            MoveTo (Room.Exits[South]);
+
+        else if Direction = 'EAS' and Room.Exits[East] then 
+            MoveTo (Room.Exits[East]);
         
-        else if Direction = 'EAS' and Room.Exits[EAST] > 0 then 
-            Location := Room.Exits[EAST] as Integer;
-        
-        else if Direction = 'WES' and Room.Exits[WEST] > 0 then 
-            Location := Room.Exits[WEST] as Integer;      
+        else if Direction = 'WES' and Room.Exits[West] then 
+            MoveTo(Room.Exits[West]);      
         
         else 
             raise 'I CAN''T GO THAT WAY AT THE MOMENT.';
@@ -97,18 +98,18 @@ begin
         raise 'I CAN''T CARRY THAT!';    
     end
 
-    if Item.Location = INVENTORY then raise 'I ALREADY HAVE IT.';
+    if Item.Location = Inventory then raise 'I ALREADY HAVE IT.';
 
     InventoryCount := 0;
     for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
-        if Item.Location = -1 then InventoryCount := InventoryCount + 1;
+        if Item.Location = Inventory then InventoryCount := InventoryCount + 1;
     end
     if InventoryCount >= 5 then raise 'I CAN''T CARRY ANYMORE.';
     
     WriteLn ('O.K.');
-    Item.Location := INVENTORY;
+    Item.MoveTo(Inventory);
 
     if Item.GetClass().HasProperty ('Event') then
     begin
@@ -126,7 +127,7 @@ begin
     for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
-        if Item.Keyword = DirectObject and Item.Location = INVENTORY then
+        if Item.Keyword = DirectObject and Item.Location = Inventory then
         begin
             Matched := Item as Item;
             break;
@@ -155,7 +156,7 @@ begin
     for var I := Iterator(Items.Values()); I.HasNext(); Nop() do
     begin
         var Item := I.Next();
-        if Item.Keyword = DirectObject and (Item.Location = Location or Item.Location = GLOBAL) then
+        if Item.Keyword = DirectObject and (Item.Location = Location or Item.Location = Global) then
         begin
            Matched := True;
            if Item.GetClass().HasProperty('Push') and Item.Push() = Handled then Exit;
@@ -223,7 +224,6 @@ begin
     // Item <> LOCKED_WOODEN_DOOR and Item <> SOLID_DOOR and Item <> LOCKED_CLOSET and Item <> 15 and Item <> 23 and Item <> 32 and Item <> 5 then
     if Not Openable then
     begin
-        WriteLn (Item);
         raise 'I CAN''T OPEN THAT.';
     end
     WriteLn ('I CAN''T DO THAT......YET!');
@@ -318,12 +318,12 @@ end
 ///
 procedure Bond007();
 begin
-    if Location = CAFETERIA then
+    if Location = Cafeteria then
     begin
        WriteLn ('WHOOPS! A TRAP DOOR OPENED UNDERNEATH ME AND');
        WriteLn ('I FIND MYSELF FALLING.');
        Pause (800);
-       Location := SUB_BASEMENT;
+       MoveTo(SubBasement);
        DisplayRoom();
        Exit;
     end
